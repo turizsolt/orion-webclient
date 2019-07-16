@@ -2,15 +2,21 @@ import React from 'react';
 import './App.css';
 // import {Rester} from "./components/Rester";
 import {Test} from "./components/Test";
-import {createStore} from "redux";
+import {applyMiddleware, createStore} from "redux";
 import reducer from "./store/reducer";
+import createSagaMiddleware from 'redux-saga';
+import {commandSaga} from "./store/sagas";
+import { composeWithDevTools } from 'redux-devtools-extension';
 
 declare var window: any;
 
+const sagaMiddleware = createSagaMiddleware();
 const store = createStore(
     reducer,
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+    composeWithDevTools(applyMiddleware(sagaMiddleware)),
 );
+sagaMiddleware.run(commandSaga);
+
 
 const App: React.FC = () => {
   return (
