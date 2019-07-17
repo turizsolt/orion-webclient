@@ -3,7 +3,6 @@ import { all, call, fork, put, select, takeEvery } from 'redux-saga/effects';
 import {ActionTypes, SetCommandAction} from './actions';
 
 function* handleSetCommand(action:SetCommandAction) {
-    console.log('sagged it');
     yield call(console.log, 'sagged: ', action);
     /*
     try {
