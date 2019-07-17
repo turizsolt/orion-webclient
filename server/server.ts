@@ -1,5 +1,6 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
+import * as fs from 'fs';
 const app = express();
 const port = 3000;
 
@@ -18,12 +19,25 @@ interface Todo {
     doneAt: Date;
 }
 
-const todos:Todo[] = [];
+let todos:Todo[] = [];
+
+function save() {
+    fs.writeFileSync('todos', JSON.stringify(todos));
+}
+
+function load() {
+    if(fs.existsSync('todos')) {
+        todos = JSON.parse(fs.readFileSync('todos', 'utf8'));
+    }
+}
+
+load();
 
 app.post('/todo', (req, res) => {
     const todo:Todo = req.body as Todo;
     todos.push(todo);
     res.send(todo);
+    save();
 });
 
 app.get('/todo', (req, res) => {
@@ -40,6 +54,7 @@ app.put('/todo', (req, res) => {
     } else {
         res.send([]);
     }
+    save();
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
