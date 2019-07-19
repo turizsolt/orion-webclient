@@ -35,6 +35,7 @@ load();
 
 app.post('/todo', (req, res) => {
     const todo:Todo = req.body as Todo;
+    todo.id = Math.floor(Math.random()*9000000+1000000).toString();
     todos.push(todo);
     res.send(todo);
     save();
@@ -42,6 +43,10 @@ app.post('/todo', (req, res) => {
 
 app.get('/todo', (req, res) => {
     res.send(todos);
+});
+
+app.get('/todo/:id', (req, res) => {
+    res.send(todos.find(x => x.id == req.params.id));
 });
 
 app.put('/todo', (req, res) => {

@@ -5,10 +5,8 @@ import {CommandLine} from "./CommandLine";
 import {AppState} from "../../App";
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, AppState> = (state) => {
-    const { command } = state.command;
-
     return ({
-        command
+        ...state.command
     });
 };
 

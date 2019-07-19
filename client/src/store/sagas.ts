@@ -4,7 +4,8 @@ import {ActionTypes, SetCommandAction} from './actions';
 import {CommandInterpreter} from "../logic/CommandInterpreter/CommandInterpreter";
 
 function* handleSetCommand(action:SetCommandAction) {
-    yield call(CommandInterpreter.interpret, action.payload.command);
+    const result = yield call(CommandInterpreter.interpret, action.payload.command);
+    if(result) yield put(result());
     /*
     try {
         const response = yield call<(fromtype) => Promise<{totype}>>(api, params);
