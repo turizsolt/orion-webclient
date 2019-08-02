@@ -1,5 +1,6 @@
 import * as React from "react";
 import {Props} from "./interfaces";
+import {TodoPreview} from "../TodoPreview";
 
 export const CommandLine: React.FC<Props> = (props) => {
 
@@ -36,10 +37,9 @@ export const CommandLine: React.FC<Props> = (props) => {
                 <div>{todo.doneAt}</div>
             </div> }
             <hr />
-            { todos.map(elem => (
-                <div>{elem.id} + {elem.title} + {elem.doneAt}</div>
+            { todos.map((elem, index) => (
+                <TodoPreview todo={elem} key={index} onExecCommand={onExecCommand} />
             ))}
         </div>
-
     );
 };
