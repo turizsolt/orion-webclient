@@ -1,11 +1,14 @@
 import axios from 'axios';
 import {Todo} from "../store/model";
 
+const port = 8128;
+const baseUrl = `http://localhost:${port}`;
+
 export class TodoAPI {
     static add = async (todo: any) => {
         const response = await axios.request({
             method: 'POST',
-            url: 'http://localhost:3000/todo',
+            url: `${baseUrl}/todo`,
             data: todo,
         });
 
@@ -15,7 +18,7 @@ export class TodoAPI {
     static get = async (id: string) => {
         const response = await axios.request({
             method: 'GET',
-            url: 'http://localhost:3000/todo/'+id,
+            url: `${baseUrl}/todo/${id}`,
         });
 
         return response.data as Todo;
@@ -24,7 +27,7 @@ export class TodoAPI {
     static list = async () => {
         const response = await axios.request({
             method: 'GET',
-            url: 'http://localhost:3000/todo/',
+            url: `${baseUrl}/todo`,
         });
 
         return response.data as Todo[];
@@ -33,7 +36,7 @@ export class TodoAPI {
     static done = async (id: string) => {
         const response = await axios.request({
             method: 'PUT',
-            url: 'http://localhost:3000/todo/',
+            url: `${baseUrl}/todo`,
             data: {
                 id,
                 doneAt: new Date(),
