@@ -29,6 +29,7 @@ export const CommandLine: React.FC<Props> = (props) => {
     return (
         <div style={{ margin: '20px' }}>
             <input onKeyUp={handleChange} />
+            <button onClick={onExecCommand.bind(null, 'list')}>list</button>
             <div>{command}</div>
             <hr />
             {todo && <div>
