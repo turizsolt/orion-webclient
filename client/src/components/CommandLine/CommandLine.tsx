@@ -4,7 +4,7 @@ import {TodoPreview} from "../TodoPreview";
 
 export const CommandLine: React.FC<Props> = (props) => {
 
-    const { command, onExecCommand, todo, todos } = props;
+    const { command, onExecCommand, todo, todos, view } = props;
 
     const handleChange = (event: any) => {
         if (event.keyCode === 13) {
@@ -32,13 +32,13 @@ export const CommandLine: React.FC<Props> = (props) => {
             <button onClick={onExecCommand.bind(null, 'list')}>list</button>
             <div>{command}</div>
             <hr />
-            {todo && <div>
-                <div>{todo.id}</div>
+            {view === 'item' && todo && <div>
+                <div>#{todo.id}</div>
                 <div>{todo.title}</div>
+                <div>#{todo.epic}</div>
                 <div>{todo.doneAt}</div>
             </div> }
-            <hr />
-            { todos.map((elem, index) => (
+            {view === 'list' && todos.map((elem, index) => (
                 <TodoPreview todo={elem} key={index} onExecCommand={onExecCommand} />
             ))}
         </div>

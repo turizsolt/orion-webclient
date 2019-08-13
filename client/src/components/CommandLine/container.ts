@@ -6,7 +6,7 @@ import {AppState} from "../../App";
 
 const mapStateToProps: MapStateToProps<StateProps, OwnProps, AppState> = (state) => {
     return ({
-        ...state.command
+        ...state.command,
     });
 };
 

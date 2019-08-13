@@ -4,6 +4,7 @@ import {CommanderState} from "./model";
 
 const initialState: CommanderState = {
     command: '',
+    view: 'list',
     todo: null,
     todos: [],
 };
@@ -20,12 +21,14 @@ const reducer: Reducer<CommanderState, Actions> = (state = initialState, action)
             return {
                 ...state,
                 todo: action.payload.todo,
+                view: 'item',
             };
 
         case ActionTypes.LIST_TODO:
             return {
                 ...state,
                 todos: action.payload.todos,
+                view: 'list',
             };
 
         default:

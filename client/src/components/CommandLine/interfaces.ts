@@ -7,6 +7,7 @@ export interface StateProps {
     command: string;
     todo: Todo | null;
     todos: Todo[];
+    view: 'list' | 'item';
 }
 
 export interface DispatchProps {
