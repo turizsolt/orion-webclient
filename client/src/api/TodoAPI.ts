@@ -46,4 +46,14 @@ export class TodoAPI {
         return response.data as Todo;
     };
 
+    static addEpic = async (params: {id: string, epic: string}) => {
+        const response = await axios.request({
+            method: 'PUT',
+            url: `${baseUrl}/todo/addEpic`,
+            data: params,
+        });
+
+        return response.data as Todo;
+    };
+
 }
