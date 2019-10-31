@@ -1,26 +1,84 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {SprintView} from "./components/SprintView";
+import {Project} from "./interfaces";
+
+const json:Project[] = [
+  {
+    id: 'ORI',
+    name: 'Orion',
+    items: [
+      {
+        id: '1',
+        name: 'Token processor',
+        state: 'todo',
+        items: [
+          {
+            id: '2',
+            name: 'Define tokens',
+            state: 'done',
+          },
+          {
+            id: '3',
+            name: 'Implement',
+            state: 'doing',
+          },
+        ],
+      },
+      {
+        id: '4',
+        name: 'Sprint UI',
+        state: 'todo',
+        items: [
+          {
+            id: '5',
+            name: 'Project json',
+            state: 'done',
+            items: [
+              {
+                id: '5',
+                name: 'Project json',
+                state: 'done',
+              },
+            ],
+          },
+          {
+            id: '6',
+            name: 'Sprint bar',
+            state: 'doing',
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'JUR',
+    name: 'Jurta',
+    items: [
+      {
+        id: '7',
+        name: 'Specifikálni',
+        state: 'todo',
+      },
+      {
+        id: '8',
+        name: 'Megcsinálni',
+        state: 'todo',
+        items: [
+          {
+            id: '9',
+            name: 'Alaposabban',
+            state: 'done',
+          },
+        ],
+      },
+    ],
+  },
+];
 
 const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <SprintView projects={json} />
   );
-}
+};
 
 export default App;
