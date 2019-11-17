@@ -4,8 +4,8 @@ import {Project} from "./interfaces";
 
 const json:Project[] = [
   {
-    id: 'ORI',
-    name: 'Orion',
+    id: 'ALL',
+    name: 'Everything',
     items: [
       {
         id: '1',
@@ -48,12 +48,6 @@ const json:Project[] = [
           },
         ],
       },
-    ],
-  },
-  {
-    id: 'JUR',
-    name: 'Jurta',
-    items: [
       {
         id: '7',
         name: 'Specifikálni',

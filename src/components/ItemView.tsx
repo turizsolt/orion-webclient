@@ -24,7 +24,7 @@ export const ItemView: React.FC<Props> = (props) => {
           setDone(e.target.checked);
       },
       [],
-  )
+  );
 
   return (
       <div className={container}>
