@@ -1,4 +1,4 @@
-import React, {ChangeEvent, useCallback, useContext, useState} from 'react';
+import React, {ChangeEvent, useCallback, useContext} from 'react';
 import {style} from "typestyle";
 import {ProjectContext} from "../App";
 import {Item} from "../interfaces";
@@ -16,18 +16,16 @@ interface Props {
 }
 
 export const ItemView: React.FC<Props> = (props) => {
-  const { item } = props;
+    const { item } = props;
+    const done = item.state === 'done';
+    const { dispatch } = useContext(ProjectContext);
 
-  const [done, setDone] = useState(false);
-
-  const { dispatch } = useContext(ProjectContext);
-
-  const handleCheckChange = useCallback(
-      (e: ChangeEvent<HTMLInputElement>) => {
-          setDone(e.target.checked);
-      },
-      [],
-  );
+    const handleCheckChange = useCallback(
+          (e: ChangeEvent<HTMLInputElement>) => {
+              dispatch({type: 'SET_STATE', payload: { id: item.id, state: e.target.checked ? 'done' : 'todo' }});
+        },
+        [],
+    );
 
   const handleAddItems = useCallback(
       () => {
@@ -39,7 +37,7 @@ export const ItemView: React.FC<Props> = (props) => {
   return (
       <div className={container}>
         <div style={{ display: 'flex' }}>
-            <input type="checkbox" onChange={handleCheckChange} />
+            <input type="checkbox" onChange={handleCheckChange} checked={done} />
             <StrikeThrough through={done}>{item.name}</StrikeThrough>
             {!item.items && <div onClick={handleAddItems}>(+)</div>}
         </div>
