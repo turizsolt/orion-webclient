@@ -22,7 +22,7 @@ export const SprintView: React.FC<Props> = (props) => {
             <React.Fragment key={idx}>
               <div style={{ gridRow: 1, gridColumn: idx+1, backgroundColor: 'yellow', border: '1px solid black'}}>{project.id}</div>
               <div style={{ gridRow: 2, gridColumn: idx+1, backgroundColor: 'orange', border: '1px solid black'}}>
-                <ItemsView items={project.items} />
+                <ItemsView items={project.items} parentId={project.id} />
               </div>
             </React.Fragment>
         ))}

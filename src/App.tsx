@@ -1,77 +1,23 @@
-import React from 'react';
+import React, {Dispatch} from 'react';
 import {SprintView} from "./components/SprintView";
+import {useProjects} from "./hooks/useProjects";
 import {Project} from "./interfaces";
+import { AnyAction } from 'redux';
 
-const json:Project[] = [
-  {
-    id: 'ALL',
-    name: 'Everything',
-    items: [
-      {
-        id: '1',
-        name: 'Token processor',
-        state: 'todo',
-        items: [
-          {
-            id: '2',
-            name: 'Define tokens',
-            state: 'done',
-          },
-          {
-            id: '3',
-            name: 'Implement',
-            state: 'doing',
-          },
-        ],
-      },
-      {
-        id: '4',
-        name: 'Sprint UI',
-        state: 'todo',
-        items: [
-          {
-            id: '5',
-            name: 'Project json',
-            state: 'done',
-            items: [
-              {
-                id: '5',
-                name: 'Project json',
-                state: 'done',
-              },
-            ],
-          },
-          {
-            id: '6',
-            name: 'Sprint bar',
-            state: 'doing',
-          },
-        ],
-      },
-      {
-        id: '7',
-        name: 'Specifikálni',
-        state: 'todo',
-      },
-      {
-        id: '8',
-        name: 'Megcsinálni',
-        state: 'todo',
-        items: [
-          {
-            id: '9',
-            name: 'Alaposabban',
-            state: 'done',
-          },
-        ],
-      },
-    ],
-  },
-];
+interface ProjectContextIf {
+    projects: Project[];
+    dispatch: Dispatch<AnyAction>;
+}
+
+export const ProjectContext = React.createContext<ProjectContextIf>({projects: [], dispatch: () => null});
 
 const App: React.FC = () => {
+  const [{projects}, dispatch] = useProjects();
+
   return (
-    <SprintView projects={json} />
+      <ProjectContext.Provider value={{projects, dispatch}}>
+          <SprintView projects={projects} />
+      </ProjectContext.Provider>
   );
 };
 
