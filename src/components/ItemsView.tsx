@@ -16,8 +16,8 @@ export const ItemsView: FC<Props> = (props) => {
 
   return (
       <div className={container}>
-        {items.map((item, idx) => (
-            <ItemView key={idx} item={item} />
+        {items.map(item => (
+            <ItemView key={item.id} item={item} />
         ))}
         <ItemAdder parentId={parentId} />
       </div>
