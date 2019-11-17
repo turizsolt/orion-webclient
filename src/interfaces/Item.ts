@@ -3,4 +3,5 @@ export interface Item {
     name: string;
     state: string;
     items?: Item[];
+    description?: string;
 }
