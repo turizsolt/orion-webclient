@@ -24,7 +24,7 @@ export const ItemView: React.FC<Props> = (props) => {
           (e: ChangeEvent<HTMLInputElement>) => {
               dispatch({type: 'SET_STATE', payload: { id: item.id, state: e.target.checked ? 'done' : 'todo' }});
         },
-        [],
+        [dispatch, item],
     );
 
   const handleAddItems = useCallback(
