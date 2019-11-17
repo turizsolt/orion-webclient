@@ -39,6 +39,10 @@ const reducer: Reducer<State, AnyAction> = (state, action) => {
             projects = projects.map(proj => setState(proj, action.payload.id, action.payload.state));
             break;
 
+        case 'EDIT_NAME':
+            projects = projects.map(proj => editName(proj, action.payload.id, action.payload.name));
+            break;
+
         case 'DELETE':
             projects = deleteFrom(projects, action.payload.id);
             break;
@@ -70,6 +74,18 @@ const setState = (data: Project | Item, id:string, state: string):any => {
     } else {
         if(data.items) {
             return {...data, items: data.items.map((item) => setState(item, id, state))};
+        } else {
+            return data;
+        }
+    }
+};
+
+const editName = (data: Project | Item, id:string, name: string):any => {
+    if(data.id === id) {
+        return {...data, name};
+    } else {
+        if(data.items) {
+            return {...data, items: data.items.map((item) => editName(item, id, name))};
         } else {
             return data;
         }
