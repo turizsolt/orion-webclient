@@ -34,12 +34,20 @@ export const ItemView: React.FC<Props> = (props) => {
       [dispatch, item],
   );
 
+  const handleDelete = useCallback(
+      () => {
+          dispatch({type: 'DELETE', payload: { id: item.id }});
+      },
+      [dispatch, item],
+  );
+
   return (
       <div className={container}>
         <div style={{ display: 'flex' }}>
             <input type="checkbox" onChange={handleCheckChange} checked={done} />
             <StrikeThrough through={done}>{item.name}</StrikeThrough>
             {!item.items && <div onClick={handleAddItems}>(+)</div>}
+            <div onClick={handleDelete}>(X)</div>
         </div>
         {item.items && <div className={itemsContainer}>
             <ItemsView items={item.items} parentId={item.id} />

@@ -38,6 +38,10 @@ const reducer: Reducer<State, AnyAction> = (state, action) => {
         case 'SET_STATE':
             projects = projects.map(proj => setState(proj, action.payload.id, action.payload.state));
             break;
+
+        case 'DELETE':
+            projects = deleteFrom(projects, action.payload.id);
+            break;
     }
 
     localStorage.setItem('projects', JSON.stringify(projects));
@@ -81,5 +85,19 @@ const addItem = (data: Project | Item, id:string, newItem:Item):any => {
         } else {
             return data;
         }
+    }
+};
+
+const deleteFrom = (dataList: (Project | Item)[], id:string):any => {
+    if (dataList.findIndex(x => x.id === id) !== -1) {
+        return dataList.filter(x => x.id !== id);
+    } else {
+        return dataList.map(data => {
+            if (data.items) {
+                return {...data, items: deleteFrom(data.items, id)};
+            } else {
+                return data;
+            }
+        });
     }
 };
