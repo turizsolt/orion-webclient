@@ -5,7 +5,9 @@ import { UpdateItem } from './state/Item';
 const exampleItem = {
   fields: {
     title: 'Example item'
-  }
+  },
+  fieldsChanging: {},
+  changes: []
 };
 
 describe('store', () => {
@@ -57,6 +59,46 @@ describe('store', () => {
       ]
     };
     store.dispatch({ type: 'UPDATE_ITEM', payload: updateItem });
+
+    const state = store.getState().appReducer.itemRepository;
+
+    expect(state.items.length).toEqual(1);
+    expect(state.items[0]).toEqual({
+      ...exampleItemWithId,
+      fields: { title: 'Example item' },
+      fieldsChanging: { title: 'New title' },
+      changes: [
+        {
+          id,
+          field: 'title',
+          oldValue: 'Example item',
+          newValue: 'New title'
+        }
+      ]
+    });
+  });
+
+  it('updated item', () => {
+    const store = createStore(rootReducer);
+
+    const id = '12ef43ac';
+    const tmpId = undefined;
+    const exampleItemWithId = { id, tmpId, ...exampleItem };
+    store.dispatch({ type: 'CREATED_ITEM', payload: exampleItemWithId });
+
+    const updateItem: UpdateItem = {
+      id,
+      changes: [
+        {
+          id,
+          field: 'title',
+          oldValue: 'Example item',
+          newValue: 'New title'
+        }
+      ]
+    };
+    store.dispatch({ type: 'UPDATE_ITEM', payload: updateItem });
+    store.dispatch({ type: 'UPDATED_ITEM', payload: updateItem });
 
     const state = store.getState().appReducer.itemRepository;
 

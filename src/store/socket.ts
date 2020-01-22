@@ -11,9 +11,14 @@ try {
 
 export const socket = sock;
 
-const addItem = (item: any) => {
+const createdItem = (item: any) => {
   store.dispatch({ type: 'CREATED_ITEM', payload: item });
 };
 
-socket.on('createdItem', addItem);
-socket.on('gotItem', addItem);
+const updatedItem = (item: any) => {
+  store.dispatch({ type: 'UPDATED_ITEM', payload: item });
+};
+
+socket.on('createdItem', createdItem);
+socket.on('gotItem', createdItem);
+socket.on('updatedItem', updatedItem);

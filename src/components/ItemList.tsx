@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
+import { Item } from './Item';
 
 export const ItemList: React.FC = () => {
   const { items } = useSelector(
@@ -12,8 +13,9 @@ export const ItemList: React.FC = () => {
     dispatch({
       type: 'CREATE_ITEM',
       payload: {
-        title: 'FRG' + Math.random(),
-        children: [],
+        fields: { title: 'TTL' + Math.random() },
+        fieldsChanging: {},
+        changes: [],
         tmpId: 'TMP' + Math.random()
       }
     });
@@ -22,9 +24,7 @@ export const ItemList: React.FC = () => {
   return (
     <div>
       {items.map(item => (
-        <div key={item.id}>
-          {item.id} / {item.tmpId} / {item.fields && item.fields.title}
-        </div>
+        <Item item={item} key={item.id} />
       ))}
       <button onClick={handleAddRandom}>Add random</button>
     </div>

@@ -16,6 +16,7 @@ export interface StoredItem {
   state: StoredItemState;
   changes: ItemChange[];
   fields: any; // is it a record of any, or give more specific type?
+  fieldsChanging: any;
 }
 
 export interface UpdateItem {
