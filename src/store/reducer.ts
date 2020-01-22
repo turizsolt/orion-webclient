@@ -5,7 +5,8 @@ const initialState: AppState = {
   itemRepository: {
     items: [],
     changes: []
-  }
+  },
+  selectedItem: null
 };
 
 export const appReducer = (
@@ -13,11 +14,18 @@ export const appReducer = (
   action: AnyAction
 ): AppState => {
   switch (action.type) {
+    case 'SELECT_ITEM':
+      return {
+        ...state,
+        selectedItem: action.payload.id
+      };
+
     case 'CREATE_ITEM':
       const tmpId = 'tmp:' + Math.random();
       const item = { id: tmpId, tmpId, ...action.payload, fieldsChanging: {} };
 
       return {
+        ...state,
         itemRepository: {
           ...state.itemRepository,
           items: [...state.itemRepository.items, item]
@@ -35,7 +43,7 @@ export const appReducer = (
         items[pos] = action.payload;
       }
 
-      return { itemRepository: { ...state.itemRepository, items } };
+      return { ...state, itemRepository: { ...state.itemRepository, items } };
 
     case 'UPDATE_ITEM':
       const items2 = state.itemRepository.items;
@@ -51,7 +59,10 @@ export const appReducer = (
 
         items2[pos2].changes.push(...action.payload.changes);
 
-        return { itemRepository: { ...state.itemRepository, items: items2 } };
+        return {
+          ...state,
+          itemRepository: { ...state.itemRepository, items: items2 }
+        };
       }
 
     case 'UPDATED_ITEM':
@@ -71,7 +82,10 @@ export const appReducer = (
 
         items3[pos3].changes = z;
 
-        return { itemRepository: { ...state.itemRepository, items: items3 } };
+        return {
+          ...state,
+          itemRepository: { ...state.itemRepository, items: items3 }
+        };
       }
 
     default:

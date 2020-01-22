@@ -8,6 +8,10 @@ export const ItemList: React.FC = () => {
   const { items } = useSelector(
     (state: RootState) => state.appReducer.itemRepository
   );
+  const selectedItem = useSelector(
+    (state: RootState) => state.appReducer.selectedItem
+  );
+
   const dispatch = useDispatch();
 
   const handleAddRandom = React.useCallback(() => {
@@ -30,7 +34,7 @@ export const ItemList: React.FC = () => {
         ))}
         <button onClick={handleAddRandom}>Add random</button>
       </div>
-      <div>{items.length > 0 && <ItemEditor item={items[0]} />}</div>
+      <div>{selectedItem && <ItemEditor itemId={selectedItem} />}</div>
     </div>
   );
 };

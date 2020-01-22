@@ -1,6 +1,7 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ItemId, StoredItem } from '../store/state/Item';
+import { RootState } from '../store';
 
 interface Props {
   item: StoredItem;
@@ -8,6 +9,10 @@ interface Props {
 
 export const Item: React.FC<Props> = props => {
   const { item } = props;
+
+  const selectedItem = useSelector(
+    (state: RootState) => state.appReducer.selectedItem
+  );
 
   const dispatch = useDispatch();
 
@@ -31,9 +36,26 @@ export const Item: React.FC<Props> = props => {
     [dispatch]
   );
 
+  const handleSelect = React.useCallback(
+    (id: ItemId) => () => {
+      dispatch({
+        type: 'SELECT_ITEM',
+        payload: {
+          id
+        }
+      });
+    },
+    [dispatch]
+  );
+
   return (
     <div
-      style={{ border: '1px solid black', padding: '10px', display: 'flex' }}
+      style={{
+        border: '1px solid black',
+        padding: '10px',
+        display: 'flex',
+        backgroundColor: selectedItem === item.id ? 'aqua' : 'inherit'
+      }}
     >
       <div style={{ width: '120px' }}>{item.id || item.tmpId}</div>
       <div style={{ width: '240px' }}>
@@ -77,6 +99,7 @@ export const Item: React.FC<Props> = props => {
       >
         Update random
       </button>
+      <button onClick={handleSelect(item.id)}>Select</button>
     </div>
   );
 };
