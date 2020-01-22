@@ -37,19 +37,36 @@ export const Item: React.FC<Props> = props => {
     >
       <div style={{ width: '120px' }}>{item.id || item.tmpId}</div>
       <div style={{ width: '240px' }}>
-        {item.fieldsChanging.title || item.fields.title}
-        {!!item.fieldsChanging.title && (
-          <span
-            style={{
-              marginLeft: '10px',
-              display: 'inline-block',
-              width: '10px',
-              height: '10px',
-              borderRadius: '5px',
-              backgroundColor: 'red'
-            }}
-          />
-        )}
+        <div>
+          {!!item.fieldsChanging.title && (
+            <span
+              style={{
+                marginRight: '10px',
+                display: 'inline-block',
+                width: '10px',
+                height: '10px',
+                borderRadius: '5px',
+                backgroundColor: 'red'
+              }}
+            />
+          )}
+          <b>{item.fieldsChanging.title || item.fields.title}</b>
+        </div>
+        <div>
+          {!!item.fieldsChanging.description && (
+            <span
+              style={{
+                marginRight: '10px',
+                display: 'inline-block',
+                width: '10px',
+                height: '10px',
+                borderRadius: '5px',
+                backgroundColor: 'red'
+              }}
+            />
+          )}
+          {item.fieldsChanging.description || item.fields.description}
+        </div>
       </div>
       <button
         onClick={handleUpdateRandom(

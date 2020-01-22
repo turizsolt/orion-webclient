@@ -2,6 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { Item } from './Item';
+import { ItemEditor } from './ItemEditor';
 
 export const ItemList: React.FC = () => {
   const { items } = useSelector(
@@ -22,11 +23,14 @@ export const ItemList: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div>
-      {items.map(item => (
-        <Item item={item} key={item.id} />
-      ))}
-      <button onClick={handleAddRandom}>Add random</button>
+    <div style={{ display: 'flex', width: '100%' }}>
+      <div style={{ width: '60%' }}>
+        {items.map(item => (
+          <Item item={item} key={item.id} />
+        ))}
+        <button onClick={handleAddRandom}>Add random</button>
+      </div>
+      <div>{items.length > 0 && <ItemEditor item={items[0]} />}</div>
     </div>
   );
 };
