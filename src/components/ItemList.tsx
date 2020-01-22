@@ -14,7 +14,7 @@ export const ItemList: React.FC = () => {
       payload: {
         title: 'FRG' + Math.random(),
         children: [],
-        id: 'TMP' + Math.random()
+        tmpId: 'TMP' + Math.random()
       }
     });
   }, [dispatch]);
@@ -22,7 +22,9 @@ export const ItemList: React.FC = () => {
   return (
     <div>
       {items.map(item => (
-        <div key={item.id}>{item.id}</div>
+        <div key={item.id}>
+          {item.id} / {item.tmpId} / {item.fields && item.fields.title}
+        </div>
       ))}
       <button onClick={handleAddRandom}>Add random</button>
     </div>
