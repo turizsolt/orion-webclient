@@ -4,16 +4,17 @@ import { appReducer } from './reducer';
 import { mySagas } from './sagas';
 import openSocket from 'socket.io-client';
 
-const rootReducer = combineReducers({ appReducer });
+export const rootReducer = combineReducers({ appReducer });
 
 export type RootState = ReturnType<typeof rootReducer>;
 
-const sagaMiddleware = createSagaMiddleware();
+export const sagaMiddleware = createSagaMiddleware();
 
 export const store = createStore(rootReducer, applyMiddleware(sagaMiddleware));
 
 sagaMiddleware.run(mySagas);
 
+/*
 export const socket = openSocket('http://localhost:3000');
 
 const addItem = (item: any) => {
@@ -22,3 +23,4 @@ const addItem = (item: any) => {
 
 socket.on('createdItem', addItem);
 socket.on('gotItem', addItem);
+*/

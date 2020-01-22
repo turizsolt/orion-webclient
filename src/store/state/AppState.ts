@@ -1,5 +1,5 @@
-import { Item } from './Item';
+import { ItemRepository } from './Item';
 
 export interface AppState {
-  items: Item[];
+  itemRepository: ItemRepository;
 }
