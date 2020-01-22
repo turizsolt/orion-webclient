@@ -1,9 +1,7 @@
-import { all, call, put, select, takeEvery } from 'redux-saga/effects';
-import { RootState, socket } from '.';
-// import { apiFetchUser, apiSubmit } from '../api/api';
-// import { PreferenceState } from './state/PreferenceState';
+import { all, takeEvery } from 'redux-saga/effects';
+import { socket } from './socket';
 
-function* createItem(action: any) {
+function createItem(action: any) {
   socket.emit('createItem', action.payload);
 }
 

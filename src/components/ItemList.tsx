@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 
 export const ItemList: React.FC = () => {
-  const { items } = useSelector((state: RootState) => state.appReducer);
+  const { items } = useSelector(
+    (state: RootState) => state.appReducer.itemRepository
+  );
   const dispatch = useDispatch();
 
   const handleAddRandom = React.useCallback(() => {

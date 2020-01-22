@@ -2,7 +2,6 @@ import { applyMiddleware, combineReducers, createStore } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import { appReducer } from './reducer';
 import { mySagas } from './sagas';
-import openSocket from 'socket.io-client';
 
 export const rootReducer = combineReducers({ appReducer });
 
