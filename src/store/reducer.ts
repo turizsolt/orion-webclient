@@ -46,7 +46,7 @@ export const appReducer = (
         return state;
       } else {
         for (const change of action.payload.changes) {
-          (items2[pos2] as any)[change.field] = change.newValue;
+          (items2[pos2].fields as any)[change.field] = change.newValue;
         }
 
         return { itemRepository: { ...state.itemRepository, items: items2 } };

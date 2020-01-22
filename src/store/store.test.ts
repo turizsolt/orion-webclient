@@ -3,8 +3,9 @@ import { rootReducer } from '.';
 import { UpdateItem } from './state/Item';
 
 const exampleItem = {
-  title: 'Example item',
-  children: []
+  fields: {
+    title: 'Example item'
+  }
 };
 
 describe('store', () => {
@@ -28,7 +29,7 @@ describe('store', () => {
     const { tmpId } = store.getState().appReducer.itemRepository.items[0];
 
     const id = '12ef43ac';
-    const exampleItemWithId = { id, tmpId, exampleItem };
+    const exampleItemWithId = { id, tmpId, ...exampleItem };
     store.dispatch({ type: 'CREATED_ITEM', payload: exampleItemWithId });
     const state = store.getState().appReducer.itemRepository;
 
@@ -41,7 +42,7 @@ describe('store', () => {
 
     const id = '12ef43ac';
     const tmpId = undefined;
-    const exampleItemWithId = { id, tmpId, exampleItem };
+    const exampleItemWithId = { id, tmpId, ...exampleItem };
     store.dispatch({ type: 'CREATED_ITEM', payload: exampleItemWithId });
 
     const updateItem: UpdateItem = {
@@ -62,7 +63,7 @@ describe('store', () => {
     expect(state.items.length).toEqual(1);
     expect(state.items[0]).toEqual({
       ...exampleItemWithId,
-      title: 'New title'
+      fields: { title: 'New title' }
     });
   });
 });
