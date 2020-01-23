@@ -4,7 +4,11 @@ import { UpdateItem } from './state/Item';
 
 const exampleItem = {
   fields: {
-    title: 'Example item'
+    title: 'Example item',
+    createdAt: '2020-01-23T20:37:36.711Z',
+    deadline: '2020-01-23T20:37:36.711Z',
+    description: '',
+    state: 'todo'
   },
   fieldsChanging: {},
   changes: []
@@ -69,7 +73,7 @@ describe('store', () => {
     const createdTmpId = state.allIds[0];
     expect(state.byId[createdTmpId]).toEqual({
       ...exampleItemWithId,
-      fields: { title: 'Example item' },
+      fields: { ...exampleItem.fields, title: 'Example item' },
       fieldsChanging: { title: 'New title' },
       changes: [
         {
@@ -110,7 +114,7 @@ describe('store', () => {
     const createdTmpId = state.allIds[0];
     expect(state.byId[createdTmpId]).toEqual({
       ...exampleItemWithId,
-      fields: { title: 'New title' }
+      fields: { ...exampleItem.fields, title: 'New title' }
     });
   });
 });
