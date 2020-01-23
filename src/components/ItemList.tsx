@@ -26,6 +26,10 @@ export const ItemList: React.FC = () => {
     });
   }, [dispatch]);
 
+  React.useEffect(() => {
+    dispatch({ type: 'GET_ALL_ITEM' });
+  }, [dispatch]);
+
   return (
     <div style={{ display: 'flex', width: '100%' }}>
       <div style={{ width: '60%' }}>

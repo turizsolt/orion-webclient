@@ -15,6 +15,12 @@ const createdItem = (item: any) => {
   store.dispatch({ type: 'CREATED_ITEM', payload: item });
 };
 
+const createdAllItem = (items: any[]) => {
+  for (const item of items) {
+    store.dispatch({ type: 'CREATED_ITEM', payload: item });
+  }
+};
+
 const updatedItem = (item: any) => {
   store.dispatch({ type: 'UPDATED_ITEM', payload: item });
 };
@@ -22,3 +28,4 @@ const updatedItem = (item: any) => {
 socket.on('createdItem', createdItem);
 socket.on('gotItem', createdItem);
 socket.on('updatedItem', updatedItem);
+socket.on('gotAllItem', createdAllItem);
