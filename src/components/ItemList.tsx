@@ -18,10 +18,7 @@ export const ItemList: React.FC = () => {
     dispatch({
       type: 'CREATE_ITEM',
       payload: {
-        fields: { title: 'TTL' + Math.random() },
-        fieldsChanging: {},
-        changes: [],
-        tmpId: 'TMP' + Math.random()
+        fields: { title: 'TTL' + Math.random() }
       }
     });
   }, [dispatch]);

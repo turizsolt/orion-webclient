@@ -1,6 +1,6 @@
 import { createStore } from 'redux';
 import { rootReducer } from '.';
-import { UpdateItem } from './state/Item';
+import { UpdateItem, StoredItemState } from './state/Item';
 
 const exampleItem = {
   fields: {
@@ -8,10 +8,13 @@ const exampleItem = {
     createdAt: '2020-01-23T20:37:36.711Z',
     deadline: '2020-01-23T20:37:36.711Z',
     description: '',
-    state: 'todo'
+    state: 'todo',
+    children: [],
+    parents: []
   },
   fieldsChanging: {},
-  changes: []
+  changes: [],
+  state: StoredItemState.Creating
 };
 
 describe('store', () => {
@@ -42,7 +45,7 @@ describe('store', () => {
     const repo2 = store.getState().appReducer.itemRepository;
 
     expect(repo2.allIds.length).toEqual(1);
-    const createdTmpId = repo.allIds[0];
+    const createdTmpId = repo2.allIds[0];
     expect(repo2.byId[createdTmpId]).toEqual(exampleItemWithId);
   });
 
