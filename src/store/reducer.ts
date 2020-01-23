@@ -1,6 +1,7 @@
 import { AnyAction } from 'redux';
 import { AppState } from './state/AppState';
 import { ItemId } from './state/Item';
+import { fieldSchema } from '../FieldSchema';
 
 const initialState: AppState = {
   itemRepository: {
@@ -27,6 +28,23 @@ export const appReducer = (
     case 'CREATE_ITEM':
       const tmpId = 'tmp:' + Math.random();
       const item = { id: tmpId, tmpId, ...action.payload, fieldsChanging: {} };
+
+      // todo setting default values for fields
+      for (const field of fieldSchema) {
+        if (item.fields[field.name]) continue;
+
+        if (field.defaultValue) {
+          item.fields[field.name] = field.defaultValue();
+          continue;
+        }
+
+        if (field.type === 'enum' && field.values && field.values.length > 0) {
+          item.fields[field.name] = field.values[0];
+          continue;
+        }
+
+        item.fields[field.name] = '';
+      }
 
       return {
         ...state,

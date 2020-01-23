@@ -58,6 +58,21 @@ export const Item: React.FC<Props> = props => {
       }}
     >
       <div style={{ width: '120px' }}>{item.id || item.tmpId}</div>
+      <div style={{ width: '80px' }}>
+        {!!item.fieldsChanging.state && (
+          <span
+            style={{
+              marginRight: '5px',
+              display: 'inline-block',
+              width: '10px',
+              height: '10px',
+              borderRadius: '5px',
+              backgroundColor: 'red'
+            }}
+          />
+        )}
+        <i>{item.fieldsChanging.state || item.fields.state}</i>
+      </div>
       <div style={{ width: '240px' }}>
         <div>
           {!!item.fieldsChanging.title && (

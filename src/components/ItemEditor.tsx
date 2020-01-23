@@ -2,12 +2,12 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { StoredItem, ItemId } from '../store/state/Item';
 import { RootState } from '../store';
+import { fieldSchema } from '../FieldSchema';
+import { Field } from './Fields/Field';
 
 interface Props {
   itemId: ItemId;
 }
-
-const fieldList = ['title', 'description'];
 
 export const ItemEditor: React.FC<Props> = props => {
   const { itemId } = props;
@@ -30,7 +30,8 @@ export const ItemEditor: React.FC<Props> = props => {
   }, [byId, itemId]);
 
   const handleUpdate = React.useCallback(
-    (item: StoredItem, fieldName: string) => (event: any) => {
+    (fieldName: string) => (event: any) => {
+      if (!item) return;
       if (item.fields[fieldName] === event.target.value) return;
 
       dispatch({
@@ -49,7 +50,7 @@ export const ItemEditor: React.FC<Props> = props => {
         }
       });
     },
-    [dispatch]
+    [dispatch, item]
   );
 
   const handleClose = React.useCallback(() => {
@@ -74,15 +75,14 @@ export const ItemEditor: React.FC<Props> = props => {
         <>
           <button onClick={handleClose}>Close</button>
           <div>{item.id || item.tmpId}</div>
-          {fieldList.map(fieldName => (
-            <div key={fieldName}>
-              {fieldName}:{' '}
-              <input
-                value={fields[fieldName] ? fields[fieldName] : ''}
-                onChange={handleChange(fieldName)}
-                onBlur={handleUpdate(item, fieldName)}
-              />
-            </div>
+          {fieldSchema.map(field => (
+            <Field
+              key={field.name}
+              field={field}
+              fields={fields}
+              onChange={handleChange}
+              onBlur={handleUpdate}
+            />
           ))}
         </>
       )}
