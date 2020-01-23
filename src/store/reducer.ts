@@ -1,12 +1,15 @@
 import { AnyAction } from 'redux';
 import { AppState } from './state/AppState';
+import { ItemId } from './state/Item';
 
 const initialState: AppState = {
   itemRepository: {
-    items: [],
+    byId: {},
+    allIds: [],
     changes: []
   },
-  selectedItem: null
+  selectedId: null,
+  version: 0
 };
 
 export const appReducer = (
@@ -17,7 +20,8 @@ export const appReducer = (
     case 'SELECT_ITEM':
       return {
         ...state,
-        selectedItem: action.payload.id
+        selectedId: action.payload.id,
+        version: state.version + 1
       };
 
     case 'CREATE_ITEM':
@@ -28,65 +32,82 @@ export const appReducer = (
         ...state,
         itemRepository: {
           ...state.itemRepository,
-          items: [...state.itemRepository.items, item]
-        }
+          allIds: [...state.itemRepository.allIds, item.tmpId],
+          byId: { ...state.itemRepository.byId, [item.tmpId]: item }
+        },
+        version: state.version + 1
       };
 
     case 'CREATED_ITEM':
-      const items = state.itemRepository.items;
-      let pos = items.findIndex(
-        x => x.id === action.payload.id || x.tmpId === action.payload.tmpId
-      );
-      if (pos === -1) {
-        items.push(action.payload);
-      } else {
-        items[pos] = action.payload;
+      const itemRepo = state.itemRepository;
+      const createdItem = action.payload;
+
+      if (itemRepo.byId[createdItem.tmpId]) {
+        delete itemRepo.byId[createdItem.tmpId];
       }
 
-      return { ...state, itemRepository: { ...state.itemRepository, items } };
+      itemRepo.byId[createdItem.id] = createdItem;
+
+      let pos = itemRepo.allIds.findIndex(x => x === createdItem.tmpId);
+      if (pos !== -1) {
+        itemRepo.allIds.splice(pos, 1);
+      }
+
+      pos = itemRepo.allIds.findIndex(x => x === createdItem.id);
+      if (pos === -1) {
+        itemRepo.allIds.push(createdItem.id);
+      }
+
+      return { ...state, itemRepository: itemRepo, version: state.version + 1 };
 
     case 'UPDATE_ITEM':
-      const items2 = state.itemRepository.items;
-      let pos2 = items2.findIndex(
-        x => x.id === action.payload.id || x.tmpId === action.payload.tmpId
-      );
-      if (pos2 === -1) {
-        return state;
-      } else {
+      const itemRepo2 = state.itemRepository;
+      const updateItem = action.payload;
+
+      const u = (id: ItemId) => {
         for (const change of action.payload.changes) {
-          (items2[pos2].fieldsChanging as any)[change.field] = change.newValue;
+          itemRepo2.byId[id].fieldsChanging[change.field] = change.newValue;
         }
+        itemRepo2.byId[id].changes.push(...action.payload.changes);
+      };
 
-        items2[pos2].changes.push(...action.payload.changes);
-
-        return {
-          ...state,
-          itemRepository: { ...state.itemRepository, items: items2 }
-        };
+      if (itemRepo2.byId[updateItem.id]) {
+        u(updateItem.id);
+      } else if (itemRepo2.byId[updateItem.tmpId]) {
+        u(updateItem.tmpId);
       }
+
+      return {
+        ...state,
+        itemRepository: itemRepo2,
+        version: state.version + 1
+      };
 
     case 'UPDATED_ITEM':
-      const items3 = state.itemRepository.items;
-      let pos3 = items3.findIndex(
-        x => x.id === action.payload.id || x.tmpId === action.payload.tmpId
-      );
-      if (pos3 === -1) {
-        return state;
-      } else {
-        let z = items3[pos3].changes;
+      const itemRepo3 = state.itemRepository;
+      const updatedItem = action.payload;
+
+      const v = (id: ItemId) => {
+        let z = itemRepo3.byId[id].changes;
         for (const change of action.payload.changes) {
-          (items3[pos3].fields as any)[change.field] = change.newValue;
-          (items3[pos3].fieldsChanging as any)[change.field] = undefined;
+          itemRepo3.byId[id].fields[change.field] = change.newValue;
+          itemRepo3.byId[id].fieldsChanging[change.field] = undefined;
           z = z.filter(x => x.field !== change.field);
         }
+        itemRepo3.byId[id].changes = z;
+      };
 
-        items3[pos3].changes = z;
-
-        return {
-          ...state,
-          itemRepository: { ...state.itemRepository, items: items3 }
-        };
+      if (itemRepo3.byId[updatedItem.id]) {
+        v(updatedItem.id);
+      } else if (itemRepo3.byId[updatedItem.tmpId]) {
+        v(updatedItem.tmpId);
       }
+
+      return {
+        ...state,
+        itemRepository: itemRepo3,
+        version: state.version + 1
+      };
 
     default:
       return state;

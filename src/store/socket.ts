@@ -29,3 +29,5 @@ socket.on('createdItem', createdItem);
 socket.on('gotItem', createdItem);
 socket.on('updatedItem', updatedItem);
 socket.on('gotAllItem', createdAllItem);
+
+setTimeout(() => store.dispatch({ type: 'GET_ALL_ITEM' }), 0);

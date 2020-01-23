@@ -5,11 +5,11 @@ import { Item } from './Item';
 import { ItemEditor } from './ItemEditor';
 
 export const ItemList: React.FC = () => {
-  const { items } = useSelector(
+  const { allIds: itemIds, byId: items } = useSelector(
     (state: RootState) => state.appReducer.itemRepository
   );
-  const selectedItem = useSelector(
-    (state: RootState) => state.appReducer.selectedItem
+  const { selectedId, version } = useSelector(
+    (state: RootState) => state.appReducer
   );
 
   const dispatch = useDispatch();
@@ -26,19 +26,18 @@ export const ItemList: React.FC = () => {
     });
   }, [dispatch]);
 
-  React.useEffect(() => {
-    dispatch({ type: 'GET_ALL_ITEM' });
-  }, [dispatch]);
-
   return (
-    <div style={{ display: 'flex', width: '100%' }}>
-      <div style={{ width: '60%' }}>
-        {items.map(item => (
-          <Item item={item} key={item.id} />
-        ))}
-        <button onClick={handleAddRandom}>Add random</button>
+    <>
+      <div>version: {version}</div>
+      <div style={{ display: 'flex', width: '100%' }}>
+        <div style={{ width: '60%' }}>
+          {itemIds.map(id => (
+            <Item item={items[id]} key={id} />
+          ))}
+          <button onClick={handleAddRandom}>Add random</button>
+        </div>
+        <div>{selectedId && <ItemEditor itemId={selectedId} />}</div>
       </div>
-      <div>{selectedItem && <ItemEditor itemId={selectedItem} />}</div>
-    </div>
+    </>
   );
 };

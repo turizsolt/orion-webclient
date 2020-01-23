@@ -15,19 +15,19 @@ export const ItemEditor: React.FC<Props> = props => {
   const [item, setItem] = React.useState<StoredItem | undefined>(undefined);
   const [fields, setFields] = React.useState<any>({});
 
-  const { items } = useSelector(
+  const { byId } = useSelector(
     (state: RootState) => state.appReducer.itemRepository
   );
 
   const dispatch = useDispatch();
 
   React.useEffect(() => {
-    const foundItem = items.find(x => x.id === itemId);
+    const foundItem = byId[itemId];
     setItem(foundItem);
     if (foundItem) {
       setFields(foundItem.fields);
     }
-  }, [items, itemId]);
+  }, [byId, itemId]);
 
   const handleUpdate = React.useCallback(
     (item: StoredItem, fieldName: string) => (event: any) => {

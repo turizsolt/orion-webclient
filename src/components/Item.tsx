@@ -10,8 +10,8 @@ interface Props {
 export const Item: React.FC<Props> = props => {
   const { item } = props;
 
-  const selectedItem = useSelector(
-    (state: RootState) => state.appReducer.selectedItem
+  const selectedId = useSelector(
+    (state: RootState) => state.appReducer.selectedId
   );
 
   const dispatch = useDispatch();
@@ -54,7 +54,7 @@ export const Item: React.FC<Props> = props => {
         border: '1px solid black',
         padding: '10px',
         display: 'flex',
-        backgroundColor: selectedItem === item.id ? 'aqua' : 'inherit'
+        backgroundColor: selectedId === item.id ? 'aqua' : 'inherit'
       }}
     >
       <div style={{ width: '120px' }}>{item.id || item.tmpId}</div>

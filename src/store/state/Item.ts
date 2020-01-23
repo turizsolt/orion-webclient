@@ -6,7 +6,8 @@ export interface Item {
 }
 
 export interface ItemRepository {
-  items: StoredItem[];
+  byId: Record<ItemId, StoredItem>;
+  allIds: ItemId[];
   changes: ItemChange[];
 }
 

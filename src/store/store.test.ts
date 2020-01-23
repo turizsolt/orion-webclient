@@ -15,9 +15,10 @@ describe('store', () => {
     const store = createStore(rootReducer);
 
     store.dispatch({ type: 'CREATE_ITEM', payload: exampleItem });
-    const state = store.getState().appReducer.itemRepository;
-    expect(state.items.length).toEqual(1);
-    const { id, tmpId, ...result } = state.items[0];
+    const repo = store.getState().appReducer.itemRepository;
+    expect(repo.allIds.length).toEqual(1);
+    const createdTmpId = repo.allIds[0];
+    const { id, tmpId, ...result } = repo.byId[createdTmpId];
     expect(result).toEqual(exampleItem);
     expect(id).toBeDefined();
     expect(tmpId).toBeDefined();
@@ -28,15 +29,17 @@ describe('store', () => {
     const store = createStore(rootReducer);
 
     store.dispatch({ type: 'CREATE_ITEM', payload: exampleItem });
-    const { tmpId } = store.getState().appReducer.itemRepository.items[0];
+    const repo = store.getState().appReducer.itemRepository;
+    const tmpId = repo.allIds[0];
 
     const id = '12ef43ac';
     const exampleItemWithId = { id, tmpId, ...exampleItem };
     store.dispatch({ type: 'CREATED_ITEM', payload: exampleItemWithId });
-    const state = store.getState().appReducer.itemRepository;
+    const repo2 = store.getState().appReducer.itemRepository;
 
-    expect(state.items.length).toEqual(1);
-    expect(state.items[0]).toEqual(exampleItemWithId);
+    expect(repo2.allIds.length).toEqual(1);
+    const createdTmpId = repo.allIds[0];
+    expect(repo2.byId[createdTmpId]).toEqual(exampleItemWithId);
   });
 
   it('update item', () => {
@@ -62,8 +65,9 @@ describe('store', () => {
 
     const state = store.getState().appReducer.itemRepository;
 
-    expect(state.items.length).toEqual(1);
-    expect(state.items[0]).toEqual({
+    expect(state.allIds.length).toEqual(1);
+    const createdTmpId = state.allIds[0];
+    expect(state.byId[createdTmpId]).toEqual({
       ...exampleItemWithId,
       fields: { title: 'Example item' },
       fieldsChanging: { title: 'New title' },
@@ -102,8 +106,9 @@ describe('store', () => {
 
     const state = store.getState().appReducer.itemRepository;
 
-    expect(state.items.length).toEqual(1);
-    expect(state.items[0]).toEqual({
+    expect(state.allIds.length).toEqual(1);
+    const createdTmpId = state.allIds[0];
+    expect(state.byId[createdTmpId]).toEqual({
       ...exampleItemWithId,
       fields: { title: 'New title' }
     });
