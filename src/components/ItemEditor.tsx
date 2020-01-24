@@ -28,7 +28,7 @@ export const ItemEditor: React.FC<Props> = props => {
     const foundItem = byId[itemId];
     setItem(foundItem);
     if (foundItem) {
-      setFields(foundItem.fieldsCentral);
+      setFields({ ...foundItem.fieldsCentral, ...foundItem.fieldsLocal });
     }
   }, [byId, itemId]);
 
