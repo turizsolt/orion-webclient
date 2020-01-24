@@ -17,26 +17,6 @@ export const Item: React.FC<Props> = props => {
 
   const dispatch = useDispatch();
 
-  const handleUpdateRandom = React.useCallback(
-    (id: ItemId, oldValue: string) => () => {
-      dispatch({
-        type: 'UPDATE_ITEM',
-        payload: {
-          id,
-          changes: [
-            {
-              id,
-              field: 'title',
-              oldValue,
-              newValue: 'NEW' + Math.random()
-            }
-          ]
-        }
-      });
-    },
-    [dispatch]
-  );
-
   const handleSelect = React.useCallback(
     (id: ItemId) => () => {
       dispatch(selectItem({ id }));
@@ -101,14 +81,6 @@ export const Item: React.FC<Props> = props => {
           {item.fieldsLocal.description || item.fieldsCentral.description}
         </div>
       </div>
-      <button
-        onClick={handleUpdateRandom(
-          item.id,
-          item.fieldsCentral && item.fieldsCentral.title
-        )}
-      >
-        Update random
-      </button>
       <button onClick={handleSelect(item.id)}>Select</button>
     </div>
   );

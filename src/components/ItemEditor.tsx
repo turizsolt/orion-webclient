@@ -4,6 +4,11 @@ import { StoredItem, ItemId } from '../store/state/Item';
 import { RootState } from '../store';
 import { fieldSchema } from '../FieldSchema';
 import { Field } from './Fields/Field';
+import { updateItem } from '../store/actions';
+import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
+import { Change } from '../store/state/Change';
+
+const idGenerator = new ActualIdGenerator();
 
 interface Props {
   itemId: ItemId;
@@ -32,20 +37,17 @@ export const ItemEditor: React.FC<Props> = props => {
       if (!item) return;
       if (item.fieldsCentral[fieldName] === event.target.value) return;
 
-      dispatch({
-        type: 'UPDATE_ITEM',
-        payload: {
-          id: item.id,
-          changes: [
-            {
-              id: item.id,
-              field: fieldName,
-              oldValue: item.fieldsCentral[fieldName],
-              newValue: event.target.value
-            }
-          ]
+      const change: Change = {
+        type: 'UpdateItem',
+        id: idGenerator.generate(),
+        data: {
+          itemId: item.id,
+          field: fieldName,
+          oldValue: item.fieldsCentral[fieldName],
+          newValue: event.target.value
         }
-      });
+      };
+      dispatch(updateItem.started(change));
     },
     [dispatch, item]
   );

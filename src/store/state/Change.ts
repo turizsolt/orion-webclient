@@ -1,4 +1,4 @@
-import { Item } from './Item';
+import { Item, ItemId } from './Item';
 
 export interface Change {
   id: ChangeId;
@@ -29,14 +29,13 @@ export interface CreateItemChangeData extends ChangeData {
   item: Item;
 }
 
-/*
-export interface UpdateItemChange extends Change {
-  type: 'UpdateItem';
+export interface UpdateItemChangeData extends ChangeData {
   itemId: ItemId;
   field: string;
   oldValue: any;
   newValue: any;
 }
+/*
 
 export interface CreateRelationChange extends Change {
   type: 'CreateRelation';

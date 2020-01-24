@@ -1,6 +1,6 @@
 import openSocket from 'socket.io-client';
 import { store } from '.';
-import { createItem } from './actions';
+import { createItem, updateItem } from './actions';
 
 let sock;
 
@@ -12,12 +12,17 @@ try {
 
 export const socket = sock;
 
-const createdItemReceived = (item: any) => {
-  store.dispatch(createItem.done({ params: item, result: item }));
+const createdItemReceived = (change: any) => {
+  store.dispatch(createItem.done({ params: change, result: change }));
 };
 
 socket.on('createdItem', createdItemReceived);
 
+const updatedItemReceived = (change: any) => {
+  store.dispatch(updateItem.done({ params: change, result: change }));
+};
+
+socket.on('updatedItem', updatedItemReceived);
 /*
 
 const createdAllItem = (items: any[]) => {
@@ -26,13 +31,11 @@ const createdAllItem = (items: any[]) => {
   }
 };
 
-const updatedItem = (item: any) => {
-  store.dispatch({ type: 'UPDATED_ITEM', payload: item });
-};
+
 
 
 socket.on('gotItem', createdItem);
-socket.on('updatedItem', updatedItem);
+
 socket.on('gotAllItem', createdAllItem);
 
 setTimeout(() => store.dispatch({ type: 'GET_ALL_ITEM' }), 0);

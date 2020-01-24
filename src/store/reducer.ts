@@ -3,14 +3,15 @@ import { AppState, ItemRepository, Repository } from './state/AppState';
 import {} from './state/Item';
 import { fieldSchema } from '../FieldSchema';
 import { isType } from 'typescript-fsa';
-import { createItem, selectItem } from './actions';
+import { createItem, selectItem, updateItem } from './actions';
 import { Item, ItemId, StoredItem, StoredItemState } from './state/Item';
 import {
   StoredChangeState,
   Change,
   ChangeId,
   CreateItemChangeData,
-  StoredChange
+  StoredChange,
+  UpdateItemChangeData
 } from './state/Change';
 
 const initialState: AppState = {
@@ -75,6 +76,83 @@ export const appReducer = (
             changes: [],
             fieldsLocal: {},
             fieldsCentral: data.item.fields
+          };
+        }
+      ),
+      changes: updateInRepository(
+        state.changes,
+        changeId,
+        (oldChange: StoredChange): StoredChange => {
+          return {
+            ...(oldChange ? oldChange : change),
+            state: StoredChangeState.Done
+          };
+        }
+      ),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, updateItem.started)) {
+    const change = action.payload;
+    const data = change.data as UpdateItemChangeData;
+    const changeId = change.id;
+
+    return {
+      ...state,
+      items: updateInRepository(
+        state.items,
+        data.itemId,
+        (oldItem: StoredItem): StoredItem => {
+          return {
+            ...oldItem,
+            state: StoredItemState.Changing,
+            changes: [...oldItem.changes, changeId],
+            fieldsLocal: {
+              ...oldItem.fieldsLocal,
+              [data.field]: data.newValue
+            },
+            fieldsCentral: oldItem.fieldsCentral
+          };
+        }
+      ),
+      changes: addToRepository(state.changes, changeId, {
+        ...change,
+        state: StoredChangeState.Pending
+      }),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, updateItem.done)) {
+    const change = action.payload.result;
+    const data = change.data as UpdateItemChangeData;
+    const changeId = change.id;
+
+    return {
+      ...state,
+      items: updateInRepository(
+        state.items,
+        data.itemId,
+        (oldItem: StoredItem): StoredItem => {
+          const changes = oldItem.changes.filter(x => x !== changeId);
+          const fieldsLocal = {
+            ...oldItem.fieldsLocal
+          };
+          delete fieldsLocal[data.field];
+
+          return {
+            ...oldItem,
+            state:
+              changes.length > 0
+                ? StoredItemState.Changing
+                : StoredItemState.Stable,
+            changes,
+            fieldsLocal,
+            fieldsCentral: {
+              ...oldItem.fieldsCentral,
+              [data.field]: data.newValue
+            }
           };
         }
       ),
