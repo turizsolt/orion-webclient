@@ -8,10 +8,15 @@ export interface Repository<T, I extends string> {
 
 export type ItemRepository = Repository<StoredItem, ItemId>;
 export type ChangeRepository = Repository<StoredChange, ChangeId>;
+export type SelectedItemId = ItemId | null;
 
 export interface AppState {
   items: ItemRepository;
   changes: ChangeRepository;
-  selectedItemId: ItemId | null;
+  selectedItemId: SelectedItemId;
   version: number;
+}
+
+export interface SelectItem {
+  id: SelectedItemId;
 }

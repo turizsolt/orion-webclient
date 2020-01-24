@@ -3,7 +3,7 @@ import { AppState, ItemRepository, Repository } from './state/AppState';
 import {} from './state/Item';
 import { fieldSchema } from '../FieldSchema';
 import { isType } from 'typescript-fsa';
-import { createItem } from './actions';
+import { createItem, selectItem } from './actions';
 import { Item, ItemId, StoredItem, StoredItemState } from './state/Item';
 import {
   StoredChangeState,
@@ -30,6 +30,14 @@ export const appReducer = (
   state: AppState = initialState,
   action: AnyAction
 ): AppState => {
+  if (isType(action, selectItem)) {
+    return {
+      ...state,
+      selectedItemId: action.payload.id,
+      version: state.version + 1
+    };
+  }
+
   if (isType(action, createItem.started)) {
     const change = action.payload;
     const data = change.data as CreateItemChangeData;

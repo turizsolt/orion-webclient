@@ -2,6 +2,7 @@ import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ItemId, StoredItem } from '../store/state/Item';
 import { RootState } from '../store';
+import { selectItem } from '../store/actions';
 
 interface Props {
   item: StoredItem;
@@ -38,12 +39,7 @@ export const Item: React.FC<Props> = props => {
 
   const handleSelect = React.useCallback(
     (id: ItemId) => () => {
-      dispatch({
-        type: 'SELECT_ITEM',
-        payload: {
-          id
-        }
-      });
+      dispatch(selectItem({ id }));
     },
     [dispatch]
   );
