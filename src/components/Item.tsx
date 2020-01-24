@@ -11,13 +11,13 @@ export const Item: React.FC<Props> = props => {
   const { item } = props;
 
   const selectedId = useSelector(
-    (state: RootState) => state.appReducer.selectedId
+    (state: RootState) => state.appReducer.selectedItemId
   );
 
   const dispatch = useDispatch();
 
   const handleUpdateRandom = React.useCallback(
-    (id: ItemId, tmpId: ItemId | undefined, oldValue: string) => () => {
+    (id: ItemId, oldValue: string) => () => {
       dispatch({
         type: 'UPDATE_ITEM',
         payload: {
@@ -57,9 +57,9 @@ export const Item: React.FC<Props> = props => {
         backgroundColor: selectedId === item.id ? 'aqua' : 'inherit'
       }}
     >
-      <div style={{ width: '120px' }}>{item.id || item.tmpId}</div>
+      <div style={{ width: '120px' }}>{item.id.substring(0, 6)}</div>
       <div style={{ width: '80px' }}>
-        {!!item.fieldsChanging.state && (
+        {!!item.fieldsLocal.state && (
           <span
             style={{
               marginRight: '5px',
@@ -71,11 +71,11 @@ export const Item: React.FC<Props> = props => {
             }}
           />
         )}
-        <i>{item.fieldsChanging.state || item.fields.state}</i>
+        <i>{item.fieldsLocal.state || item.fieldsCentral.state}</i>
       </div>
       <div style={{ width: '240px' }}>
         <div>
-          {!!item.fieldsChanging.title && (
+          {!!item.fieldsLocal.title && (
             <span
               style={{
                 marginRight: '10px',
@@ -87,10 +87,10 @@ export const Item: React.FC<Props> = props => {
               }}
             />
           )}
-          <b>{item.fieldsChanging.title || item.fields.title}</b>
+          <b>{item.fieldsLocal.title || item.fieldsCentral.title}</b>
         </div>
         <div>
-          {!!item.fieldsChanging.description && (
+          {!!item.fieldsLocal.description && (
             <span
               style={{
                 marginRight: '10px',
@@ -102,14 +102,13 @@ export const Item: React.FC<Props> = props => {
               }}
             />
           )}
-          {item.fieldsChanging.description || item.fields.description}
+          {item.fieldsLocal.description || item.fieldsCentral.description}
         </div>
       </div>
       <button
         onClick={handleUpdateRandom(
           item.id,
-          item.tmpId,
-          item.fields && item.fields.title
+          item.fieldsCentral && item.fieldsCentral.title
         )}
       >
         Update random

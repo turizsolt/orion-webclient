@@ -15,9 +15,7 @@ export const ItemEditor: React.FC<Props> = props => {
   const [item, setItem] = React.useState<StoredItem | undefined>(undefined);
   const [fields, setFields] = React.useState<any>({});
 
-  const { byId } = useSelector(
-    (state: RootState) => state.appReducer.itemRepository
-  );
+  const { byId } = useSelector((state: RootState) => state.appReducer.items);
 
   const dispatch = useDispatch();
 
@@ -25,14 +23,14 @@ export const ItemEditor: React.FC<Props> = props => {
     const foundItem = byId[itemId];
     setItem(foundItem);
     if (foundItem) {
-      setFields(foundItem.fields);
+      setFields(foundItem.fieldsCentral);
     }
   }, [byId, itemId]);
 
   const handleUpdate = React.useCallback(
     (fieldName: string) => (event: any) => {
       if (!item) return;
-      if (item.fields[fieldName] === event.target.value) return;
+      if (item.fieldsCentral[fieldName] === event.target.value) return;
 
       dispatch({
         type: 'UPDATE_ITEM',
@@ -41,9 +39,8 @@ export const ItemEditor: React.FC<Props> = props => {
           changes: [
             {
               id: item.id,
-              tempId: item.tmpId,
               field: fieldName,
-              oldValue: item.fields[fieldName],
+              oldValue: item.fieldsCentral[fieldName],
               newValue: event.target.value
             }
           ]
@@ -74,7 +71,7 @@ export const ItemEditor: React.FC<Props> = props => {
       {item && (
         <>
           <button onClick={handleClose}>Close</button>
-          <div>{item.id || item.tmpId}</div>
+          <div>{item.id}</div>
           {fieldSchema.map(field => (
             <Field
               key={field.name}

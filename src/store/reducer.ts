@@ -1,20 +1,28 @@
 import { AnyAction } from 'redux';
-import { AppState } from './state/AppState';
-import {
-  ItemId,
-  StoredItem,
-  StoredItemState,
-  ItemRepository
-} from './state/Item';
+import { AppState, ItemRepository, Repository } from './state/AppState';
+import {} from './state/Item';
 import { fieldSchema } from '../FieldSchema';
+import { isType } from 'typescript-fsa';
+import { createItem } from './actions';
+import { Item, ItemId, StoredItem, StoredItemState } from './state/Item';
+import {
+  StoredChangeState,
+  Change,
+  ChangeId,
+  CreateItemChangeData,
+  StoredChange
+} from './state/Change';
 
 const initialState: AppState = {
-  itemRepository: {
+  items: {
     byId: {},
-    allIds: [],
-    changes: []
+    allIds: []
   },
-  selectedId: null,
+  changes: {
+    byId: {},
+    allIds: []
+  },
+  selectedItemId: null,
   version: 0
 };
 
@@ -22,7 +30,96 @@ export const appReducer = (
   state: AppState = initialState,
   action: AnyAction
 ): AppState => {
-  switch (action.type) {
+  if (isType(action, createItem.started)) {
+    const change = action.payload;
+    const data = change.data as CreateItemChangeData;
+    const changeId = change.id;
+
+    return {
+      ...state,
+      items: addToRepository(
+        state.items,
+        data.item.id,
+        itemToStoredItem(data.item, changeId)
+      ),
+      changes: addToRepository(state.changes, changeId, {
+        ...change,
+        state: StoredChangeState.Pending
+      }),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, createItem.done)) {
+    const change = action.payload.result;
+    const data = change.data as CreateItemChangeData;
+    const changeId = change.id;
+
+    return {
+      ...state,
+      items: updateInRepository(
+        state.items,
+        data.item.id,
+        (oldItem: StoredItem): StoredItem => {
+          return {
+            ...oldItem,
+            state: StoredItemState.Stable,
+            changes: [],
+            fieldsLocal: {},
+            fieldsCentral: data.item.fields
+          };
+        }
+      ),
+      changes: updateInRepository(
+        state.changes,
+        changeId,
+        (oldChange: StoredChange): StoredChange => {
+          return {
+            ...oldChange,
+            state: StoredChangeState.Done
+          };
+        }
+      ),
+      version: state.version + 1
+    };
+  }
+
+  return state;
+};
+
+function itemToStoredItem(item: Item, changeId: ChangeId): StoredItem {
+  return {
+    id: item.id,
+    fieldsCentral: {},
+    fieldsLocal: item.fields,
+    changes: [changeId],
+    state: StoredItemState.Creating
+  };
+}
+
+function addToRepository<I extends string, S>(
+  repo: Repository<S, I>,
+  id: I,
+  item: S
+): Repository<S, I> {
+  return {
+    allIds: [...repo.allIds, ...(repo.allIds.includes(id) ? [] : [id])],
+    byId: { ...repo.byId, [id]: item }
+  };
+}
+
+function updateInRepository<I extends string, S>(
+  repo: Repository<S, I>,
+  id: I,
+  update: (oldItem: S) => S
+): Repository<S, I> {
+  return {
+    allIds: [...repo.allIds, ...(repo.allIds.includes(id) ? [] : [id])],
+    byId: { ...repo.byId, [id]: update(repo.byId[id]) }
+  };
+}
+
+/*
     case 'SELECT_ITEM':
       return {
         ...state,
@@ -150,24 +247,7 @@ function addHierarchyFields(item: StoredItem): StoredItem {
   return item;
 }
 
-function addItemToRepository(
-  state: AppState,
-  id: ItemId,
-  item: StoredItem
-): AppState {
-  return {
-    ...state,
-    itemRepository: {
-      ...state.itemRepository,
-      allIds: [
-        ...state.itemRepository.allIds,
-        ...(state.itemRepository.allIds.includes(id) ? [] : [id])
-      ],
-      byId: { ...state.itemRepository.byId, [id]: item }
-    },
-    version: state.version + 1
-  };
-}
+
 
 /////////////////////////////
 
@@ -201,3 +281,4 @@ function addToRepo(
 
   return itemRepo;
 }
+*/

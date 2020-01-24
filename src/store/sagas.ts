@@ -1,6 +1,20 @@
-import { all, takeEvery } from 'redux-saga/effects';
 import { socket } from './socket';
+import { all, takeEvery, call } from 'redux-saga/effects';
+import { createItem } from './actions';
 
+function createItemWorker(action: any) {
+  socket.emit('createItem', action.payload);
+}
+
+function* watchCreateItem() {
+  yield takeEvery(createItem.started, createItemWorker);
+}
+
+export const mySagas = function* mySaga() {
+  yield all([watchCreateItem()]);
+};
+
+/*
 function createItem(action: any) {
   socket.emit('createItem', action.payload);
 }
@@ -28,3 +42,4 @@ const mySagaGetAllItem = function*() {
 export const mySagas = function* mySaga() {
   yield all([mySagaCreateItem(), mySagaUpdateItem(), mySagaGetAllItem()]);
 };
+*/
