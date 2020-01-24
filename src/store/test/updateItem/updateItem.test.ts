@@ -9,7 +9,8 @@ import {
   storedItemDone,
   storedItemPending,
   storedChangeUpdatePending,
-  storedChangeUpdateDone
+  storedChangeUpdateDone,
+  storedItemLoading
 } from './data';
 
 describe('store', () => {
@@ -66,6 +67,24 @@ describe('store', () => {
     expect(r.changes).toEqual({
       byId: { '1': storedChangeCreate, '2': storedChangeUpdateDone },
       allIds: ['1', '2']
+    });
+  });
+
+  it('receive update from a non-existing item', () => {
+    const store = createStore(rootReducer);
+    store.dispatch(
+      updateItem.done({ params: updateChange, result: updateChange })
+    );
+    const r = store.getState().appReducer;
+
+    expect(r.items).toEqual({
+      byId: { '1': storedItemLoading },
+      allIds: ['1']
+    });
+
+    expect(r.changes).toEqual({
+      byId: {},
+      allIds: []
     });
   });
 });

@@ -20,3 +20,7 @@ export interface AppState {
 export interface SelectItem {
   id: SelectedItemId;
 }
+
+export interface GetItem {
+  id: ItemId;
+}

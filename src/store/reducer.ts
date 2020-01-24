@@ -1,18 +1,17 @@
 import { AnyAction } from 'redux';
-import { AppState, ItemRepository, Repository } from './state/AppState';
+import { AppState, Repository } from './state/AppState';
 import {} from './state/Item';
-import { fieldSchema } from '../FieldSchema';
 import { isType } from 'typescript-fsa';
-import { createItem, selectItem, updateItem } from './actions';
+import { createItem, selectItem, updateItem, getItem } from './actions';
 import { Item, ItemId, StoredItem, StoredItemState } from './state/Item';
 import {
   StoredChangeState,
-  Change,
   ChangeId,
   CreateItemChangeData,
   StoredChange,
   UpdateItemChangeData
 } from './state/Change';
+import { store } from '.';
 
 const initialState: AppState = {
   items: {
@@ -35,6 +34,16 @@ export const appReducer = (
     return {
       ...state,
       selectedItemId: action.payload.id,
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, getItem.started)) {
+    const { id } = action.payload;
+
+    return {
+      ...state,
+      items: addToRepository(state.items, id, loadingStoredItem(id)),
       version: state.version + 1
     };
   }
@@ -129,6 +138,20 @@ export const appReducer = (
     const data = change.data as UpdateItemChangeData;
     const changeId = change.id;
 
+    if (!state.items.byId[data.itemId]) {
+      store.dispatch(getItem.started({ id: data.itemId }));
+      // todo same as in getItem.started
+      return {
+        ...state,
+        items: addToRepository(
+          state.items,
+          data.itemId,
+          loadingStoredItem(data.itemId)
+        ),
+        version: state.version + 1
+      };
+    }
+
     return {
       ...state,
       items: updateInRepository(
@@ -180,6 +203,16 @@ function itemToStoredItem(item: Item, changeId: ChangeId): StoredItem {
     fieldsLocal: item.fields,
     changes: [changeId],
     state: StoredItemState.Creating
+  };
+}
+
+function loadingStoredItem(id: ItemId): StoredItem {
+  return {
+    id,
+    fieldsCentral: {},
+    fieldsLocal: {},
+    changes: [],
+    state: StoredItemState.Loading
   };
 }
 

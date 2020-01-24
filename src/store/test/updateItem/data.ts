@@ -50,6 +50,14 @@ export const storedItemDone: StoredItem = {
   state: StoredItemState.Stable
 };
 
+export const storedItemLoading: StoredItem = {
+  id: item.id,
+  fieldsCentral: {},
+  fieldsLocal: {},
+  changes: [],
+  state: StoredItemState.Loading
+};
+
 export const storedChangeCreate: StoredChange = {
   ...change,
   state: StoredChangeState.Done

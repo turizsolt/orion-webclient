@@ -1,6 +1,6 @@
 import openSocket from 'socket.io-client';
 import { store } from '.';
-import { createItem, updateItem } from './actions';
+import { createItem, updateItem, getAllItem } from './actions';
 
 let sock;
 
@@ -23,20 +23,14 @@ const updatedItemReceived = (change: any) => {
 };
 
 socket.on('updatedItem', updatedItemReceived);
-/*
 
-const createdAllItem = (items: any[]) => {
-  for (const item of items) {
-    store.dispatch({ type: 'CREATED_ITEM', payload: item });
+const createdAllItemReceived = (changes: any[]) => {
+  for (const change of changes) {
+    store.dispatch(createItem.done({ params: change, result: change }));
   }
 };
 
+socket.on('gotItem', createdItemReceived);
+socket.on('gotAllItem', createdAllItemReceived);
 
-
-
-socket.on('gotItem', createdItem);
-
-socket.on('gotAllItem', createdAllItem);
-
-setTimeout(() => store.dispatch({ type: 'GET_ALL_ITEM' }), 0);
-*/
+setTimeout(() => store.dispatch(getAllItem.started({})), 0);
