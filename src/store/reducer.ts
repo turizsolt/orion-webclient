@@ -62,7 +62,7 @@ export const appReducer = (
         data.item.id,
         (oldItem: StoredItem): StoredItem => {
           return {
-            ...oldItem,
+            ...(oldItem ? oldItem : { id: data.item.id }),
             state: StoredItemState.Stable,
             changes: [],
             fieldsLocal: {},
@@ -75,7 +75,7 @@ export const appReducer = (
         changeId,
         (oldChange: StoredChange): StoredChange => {
           return {
-            ...oldChange,
+            ...(oldChange ? oldChange : change),
             state: StoredChangeState.Done
           };
         }

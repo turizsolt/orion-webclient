@@ -106,6 +106,58 @@ describe('store', () => {
       allIds: ['1']
     });
   });
+
+  it('just created item', () => {
+    const store = createStore(rootReducer);
+
+    const item: Item = {
+      id: '1',
+      fields: {
+        title: 'New item',
+        createdAt: '2020-01-23T20:37:36.711Z',
+        description: '',
+        state: 'todo'
+      }
+    };
+
+    const change: Change = {
+      type: 'CreateItem',
+      id: '1',
+      data: {
+        item
+      }
+    };
+
+    const storedItem: StoredItem = {
+      id: item.id,
+      fieldsCentral: item.fields,
+      fieldsLocal: {},
+      changes: [],
+      state: StoredItemState.Stable
+    };
+
+    const storedChange: StoredChange = {
+      ...change,
+      state: StoredChangeState.Done
+    };
+
+    const returnedChange: Change = {
+      ...change
+    };
+
+    store.dispatch(createItem.done({ params: change, result: returnedChange }));
+
+    const r = store.getState().appReducer;
+    expect(r.items).toEqual({
+      byId: { '1': storedItem },
+      allIds: ['1']
+    });
+
+    expect(r.changes).toEqual({
+      byId: { '1': storedChange },
+      allIds: ['1']
+    });
+  });
 });
 
 /*
