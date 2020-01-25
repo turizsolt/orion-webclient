@@ -1,12 +1,16 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { ItemId, StoredItem } from '../store/state/Item';
+import { ItemId, StoredItem, Item as ItemX } from '../store/state/Item';
 import { RootState } from '../store';
-import { selectItem } from '../store/actions';
+import { selectItem, createItem, createRelation } from '../store/actions';
+import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
+import { Change } from '../store/state/Change';
 
 interface Props {
   item: StoredItem;
 }
+
+const idGenerator = new ActualIdGenerator();
 
 export const Item: React.FC<Props> = props => {
   const { item } = props;
@@ -24,6 +28,43 @@ export const Item: React.FC<Props> = props => {
       dispatch(selectItem({ id }));
     },
     [dispatch]
+  );
+
+  const handleAddChild = React.useCallback(
+    (id: ItemId) => () => {
+      const genId = idGenerator.generate();
+
+      const itemx: ItemX = {
+        id: genId,
+        fields: {
+          title: 'New child',
+          createdAt: new Date().toISOString(),
+          description: '',
+          state: 'todo'
+        }
+      };
+
+      const change: Change = {
+        type: 'CreateItem',
+        id: idGenerator.generate(),
+        data: {
+          item: itemx
+        }
+      };
+
+      const change2: Change = {
+        type: 'CreateRelation',
+        id: idGenerator.generate(),
+        data: {
+          parentId: item.id,
+          childId: genId
+        }
+      };
+
+      dispatch(createItem.started(change));
+      dispatch(createRelation.started(change2));
+    },
+    [dispatch, item]
   );
 
   return (
@@ -92,6 +133,7 @@ export const Item: React.FC<Props> = props => {
               </div>
             </div>
             <button onClick={handleSelect(item.id)}>Select</button>
+            <button onClick={handleAddChild(item.id)}>Add child</button>
           </div>
           <div style={{ marginLeft: '40px' }}>
             {(
