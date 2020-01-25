@@ -13,12 +13,16 @@ export const ItemList: React.FC = () => {
     (state: RootState) => state.appReducer
   );
 
+  const xid = (id: string): boolean => {
+    return !items[id].fieldsLocal.parents && !items[id].fieldsCentral.parents;
+  };
+
   return (
     <>
       <div>version: {version}</div>
       <div style={{ display: 'flex', width: '100%' }}>
         <div style={{ width: '60%' }}>
-          {itemIds.map(id => (
+          {itemIds.filter(xid).map(id => (
             <ItemTsx item={items[id]} key={id} />
           ))}
           <ItemAdder />

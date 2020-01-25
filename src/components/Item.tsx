@@ -127,13 +127,31 @@ export const Item: React.FC<Props> = props => {
                 )}
                 {item.fieldsLocal.description || item.fieldsCentral.description}
               </div>
-              <div>
-                Ch: {item.fieldsLocal.children || item.fieldsCentral.children} |
-                P: {item.fieldsLocal.parents || item.fieldsCentral.parents}
-              </div>
             </div>
             <button onClick={handleSelect(item.id)}>Select</button>
             <button onClick={handleAddChild(item.id)}>Add child</button>
+            <div>
+              <div>
+                PL:{' '}
+                {[...arrify(item.fieldsLocal.parents)]
+                  .map(x => `[${x.substring(0, 6)}] `)
+                  .join()}
+                | PC:{' '}
+                {[...arrify(item.fieldsCentral.parents)]
+                  .map(x => `[${x.substring(0, 6)}] `)
+                  .join()}
+              </div>
+              <div>
+                ChL:{' '}
+                {[...arrify(item.fieldsLocal.children)]
+                  .map(x => `[${x.substring(0, 6)}] `)
+                  .join()}
+                | ChC:{' '}
+                {[...arrify(item.fieldsCentral.children)]
+                  .map(x => `[${x.substring(0, 6)}] `)
+                  .join()}
+              </div>
+            </div>
           </div>
           <div style={{ marginLeft: '40px' }}>
             {(
@@ -149,3 +167,10 @@ export const Item: React.FC<Props> = props => {
     </>
   );
 };
+
+function arrify(arr: any[] | undefined): any[] {
+  if (!arr) {
+    return [];
+  }
+  return arr;
+}
