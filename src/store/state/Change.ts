@@ -35,17 +35,8 @@ export interface UpdateItemChangeData extends ChangeData {
   oldValue: any;
   newValue: any;
 }
-/*
 
-export interface CreateRelationChange extends Change {
-  type: 'CreateRelation';
+export interface CreateRelationChangeData extends ChangeData {
   parentId: ItemId;
   childId: ItemId;
 }
-
-export interface RemoveRelationChange extends Change {
-  type: 'RemoveRelation';
-  parentId: ItemId;
-  childId: ItemId;
-}
-*/

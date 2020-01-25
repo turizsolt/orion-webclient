@@ -5,7 +5,7 @@ import { Item as ItemTsx } from './Item';
 import { ItemEditor } from './ItemEditor';
 import { Item } from '../store/state/Item';
 import { Change } from '../store/state/Change';
-import { createItem } from '../store/actions';
+import { createItem, createRelation } from '../store/actions';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 
 const idGenerator = new ActualIdGenerator();
@@ -42,6 +42,19 @@ export const ItemList: React.FC = () => {
     dispatch(createItem.started(change));
   }, [dispatch]);
 
+  const handleAddRandomChild = React.useCallback(() => {
+    const change: Change = {
+      id: idGenerator.generate(),
+      type: 'CreateRelation',
+      data: {
+        parentId: itemIds[0],
+        childId: itemIds[1]
+      }
+    };
+
+    dispatch(createRelation.started(change));
+  }, [dispatch, itemIds]);
+
   return (
     <>
       <div>version: {version}</div>
@@ -51,6 +64,7 @@ export const ItemList: React.FC = () => {
             <ItemTsx item={items[id]} key={id} />
           ))}
           <button onClick={handleAddRandom}>Add random</button>
+          <button onClick={handleAddRandomChild}>Random child</button>
         </div>
         <div>{selectedId && <ItemEditor itemId={selectedId} />}</div>
       </div>

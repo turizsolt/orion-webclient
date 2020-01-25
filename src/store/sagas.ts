@@ -1,6 +1,12 @@
 import { socket } from './socket';
 import { all, takeEvery } from 'redux-saga/effects';
-import { createItem, updateItem, getAllItem, getItem } from './actions';
+import {
+  createItem,
+  updateItem,
+  getAllItem,
+  getItem,
+  createRelation
+} from './actions';
 
 function createItemWorker(action: any) {
   socket.emit('createItem', action.payload);
@@ -8,6 +14,14 @@ function createItemWorker(action: any) {
 
 function* watchCreateItem() {
   yield takeEvery(createItem.started, createItemWorker);
+}
+
+function createRelationWorker(action: any) {
+  socket.emit('createRelation', action.payload);
+}
+
+function* watchCreateRelation() {
+  yield takeEvery(createRelation.started, createRelationWorker);
 }
 
 function updateItemWorker(action: any) {
@@ -37,6 +51,7 @@ const watchGetItem = function*() {
 export const mySagas = function* mySaga() {
   yield all([
     watchCreateItem(),
+    watchCreateRelation(),
     watchUpdateItem(),
     watchGetAllItem(),
     watchGetItem()
