@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ItemId, StoredItem, Item as ItemX } from '../store/state/Item';
 import { RootState } from '../store';
 import { selectItem, createItem, createRelation } from '../store/actions';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Change } from '../store/state/Change';
+import { ItemTitle } from './ItemTitle';
 
 interface Props {
   item: StoredItem;
@@ -14,6 +15,8 @@ const idGenerator = new ActualIdGenerator();
 
 export const Item: React.FC<Props> = props => {
   const { item } = props;
+
+  const [open, setOpen] = useState(true);
 
   const selectedId = useSelector(
     (state: RootState) => state.appReducer.selectedItemId
@@ -31,13 +34,13 @@ export const Item: React.FC<Props> = props => {
   );
 
   const handleAddChild = React.useCallback(
-    (id: ItemId) => () => {
+    (id: ItemId) => (event: any) => {
       const genId = idGenerator.generate();
 
       const itemx: ItemX = {
         id: genId,
         fields: {
-          title: 'New child',
+          title: '',
           createdAt: new Date().toISOString(),
           description: '',
           state: 'todo'
@@ -63,9 +66,24 @@ export const Item: React.FC<Props> = props => {
 
       dispatch(createItem.started(change));
       dispatch(createRelation.started(change2));
+      dispatch(selectItem({ id: genId }));
+      setOpen(true);
+
+      event.stopPropagation();
     },
     [dispatch, item]
   );
+
+  const handleToggleOpen = useCallback(() => {
+    setOpen(!open);
+  }, [open]);
+
+  const children = item
+    ? [
+        ...arrify(item.fieldsCentral.children),
+        ...arrify(item.fieldsLocal.children)
+      ]
+    : [];
 
   return (
     <>
@@ -73,6 +91,7 @@ export const Item: React.FC<Props> = props => {
       {item && (
         <>
           <div
+            onClick={handleSelect(item.id)}
             style={{
               border: '1px solid black',
               padding: '10px',
@@ -80,8 +99,8 @@ export const Item: React.FC<Props> = props => {
               backgroundColor: selectedId === item.id ? 'aqua' : 'inherit'
             }}
           >
-            <div style={{ width: '120px' }}>{item.id.substring(0, 6)}</div>
-            <div style={{ width: '80px' }}>
+            {/* state */}
+            <div style={{ width: '30px' }}>
               {!!item.fieldsLocal.state && (
                 <span
                   style={{
@@ -94,9 +113,16 @@ export const Item: React.FC<Props> = props => {
                   }}
                 />
               )}
-              <i>{item.fieldsLocal.state || item.fieldsCentral.state}</i>
+              <i>
+                {(item.fieldsLocal.state || item.fieldsCentral.state).substring(
+                  3,
+                  4
+                )}
+              </i>
             </div>
-            <div style={{ width: '240px' }}>
+
+            {/* title */}
+            <div style={{ width: '180px', display: 'flex' }}>
               <div>
                 {!!item.fieldsLocal.title && (
                   <span
@@ -110,58 +136,33 @@ export const Item: React.FC<Props> = props => {
                     }}
                   />
                 )}
-                <b>{item.fieldsLocal.title || item.fieldsCentral.title}</b>
               </div>
-              <div>
-                {!!item.fieldsLocal.description && (
-                  <span
-                    style={{
-                      marginRight: '10px',
-                      display: 'inline-block',
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '5px',
-                      backgroundColor: 'red'
-                    }}
-                  />
-                )}
-                {item.fieldsLocal.description || item.fieldsCentral.description}
-              </div>
+              <ItemTitle
+                item={item}
+                title={item.fieldsLocal.title || item.fieldsCentral.title}
+              />
             </div>
-            <button onClick={handleSelect(item.id)}>Select</button>
-            <button onClick={handleAddChild(item.id)}>Add child</button>
-            <div>
-              <div>
-                PL:{' '}
-                {[...arrify(item.fieldsLocal.parents)]
-                  .map(x => `[${x.substring(0, 6)}] `)
-                  .join()}
-                | PC:{' '}
-                {[...arrify(item.fieldsCentral.parents)]
-                  .map(x => `[${x.substring(0, 6)}] `)
-                  .join()}
-              </div>
-              <div>
-                ChL:{' '}
-                {[...arrify(item.fieldsLocal.children)]
-                  .map(x => `[${x.substring(0, 6)}] `)
-                  .join()}
-                | ChC:{' '}
-                {[...arrify(item.fieldsCentral.children)]
-                  .map(x => `[${x.substring(0, 6)}] `)
-                  .join()}
-              </div>
+
+            {/* add child */}
+            <button onClick={handleAddChild(item.id)}>Add&nbsp;child</button>
+
+            {/* open */}
+            {children.length > 0 && (
+              <button onClick={handleToggleOpen}>
+                {open ? 'Close' : `Open (${children.length})`}
+              </button>
+            )}
+
+            {/* id */}
+            <div style={{ width: '80px' }}>{item.id.substring(0, 6)}</div>
+          </div>
+          {open && (
+            <div style={{ marginLeft: '40px' }}>
+              {children.map((child: ItemId) => (
+                <Item key={child} item={items.byId[child]} />
+              ))}
             </div>
-          </div>
-          <div style={{ marginLeft: '40px' }}>
-            {(
-              item.fieldsLocal.children ||
-              item.fieldsCentral.children ||
-              []
-            ).map((child: ItemId) => (
-              <Item key={child} item={items.byId[child]} />
-            ))}
-          </div>
+          )}
         </>
       )}
     </>
@@ -169,8 +170,6 @@ export const Item: React.FC<Props> = props => {
 };
 
 function arrify(arr: any[] | undefined): any[] {
-  if (!arr) {
-    return [];
-  }
+  if (!arr) return [];
   return arr;
 }

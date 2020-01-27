@@ -5,7 +5,7 @@ import { createItem, updateItem, getAllItem, createRelation } from './actions';
 let sock;
 
 try {
-  sock = openSocket('http://localhost:3000');
+  sock = openSocket('http://192.168.1.144:3000');
 } catch {
   sock = { on: () => {}, emit: () => {} };
 }
