@@ -1,37 +1,31 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { Item } from './Item';
+import { Item as ItemTsx } from './Item';
 import { ItemEditor } from './ItemEditor';
+import { ItemAdder } from './ItemAdder';
 
 export const ItemList: React.FC = () => {
   const { allIds: itemIds, byId: items } = useSelector(
-    (state: RootState) => state.appReducer.itemRepository
+    (state: RootState) => state.appReducer.items
   );
-  const { selectedId, version } = useSelector(
+  const { selectedItemId: selectedId, version } = useSelector(
     (state: RootState) => state.appReducer
   );
 
-  const dispatch = useDispatch();
-
-  const handleAddRandom = React.useCallback(() => {
-    dispatch({
-      type: 'CREATE_ITEM',
-      payload: {
-        fields: { title: 'TTL' + Math.random() }
-      }
-    });
-  }, [dispatch]);
+  const xid = (id: string): boolean => {
+    return !items[id].fieldsLocal.parents && !items[id].fieldsCentral.parents;
+  };
 
   return (
     <>
       <div>version: {version}</div>
       <div style={{ display: 'flex', width: '100%' }}>
         <div style={{ width: '60%' }}>
-          {itemIds.map(id => (
-            <Item item={items[id]} key={id} />
+          {itemIds.filter(xid).map(id => (
+            <ItemTsx item={items[id]} key={id} />
           ))}
-          <button onClick={handleAddRandom}>Add random</button>
+          <ItemAdder />
         </div>
         <div>{selectedId && <ItemEditor itemId={selectedId} />}</div>
       </div>

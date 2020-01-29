@@ -1,30 +1,59 @@
-import { all, takeEvery } from 'redux-saga/effects';
 import { socket } from './socket';
+import { all, takeEvery } from 'redux-saga/effects';
+import {
+  createItem,
+  updateItem,
+  getAllItem,
+  getItem,
+  createRelation
+} from './actions';
 
-function createItem(action: any) {
+function createItemWorker(action: any) {
   socket.emit('createItem', action.payload);
 }
 
-const mySagaCreateItem = function*() {
-  yield takeEvery('CREATE_ITEM', createItem);
-};
+function* watchCreateItem() {
+  yield takeEvery(createItem.started, createItemWorker);
+}
 
-function updateItem(action: any) {
+function createRelationWorker(action: any) {
+  socket.emit('createRelation', action.payload);
+}
+
+function* watchCreateRelation() {
+  yield takeEvery(createRelation.started, createRelationWorker);
+}
+
+function updateItemWorker(action: any) {
   socket.emit('updateItem', action.payload);
 }
 
-const mySagaUpdateItem = function*() {
-  yield takeEvery('UPDATE_ITEM', updateItem);
+const watchUpdateItem = function*() {
+  yield takeEvery(updateItem.started, updateItemWorker);
 };
 
-function getAllItem(action: any) {
+function getAllItemWorker(action: any) {
   socket.emit('getAllItem', action.payload);
 }
 
-const mySagaGetAllItem = function*() {
-  yield takeEvery('GET_ALL_ITEM', getAllItem);
+const watchGetAllItem = function*() {
+  yield takeEvery(getAllItem.started, getAllItemWorker);
+};
+
+function getItemWorker(action: any) {
+  socket.emit('getItem', action.payload);
+}
+
+const watchGetItem = function*() {
+  yield takeEvery(getItem.started, getItemWorker);
 };
 
 export const mySagas = function* mySaga() {
-  yield all([mySagaCreateItem(), mySagaUpdateItem(), mySagaGetAllItem()]);
+  yield all([
+    watchCreateItem(),
+    watchCreateRelation(),
+    watchUpdateItem(),
+    watchGetAllItem(),
+    watchGetItem()
+  ]);
 };

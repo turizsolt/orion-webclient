@@ -1,48 +1,30 @@
+import { ChangeId } from './Change';
+
+export type ItemId = string;
+export type FieldId = string;
+export type ItemFields = Record<FieldId, any>;
+
 export interface Item {
   id: ItemId;
-  tmpId: ItemId;
-  title: string;
-  children: ItemId[];
-}
-
-export interface ItemRepository {
-  byId: Record<ItemId, StoredItem>;
-  allIds: ItemId[];
-  changes: ItemChange[];
+  fields: ItemFields;
 }
 
 export interface StoredItem {
   id: ItemId;
-  tmpId?: ItemId;
   state: StoredItemState;
-  changes: ItemChange[];
-  fields: any; // is it a record of any, or give more specific type?
-  fieldsChanging: any;
-}
-
-export interface UpdateItem {
-  id: ItemId;
-  changes: ItemChange[];
-}
-
-export interface ItemChange {
-  id: ItemId;
-  field: FieldId;
-  oldValue: any;
-  newValue: any;
+  changes: ChangeId[];
+  fieldsLocal: ItemFields;
+  fieldsCentral: ItemFields;
 }
 
 export enum StoredItemState {
-  'Stable' = 0,
-  'Creating' = 1,
-  'Loading' = 2,
-  'Editing' = 10,
-  'EditingConflicting' = 11,
-  'Changing' = 12,
-  'Conflicting' = 13,
-  'Deleted' = 20,
-  'SwipedOut' = 21
+  Stable = 'Stable',
+  Creating = 'Creating',
+  Loading = 'Loading',
+  Editing = 'Editing',
+  EditingConflicting = 'EditingConflicting',
+  Changing = 'Changing',
+  Conflicting = 'Conflicting',
+  Deleted = 'Deleted',
+  SwipedOut = 'SwipedOut'
 }
-
-export type ItemId = string;
-export type FieldId = string;

@@ -4,6 +4,11 @@ import { StoredItem, ItemId } from '../store/state/Item';
 import { RootState } from '../store';
 import { fieldSchema } from '../FieldSchema';
 import { Field } from './Fields/Field';
+import { updateItem } from '../store/actions';
+import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
+import { Change } from '../store/state/Change';
+
+const idGenerator = new ActualIdGenerator();
 
 interface Props {
   itemId: ItemId;
@@ -15,9 +20,7 @@ export const ItemEditor: React.FC<Props> = props => {
   const [item, setItem] = React.useState<StoredItem | undefined>(undefined);
   const [fields, setFields] = React.useState<any>({});
 
-  const { byId } = useSelector(
-    (state: RootState) => state.appReducer.itemRepository
-  );
+  const { byId } = useSelector((state: RootState) => state.appReducer.items);
 
   const dispatch = useDispatch();
 
@@ -25,30 +28,26 @@ export const ItemEditor: React.FC<Props> = props => {
     const foundItem = byId[itemId];
     setItem(foundItem);
     if (foundItem) {
-      setFields(foundItem.fields);
+      setFields({ ...foundItem.fieldsCentral, ...foundItem.fieldsLocal });
     }
   }, [byId, itemId]);
 
   const handleUpdate = React.useCallback(
     (fieldName: string) => (event: any) => {
       if (!item) return;
-      if (item.fields[fieldName] === event.target.value) return;
+      if (item.fieldsCentral[fieldName] === event.target.value) return;
 
-      dispatch({
-        type: 'UPDATE_ITEM',
-        payload: {
-          id: item.id,
-          changes: [
-            {
-              id: item.id,
-              tempId: item.tmpId,
-              field: fieldName,
-              oldValue: item.fields[fieldName],
-              newValue: event.target.value
-            }
-          ]
+      const change: Change = {
+        type: 'UpdateItem',
+        id: idGenerator.generate(),
+        data: {
+          itemId: item.id,
+          field: fieldName,
+          oldValue: item.fieldsCentral[fieldName],
+          newValue: event.target.value
         }
-      });
+      };
+      dispatch(updateItem.started(change));
     },
     [dispatch, item]
   );
@@ -74,7 +73,7 @@ export const ItemEditor: React.FC<Props> = props => {
       {item && (
         <>
           <button onClick={handleClose}>Close</button>
-          <div>{item.id || item.tmpId}</div>
+          <div>{item.id}</div>
           {fieldSchema.map(field => (
             <Field
               key={field.name}
