@@ -25,6 +25,158 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+
+    <style>
+    body {
+    background-color: cadetblue;
+    font-family: sans-serif;
+    font-size: 14px;
+}
+
+.task {
+    background-color: #87b6b8;
+
+    border-radius: 1em;
+    margin: 10px;
+}    
+
+.parent {
+    margin-top: 25px;
+}
+
+.child {
+    
+    margin-top: 7px;
+}
+
+.grandchild {
+    
+    margin-top: 2px;
+}
+
+.addnew {
+    background-color: rgb(56, 109, 109);
+    margin-top: 25px;
+    border-radius: 1em;
+    padding-left: 12px;
+    padding-top: 4px;
+    padding-bottom: 2px;
+    padding-right: 5px;
+}
+
+.opener {
+    cursor: pointer;
+    background-color: rgb(188, 210, 211);
+    border-top-left-radius: 1em;
+    border-bottom-left-radius: 1em;
+    padding-left: 12px;
+    padding-top: 4px;
+    padding-bottom: 2px;
+    padding-right: 5px;
+}
+
+.doneness {
+    background-color: rgb(188, 210, 211);
+    padding-left: 5px;
+    padding-top: 4px;
+    padding-bottom: 2px;
+    padding-right: 5px;
+}
+
+.name {
+    background-color: rgb(188, 210, 211);
+
+    padding-left: 6px;
+    padding-top: 4px;
+    padding-bottom: 2px;
+    padding-right: 5px;
+    flex-grow: 1;
+}
+
+.deadline {
+    background-color: rgb(188, 210, 211);
+    padding-left: 6px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 6px;
+    color: #947473;
+}
+
+.responsible {
+    background-color: #b3b3b3;
+    width: 12px;
+    padding-left: 6px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 6px;
+    color: #a25d5d;
+
+}
+
+.select {
+    background-color: #947473;
+    padding-left: 6px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 6px;
+}
+
+.addChild {
+    background-color: #a25d5d;
+    border-top-right-radius: 1em;
+    border-bottom-right-radius: 1em;
+    padding-left: 6px;
+    padding-top: 4px;
+    padding-right: 6px;
+    padding-bottom: 4px;
+}
+.tags {    
+    padding-left: 6px;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 6px;
+    color: #a25d5d;    
+    flex-grow: 1;
+}
+
+.ID {
+    /*padding-left: 6px;*/
+    padding-top: 4px;
+    padding-bottom: 4px;
+    padding-right: 6px;
+    color: #947473;
+
+}
+
+.line1 {
+    display: flex;
+}
+
+.line2 {
+    display: flex;
+}
+
+.edit {
+    border-radius: 1em;
+    background-color: rgb(188, 210, 211);
+}
+
+input {
+    border: none;
+    border-bottom: 2px solid cadetblue;
+    background-color: rgb(188, 210, 211);
+}
+select {
+    border: none;
+    border-bottom: 2px solid cadetblue;
+    background-color: rgb(188, 210, 211);
+}
+
+textarea {
+    border: 2px solid cadetblue;
+    background-color: rgb(188, 210, 211);
+}
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

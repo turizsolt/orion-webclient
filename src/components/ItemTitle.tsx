@@ -174,7 +174,7 @@ export const ItemTitle: React.FC<Props> = props => {
     <>
       {!edit && (
         <div
-          style={{ width: '150px', height: '1em', border: '1px dotted gray' }}
+          style={{ flexGrow: 1, height: '1em', border: '1px dotted gray' }}
           onClick={handleEditOpen}
         >
           <b>{title}</b>
@@ -182,7 +182,10 @@ export const ItemTitle: React.FC<Props> = props => {
       )}
       {edit && (
         <input
-          style={{ width: '150px' }}
+          style={{
+            flex: 1,
+            minWidth: 0
+          }}
           ref={inputRef}
           type="text"
           value={titleValue}

@@ -20,10 +20,10 @@ export const ItemList: React.FC = () => {
   return (
     <>
       <div>version: {version}</div>
-      <div style={{ display: 'flex', width: '100%' }}>
-        <div style={{ width: '60%' }}>
+      <div>
+        <div>
           {itemIds.filter(xid).map(id => (
-            <ItemTsx item={items[id]} key={id} />
+            <ItemTsx item={items[id]} key={id} level={0} />
           ))}
           <ItemAdder />
         </div>

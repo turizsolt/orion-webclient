@@ -6,15 +6,17 @@ import { selectItem, createItem, createRelation } from '../store/actions';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Change } from '../store/state/Change';
 import { ItemTitle } from './ItemTitle';
+import { ChangeMarker } from './ChangeMarker';
 
 interface Props {
   item: StoredItem;
+  level: number;
 }
 
 const idGenerator = new ActualIdGenerator();
 
 export const Item: React.FC<Props> = props => {
-  const { item } = props;
+  const { item, level } = props;
 
   const [open, setOpen] = useState(true);
 
@@ -85,81 +87,61 @@ export const Item: React.FC<Props> = props => {
       ]
     : [];
 
+  let levelString = 'grandchild';
+  if (level === 0) levelString = 'parent';
+  if (level === 1) levelString = 'child';
+
+  const states: Record<string, string> = {
+    todo: 'T',
+    doing: 'O',
+    done: 'D'
+  };
+
   return (
     <>
       {!item && <div>UNDEFINED</div>}
       {item && (
         <>
           <div
+            className={`task ${levelString}`}
             onClick={handleSelect(item.id)}
             style={{
-              border: '1px solid black',
-              padding: '10px',
-              display: 'flex',
-              backgroundColor: selectedId === item.id ? 'aqua' : 'inherit'
+              border: selectedId === item.id ? '2px solid blue' : 'none'
             }}
           >
-            {/* state */}
-            <div style={{ width: '30px' }}>
-              {!!item.fieldsLocal.state && (
-                <span
-                  style={{
-                    marginRight: '5px',
-                    display: 'inline-block',
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '5px',
-                    backgroundColor: 'red'
-                  }}
-                />
-              )}
-              <i>
-                {(item.fieldsLocal.state || item.fieldsCentral.state).substring(
-                  3,
-                  4
-                )}
-              </i>
-            </div>
-
-            {/* title */}
-            <div style={{ width: '180px', display: 'flex' }}>
-              <div>
-                {!!item.fieldsLocal.title && (
-                  <span
-                    style={{
-                      marginRight: '10px',
-                      display: 'inline-block',
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '5px',
-                      backgroundColor: 'red'
-                    }}
-                  />
-                )}
+            <div className="line1">
+              <div className="opener" onClick={handleToggleOpen}>
+                {children.length > 0 ? (open ? '-' : '+') : ''}
               </div>
-              <ItemTitle
-                item={item}
-                title={item.fieldsLocal.title || item.fieldsCentral.title}
-              />
+              <div className="doneness">
+                <ChangeMarker changed={!!item.fieldsLocal.state} />
+                {states[item.fieldsLocal.state || item.fieldsCentral.state]}
+              </div>
+              <div className="name">
+                {' '}
+                <ChangeMarker changed={!!item.fieldsLocal.title} />
+                <ItemTitle
+                  item={item}
+                  title={item.fieldsLocal.title || item.fieldsCentral.title}
+                />
+              </div>
+              <div className="deadline">szerda</div>
+              <div className="responsible">A</div>
+              <div className="select"></div>
+
+              <div className="addChild" onClick={handleAddChild(item.id)}>
+                +
+              </div>
             </div>
-
-            {/* add child */}
-            <button onClick={handleAddChild(item.id)}>Add&nbsp;child</button>
-
-            {/* open */}
-            {children.length > 0 && (
-              <button onClick={handleToggleOpen}>
-                {open ? 'Close' : `Open (${children.length})`}
-              </button>
-            )}
-
-            {/* id */}
-            <div style={{ width: '80px' }}>{item.id.substring(0, 6)}</div>
+            <div className="line2">
+              <div className="tags">#jurta #obi</div>
+              <div className="ID">{item.id.substring(0, 6)}</div>
+            </div>
           </div>
           {open && (
-            <div style={{ marginLeft: '40px' }}>
+            <div style={{ marginLeft: '20px' }}>
               {children.map((child: ItemId) => (
-                <Item key={child} item={items.byId[child]} />
+                <Item key={child} item={items.byId[child]} level={level + 1} />
               ))}
             </div>
           )}
