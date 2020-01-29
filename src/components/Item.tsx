@@ -1,22 +1,32 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ItemId, StoredItem, Item as ItemX } from '../store/state/Item';
 import { RootState } from '../store';
-import { selectItem, createItem, createRelation } from '../store/actions';
+import {
+  selectItem,
+  createItem,
+  createRelation,
+  focusItem
+} from '../store/actions';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Change } from '../store/state/Change';
+import { ItemTitle } from './ItemTitle';
+import { ChangeMarker } from './ChangeMarker';
 
 interface Props {
   item: StoredItem;
+  level: number;
 }
 
 const idGenerator = new ActualIdGenerator();
 
 export const Item: React.FC<Props> = props => {
-  const { item } = props;
+  const { item, level } = props;
 
-  const selectedId = useSelector(
-    (state: RootState) => state.appReducer.selectedItemId
+  const [open, setOpen] = useState(true);
+
+  const selectedItem = useSelector(
+    (state: RootState) => state.appReducer.selectedItem
   );
 
   const items = useSelector((state: RootState) => state.appReducer.items);
@@ -31,13 +41,13 @@ export const Item: React.FC<Props> = props => {
   );
 
   const handleAddChild = React.useCallback(
-    (id: ItemId) => () => {
+    (id: ItemId) => (event: any) => {
       const genId = idGenerator.generate();
 
       const itemx: ItemX = {
         id: genId,
         fields: {
-          title: 'New child',
+          title: '',
           createdAt: new Date().toISOString(),
           description: '',
           state: 'todo'
@@ -63,9 +73,34 @@ export const Item: React.FC<Props> = props => {
 
       dispatch(createItem.started(change));
       dispatch(createRelation.started(change2));
+      dispatch(focusItem({ id: genId }));
+      setOpen(true);
+
+      event.stopPropagation();
     },
     [dispatch, item]
   );
+
+  const handleToggleOpen = useCallback(() => {
+    setOpen(!open);
+  }, [open]);
+
+  const children = item
+    ? [
+        ...arrify(item.fieldsCentral.children),
+        ...arrify(item.fieldsLocal.children)
+      ]
+    : [];
+
+  let levelString = 'grandchild';
+  if (level === 0) levelString = 'parent';
+  if (level === 1) levelString = 'child';
+
+  const states: Record<string, string> = {
+    todo: 'T',
+    doing: 'O',
+    done: 'D'
+  };
 
   return (
     <>
@@ -73,95 +108,49 @@ export const Item: React.FC<Props> = props => {
       {item && (
         <>
           <div
+            className={`task ${levelString}`}
+            onClick={handleSelect(item.id)}
             style={{
-              border: '1px solid black',
-              padding: '10px',
-              display: 'flex',
-              backgroundColor: selectedId === item.id ? 'aqua' : 'inherit'
+              border:
+                selectedItem.selectedId === item.id ? '2px solid blue' : 'none'
             }}
           >
-            <div style={{ width: '120px' }}>{item.id.substring(0, 6)}</div>
-            <div style={{ width: '80px' }}>
-              {!!item.fieldsLocal.state && (
-                <span
-                  style={{
-                    marginRight: '5px',
-                    display: 'inline-block',
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '5px',
-                    backgroundColor: 'red'
-                  }}
+            <div className="line1">
+              <div className="opener" onClick={handleToggleOpen}>
+                {children.length > 0 ? (open ? '-' : '+') : ''}
+              </div>
+              <div className="doneness">
+                <ChangeMarker changed={!!item.fieldsLocal.state} />
+                {states[item.fieldsLocal.state || item.fieldsCentral.state]}
+              </div>
+              <div className="name">
+                {' '}
+                <ChangeMarker changed={!!item.fieldsLocal.title} />
+                <ItemTitle
+                  item={item}
+                  title={item.fieldsLocal.title || item.fieldsCentral.title}
                 />
-              )}
-              <i>{item.fieldsLocal.state || item.fieldsCentral.state}</i>
-            </div>
-            <div style={{ width: '240px' }}>
-              <div>
-                {!!item.fieldsLocal.title && (
-                  <span
-                    style={{
-                      marginRight: '10px',
-                      display: 'inline-block',
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '5px',
-                      backgroundColor: 'red'
-                    }}
-                  />
-                )}
-                <b>{item.fieldsLocal.title || item.fieldsCentral.title}</b>
               </div>
-              <div>
-                {!!item.fieldsLocal.description && (
-                  <span
-                    style={{
-                      marginRight: '10px',
-                      display: 'inline-block',
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '5px',
-                      backgroundColor: 'red'
-                    }}
-                  />
-                )}
-                {item.fieldsLocal.description || item.fieldsCentral.description}
+              <div className="deadline">szerda</div>
+              <div className="responsible">A</div>
+              <div className="select"></div>
+
+              <div className="addChild" onClick={handleAddChild(item.id)}>
+                +
               </div>
             </div>
-            <button onClick={handleSelect(item.id)}>Select</button>
-            <button onClick={handleAddChild(item.id)}>Add child</button>
-            <div>
-              <div>
-                PL:{' '}
-                {[...arrify(item.fieldsLocal.parents)]
-                  .map(x => `[${x.substring(0, 6)}] `)
-                  .join()}
-                | PC:{' '}
-                {[...arrify(item.fieldsCentral.parents)]
-                  .map(x => `[${x.substring(0, 6)}] `)
-                  .join()}
-              </div>
-              <div>
-                ChL:{' '}
-                {[...arrify(item.fieldsLocal.children)]
-                  .map(x => `[${x.substring(0, 6)}] `)
-                  .join()}
-                | ChC:{' '}
-                {[...arrify(item.fieldsCentral.children)]
-                  .map(x => `[${x.substring(0, 6)}] `)
-                  .join()}
-              </div>
+            <div className="line2">
+              <div className="tags">#jurta #obi</div>
+              <div className="ID">{item.id.substring(0, 6)}</div>
             </div>
           </div>
-          <div style={{ marginLeft: '40px' }}>
-            {(
-              item.fieldsLocal.children ||
-              item.fieldsCentral.children ||
-              []
-            ).map((child: ItemId) => (
-              <Item key={child} item={items.byId[child]} />
-            ))}
-          </div>
+          {open && (
+            <div style={{ marginLeft: '20px' }}>
+              {children.map((child: ItemId) => (
+                <Item key={child} item={items.byId[child]} level={level + 1} />
+              ))}
+            </div>
+          )}
         </>
       )}
     </>
@@ -169,8 +158,6 @@ export const Item: React.FC<Props> = props => {
 };
 
 function arrify(arr: any[] | undefined): any[] {
-  if (!arr) {
-    return [];
-  }
+  if (!arr) return [];
   return arr;
 }

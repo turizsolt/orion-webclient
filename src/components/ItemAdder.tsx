@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Item } from '../store/state/Item';
 import { Change } from '../store/state/Change';
-import { createItem } from '../store/actions';
+import { createItem, focusItem } from '../store/actions';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 
 const idGenerator = new ActualIdGenerator();
@@ -12,13 +12,12 @@ export const ItemAdder: React.FC = () => {
 
   const [title, setTitle] = useState('');
 
-  const handleChange = React.useCallback((event: any) => {
-    setTitle(event.target.value);
-  }, []);
-
   const handleAddChildren = React.useCallback(() => {
+    // if (title === '') return;
+
+    const genId = idGenerator.generate();
     const item: Item = {
-      id: idGenerator.generate(),
+      id: genId,
       fields: {
         title,
         createdAt: new Date().toISOString(),
@@ -36,13 +35,35 @@ export const ItemAdder: React.FC = () => {
     };
 
     dispatch(createItem.started(change));
+    dispatch(focusItem({ id: genId }));
+    setTitle('');
   }, [dispatch, title]);
+
+  const handleChange = React.useCallback((event: any) => {
+    setTitle(event.target.value);
+  }, []);
+
+  const handleEnter = React.useCallback(
+    (event: any) => {
+      if (event.which === 13) {
+        handleAddChildren();
+      }
+    },
+    [handleAddChildren]
+  );
 
   return (
     <>
       <div>
-        <input type="text" value={title} onChange={handleChange} />
-        <button onClick={handleAddChildren}>Add children</button>
+        {false && (
+          <input
+            type="text"
+            value={title}
+            onKeyUp={handleEnter}
+            onChange={handleChange}
+          />
+        )}
+        <button onClick={handleAddChildren}>Add root item</button>
       </div>
     </>
   );

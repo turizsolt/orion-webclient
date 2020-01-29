@@ -5,7 +5,7 @@ import { createItem, updateItem, getAllItem, createRelation } from './actions';
 let sock;
 
 try {
-  sock = openSocket('http://localhost:3000');
+  sock = openSocket('http://api.orion.zsiri.eu:80/');
 } catch {
   sock = { on: () => {}, emit: () => {} };
 }

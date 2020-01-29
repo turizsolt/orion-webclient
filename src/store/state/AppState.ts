@@ -13,7 +13,10 @@ export type SelectedItemId = ItemId | null;
 export interface AppState {
   items: ItemRepository;
   changes: ChangeRepository;
-  selectedItemId: SelectedItemId;
+  selectedItem: {
+    selectedId: SelectedItemId;
+    focusedId: SelectedItemId;
+  };
   version: number;
 }
 

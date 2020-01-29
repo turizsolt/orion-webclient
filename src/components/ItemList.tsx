@@ -9,7 +9,7 @@ export const ItemList: React.FC = () => {
   const { allIds: itemIds, byId: items } = useSelector(
     (state: RootState) => state.appReducer.items
   );
-  const { selectedItemId: selectedId, version } = useSelector(
+  const { selectedItem, version } = useSelector(
     (state: RootState) => state.appReducer
   );
 
@@ -20,14 +20,18 @@ export const ItemList: React.FC = () => {
   return (
     <>
       <div>version: {version}</div>
-      <div style={{ display: 'flex', width: '100%' }}>
-        <div style={{ width: '60%' }}>
+      <div>
+        <div>
           {itemIds.filter(xid).map(id => (
-            <ItemTsx item={items[id]} key={id} />
+            <ItemTsx item={items[id]} key={id} level={0} />
           ))}
           <ItemAdder />
         </div>
-        <div>{selectedId && <ItemEditor itemId={selectedId} />}</div>
+        <div>
+          {selectedItem.selectedId && (
+            <ItemEditor itemId={selectedItem.selectedId} />
+          )}
+        </div>
       </div>
     </>
   );

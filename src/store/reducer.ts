@@ -7,7 +7,9 @@ import {
   selectItem,
   updateItem,
   getItem,
-  createRelation
+  createRelation,
+  focusItem,
+  unfocusItem
 } from './actions';
 import { Item, ItemId, StoredItem, StoredItemState } from './state/Item';
 import {
@@ -29,7 +31,10 @@ const initialState: AppState = {
     byId: {},
     allIds: []
   },
-  selectedItemId: null,
+  selectedItem: {
+    selectedId: null,
+    focusedId: null
+  },
   version: 0
 };
 
@@ -40,7 +45,33 @@ export const appReducer = (
   if (isType(action, selectItem)) {
     return {
       ...state,
-      selectedItemId: action.payload.id,
+      selectedItem: {
+        ...state.selectedItem,
+        selectedId: action.payload.id
+      },
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, focusItem)) {
+    return {
+      ...state,
+      selectedItem: {
+        ...state.selectedItem,
+        selectedId: action.payload.id,
+        focusedId: action.payload.id
+      },
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, unfocusItem)) {
+    return {
+      ...state,
+      selectedItem: {
+        ...state.selectedItem,
+        focusedId: null
+      },
       version: state.version + 1
     };
   }
