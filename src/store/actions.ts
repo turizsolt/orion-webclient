@@ -9,6 +9,8 @@ export const createItem = actionCreator.async<Change, Change, {}>(
 );
 
 export const selectItem = actionCreator<SelectItem>('SELECT_ITEM');
+export const focusItem = actionCreator<SelectItem>('FOCUS_ITEM');
+export const unfocusItem = actionCreator<null>('UNFOCUS_ITEM');
 
 export const updateItem = actionCreator.async<Change, Change, {}>(
   'UPDATE_ITEM'

@@ -9,7 +9,7 @@ export const ItemList: React.FC = () => {
   const { allIds: itemIds, byId: items } = useSelector(
     (state: RootState) => state.appReducer.items
   );
-  const { selectedItemId: selectedId, version } = useSelector(
+  const { selectedItem, version } = useSelector(
     (state: RootState) => state.appReducer
   );
 
@@ -27,7 +27,11 @@ export const ItemList: React.FC = () => {
           ))}
           <ItemAdder />
         </div>
-        <div>{selectedId && <ItemEditor itemId={selectedId} />}</div>
+        <div>
+          {selectedItem.selectedId && (
+            <ItemEditor itemId={selectedItem.selectedId} />
+          )}
+        </div>
       </div>
     </>
   );

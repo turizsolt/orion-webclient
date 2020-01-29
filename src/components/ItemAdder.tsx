@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Item } from '../store/state/Item';
 import { Change } from '../store/state/Change';
-import { createItem, selectItem } from '../store/actions';
+import { createItem, focusItem } from '../store/actions';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 
 const idGenerator = new ActualIdGenerator();
@@ -35,7 +35,7 @@ export const ItemAdder: React.FC = () => {
     };
 
     dispatch(createItem.started(change));
-    dispatch(selectItem({ id: genId }));
+    dispatch(focusItem({ id: genId }));
     setTitle('');
   }, [dispatch, title]);
 

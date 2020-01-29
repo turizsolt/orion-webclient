@@ -5,7 +5,8 @@ import {
   updateItem,
   createItem,
   createRelation,
-  selectItem
+  unfocusItem,
+  focusItem
 } from '../store/actions';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Change } from '../store/state/Change';
@@ -25,28 +26,26 @@ export const ItemTitle: React.FC<Props> = props => {
 
   const [edit, setEdit] = useState(false);
   const [focused, setFocused] = useState(false);
-  const [firstFocus, setFirstFocus] = useState(true);
 
-  const selectedItemId = useSelector(
-    (state: RootState) => state.appReducer.selectedItemId
+  const selectedItem = useSelector(
+    (state: RootState) => state.appReducer.selectedItem
   );
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (edit && !focused) {
       (inputRef.current as any).focus();
-      setFirstFocus(false);
     }
 
-    if (!edit && !focused && item.id === selectedItemId) {
+    if (item.id === selectedItem.focusedId) {
       setEdit(true);
       setTitleValue(title);
-      setFirstFocus(false);
+      dispatch(unfocusItem(null));
     }
-  }, [edit, firstFocus, item, title, focused, selectedItemId]);
+  }, [edit, item, title, focused, selectedItem, dispatch]);
 
   const [titleValue, setTitleValue] = useState(title);
-
-  const dispatch = useDispatch();
 
   const handleEditOpen = useCallback(() => {
     setEdit(true);
@@ -134,7 +133,7 @@ export const ItemTitle: React.FC<Props> = props => {
         if (newParent) {
           dispatch(createRelation.started(change2));
         }
-        dispatch(selectItem({ id: genId }));
+        dispatch(focusItem({ id: genId }));
       }
     },
     [dispatch, item]

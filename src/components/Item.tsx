@@ -2,7 +2,12 @@ import React, { useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ItemId, StoredItem, Item as ItemX } from '../store/state/Item';
 import { RootState } from '../store';
-import { selectItem, createItem, createRelation } from '../store/actions';
+import {
+  selectItem,
+  createItem,
+  createRelation,
+  focusItem
+} from '../store/actions';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Change } from '../store/state/Change';
 import { ItemTitle } from './ItemTitle';
@@ -20,8 +25,8 @@ export const Item: React.FC<Props> = props => {
 
   const [open, setOpen] = useState(true);
 
-  const selectedId = useSelector(
-    (state: RootState) => state.appReducer.selectedItemId
+  const selectedItem = useSelector(
+    (state: RootState) => state.appReducer.selectedItem
   );
 
   const items = useSelector((state: RootState) => state.appReducer.items);
@@ -68,7 +73,7 @@ export const Item: React.FC<Props> = props => {
 
       dispatch(createItem.started(change));
       dispatch(createRelation.started(change2));
-      dispatch(selectItem({ id: genId }));
+      dispatch(focusItem({ id: genId }));
       setOpen(true);
 
       event.stopPropagation();
@@ -106,7 +111,8 @@ export const Item: React.FC<Props> = props => {
             className={`task ${levelString}`}
             onClick={handleSelect(item.id)}
             style={{
-              border: selectedId === item.id ? '2px solid blue' : 'none'
+              border:
+                selectedItem.selectedId === item.id ? '2px solid blue' : 'none'
             }}
           >
             <div className="line1">
