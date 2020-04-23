@@ -1,9 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { Item as ItemTsx } from './Item';
 import { ItemEditor } from './ItemEditor';
 import { ItemAdder } from './ItemAdder';
+import { ItemNoChildren } from './ItemNoChildren';
 
 export const ItemList: React.FC = () => {
   const { allIds: itemIds, byId: items } = useSelector(
@@ -23,7 +23,12 @@ export const ItemList: React.FC = () => {
       <div>
         <div>
           {itemIds.filter(xid).map(id => (
-            <ItemTsx item={items[id]} key={id} level={0} parentId={null} />
+            <ItemNoChildren
+              item={items[id]}
+              key={id}
+              level={0}
+              parentId={null}
+            />
           ))}
           <ItemAdder />
         </div>
