@@ -23,7 +23,7 @@ export const ItemList: React.FC = () => {
       <div>
         <div>
           {itemIds.filter(xid).map(id => (
-            <ItemTsx item={items[id]} key={id} level={0} />
+            <ItemTsx item={items[id]} key={id} level={0} parentId={null} />
           ))}
           <ItemAdder />
         </div>

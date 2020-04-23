@@ -20,6 +20,7 @@ export type ChangeId = string;
 export type ChangeType =
   | 'CreateItem'
   | 'UpdateItem'
+  | 'UpdateChildOrder'
   | 'CreateRelation'
   | 'RemoveRelation';
 
