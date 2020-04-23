@@ -6,7 +6,8 @@ import {
   selectItem,
   createItem,
   createRelation,
-  focusItem
+  focusItem,
+  updateItem
 } from '../store/actions';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Change } from '../store/state/Change';
@@ -15,13 +16,14 @@ import { ChangeMarker } from './ChangeMarker';
 
 interface Props {
   item: StoredItem;
+  parentId: ItemId | null;
   level: number;
 }
 
 const idGenerator = new ActualIdGenerator();
 
 export const Item: React.FC<Props> = props => {
-  const { item, level } = props;
+  const { item, level, parentId } = props;
 
   const [open, setOpen] = useState(true);
 
@@ -85,6 +87,42 @@ export const Item: React.FC<Props> = props => {
     setOpen(!open);
   }, [open]);
 
+  const handleSwap = useCallback(
+    (parentId, itemId) => () => {
+      if (!parentId) return;
+
+      const children = [
+        ...arrify(items.byId[parentId].fieldsCentral.children),
+        ...arrify(items.byId[parentId].fieldsLocal.children)
+      ];
+
+      const pos = children.findIndex(x => x === itemId);
+
+      if (pos === -1 || pos === 0) return;
+
+      const newChildren = [
+        ...children.slice(0, pos - 1),
+        children[pos],
+        children[pos - 1],
+        ...children.slice(pos + 1)
+      ];
+
+      const change: Change = {
+        type: 'UpdateChildOrder',
+        id: idGenerator.generate(),
+        data: {
+          itemId: parentId,
+          field: 'children',
+          oldValue: children,
+          newValue: newChildren
+        }
+      };
+
+      dispatch(updateItem.started(change));
+    },
+    [dispatch, items.byId]
+  );
+
   const children = item
     ? [
         ...arrify(item.fieldsCentral.children),
@@ -133,7 +171,9 @@ export const Item: React.FC<Props> = props => {
               </div>
               <div className="deadline">szerda</div>
               <div className="responsible">A</div>
-              <div className="select"></div>
+              <div className="select" onClick={handleSwap(parentId, item.id)}>
+                ^^
+              </div>
 
               <div className="addChild" onClick={handleAddChild(item.id)}>
                 +
@@ -147,7 +187,12 @@ export const Item: React.FC<Props> = props => {
           {open && (
             <div style={{ marginLeft: '20px' }}>
               {children.map((child: ItemId) => (
-                <Item key={child} item={items.byId[child]} level={level + 1} />
+                <Item
+                  key={child}
+                  item={items.byId[child]}
+                  level={level + 1}
+                  parentId={item.id}
+                />
               ))}
             </div>
           )}

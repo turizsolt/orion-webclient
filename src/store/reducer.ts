@@ -159,7 +159,13 @@ export const appReducer = (
               ...oldItem.fieldsLocal,
               [data.field]: data.newValue
             },
-            fieldsCentral: oldItem.fieldsCentral
+            fieldsCentral: {
+              ...oldItem.fieldsCentral,
+              [data.field]:
+                change.type === 'UpdateChildOrder'
+                  ? []
+                  : oldItem.fieldsCentral[data.field]
+            }
           };
         }
       ),
