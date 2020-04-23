@@ -4,6 +4,7 @@ node_js:
 script:
 - echo 'Build starts!!'
 - echo 'Installing Deps!'
+- yarn cache clean
 - yarn
 - echo 'Building'
 - yarn build
