@@ -22,7 +22,7 @@ interface Props {
 
 const idGenerator = new ActualIdGenerator();
 
-export const Item: React.FC<Props> = props => {
+export const ItemNoChildren: React.FC<Props> = props => {
   const { item, level, parentId } = props;
 
   const [open, setOpen] = useState(true);
@@ -186,18 +186,6 @@ export const Item: React.FC<Props> = props => {
               <div className="ID">{item.id.substring(0, 6)}</div>
             </div>
           </div>
-          {open && (
-            <div style={{ marginLeft: '20px' }}>
-              {children.map((child: ItemId) => (
-                <Item
-                  key={child}
-                  item={items.byId[child]}
-                  level={level + 1}
-                  parentId={item.id}
-                />
-              ))}
-            </div>
-          )}
         </>
       )}
     </>
