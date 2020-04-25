@@ -1,33 +1,52 @@
-import React from 'react';
-import { Provider } from 'react-redux';
-import { store } from './store';
-import {} from './store/socket';
-import { ItemList } from './components/ItemList';
+import React, { useContext, useCallback } from 'react';
+import { Provider, useStore, useSelector } from 'react-redux';
+import {} from './socket';
 import { Route, Switch, useParams, BrowserRouter } from 'react-router-dom';
-import { ItemWrapper } from './components/ItemWrapper';
+import { ItemViewer } from './components/Editor/ItemViewer';
+import { twoStore } from './Local/state';
+import { ItemId } from './Local/ItemId';
+import { LocalStore } from './Local/LocalStore';
 
-const Ch: React.FC = () => {
-  const { id } = useParams();
+const Par: React.FC = () => {
+  const { items, list } = useSelector((state: any) => state.appReducer);
+  const local: LocalStore = useContext(LocalStoreContext);
 
-  return <ItemWrapper id={id as string} />;
+  const handleClick = useCallback(() => {
+    const id = Math.random().toString();
+    local.change({
+      id,
+      fieldName: 'title',
+      oldValue: undefined,
+      newValue: 'rndstr'
+    });
+    local.change({
+      id: id,
+      fieldName: 'description',
+      oldValue: undefined,
+      newValue: 'arghhhh'
+    });
+  }, [local]);
+
+  return (
+    <div>
+      {list.map((id: ItemId) => (
+        <ItemViewer key={id} item={items[id]} />
+      ))}
+      <button onClick={handleClick}>Add</button>
+    </div>
+  );
 };
+
+const localStore = new LocalStore(twoStore);
+
+export const LocalStoreContext = React.createContext(localStore);
 
 const App: React.FC = () => {
   return (
-    <Provider store={store}>
-      <BrowserRouter>
-        <Switch>
-          <Route exact path="/">
-            <ItemList />
-          </Route>
-          <Route path="/kobak">
-            <div>Kobak</div>
-          </Route>
-          <Route path="/:id">
-            <Ch />
-          </Route>
-        </Switch>
-      </BrowserRouter>
+    <Provider store={twoStore}>
+      <LocalStoreContext.Provider value={localStore}>
+        <Par />
+      </LocalStoreContext.Provider>
     </Provider>
   );
 };
