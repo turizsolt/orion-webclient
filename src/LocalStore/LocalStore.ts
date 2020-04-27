@@ -12,6 +12,17 @@ export class LocalStore {
   constructor(reduxStore: Store) {
     this.store = {};
     this.reduxStore = reduxStore;
+
+    for (let key of Object.keys(window.localStorage)) {
+      const value = window.localStorage.getItem(key);
+      const id = key.substr(5); // "item-${id}"
+      if (value) {
+        this.store[id] = StoredItem.deserialise(value);
+
+        const viewItem = this.getView(id);
+        this.reduxStore.dispatch(updateItem(viewItem));
+      }
+    }
   }
 
   change(change: Change): void {
@@ -19,7 +30,12 @@ export class LocalStore {
 
     console.log('change', id, this.store[id]);
     if (!this.store[id]) {
-      this.store[id] = new StoredItem(id);
+      const value = window.localStorage.getItem(`item-${id}`);
+      if (value) {
+        this.store[id] = StoredItem.deserialise(value);
+      } else {
+        this.store[id] = new StoredItem(id);
+      }
     }
 
     console.log('set', fieldName, newValue);
@@ -27,7 +43,9 @@ export class LocalStore {
 
     const viewItem = this.getView(id);
     console.log('vi', viewItem);
+
     this.reduxStore.dispatch(updateItem(viewItem));
+    window.localStorage.setItem(`item-${id}`, this.store[id].serialise());
   }
 
   getView(id: ItemId): ViewItem {

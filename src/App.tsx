@@ -6,13 +6,16 @@ import { ItemViewer } from './components/Item/ItemViewer';
 import { LocalStore } from './LocalStore/LocalStore';
 import { ItemId } from './model/Item/ItemId';
 import { twoStore } from './ReduxStore';
+import { ActualIdGenerator } from './idGenerator/ActualIdGenerator';
+
+const idGen = new ActualIdGenerator();
 
 const Par: React.FC = () => {
   const { items, list } = useSelector((state: any) => state.appReducer);
   const local: LocalStore = useContext(LocalStoreContext);
 
   const handleClick = useCallback(() => {
-    const id = Math.random().toString();
+    const id = idGen.generate();
     local.change({
       id,
       fieldName: 'title',
