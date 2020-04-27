@@ -1,6 +1,6 @@
 import { AnyAction } from 'redux';
 import { isType } from 'typescript-fsa';
-import { updateItem } from './actions';
+import { updateItem, addToList, createList } from './actions';
 
 const initialState = {
   items: {},
@@ -13,11 +13,27 @@ type X = any;
 export const appReducer = (state: X = initialState, action: AnyAction): X => {
   if (isType(action, updateItem)) {
     return {
+      ...state,
       items: {
         ...state.items,
         [action.payload.id]: action.payload
       },
-      list: pushIfUnique(state.list, action.payload.id),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, addToList)) {
+    return {
+      ...state,
+      list: pushIfUnique(state.list, action.payload),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, createList)) {
+    return {
+      ...state,
+      list: action.payload,
       version: state.version + 1
     };
   }

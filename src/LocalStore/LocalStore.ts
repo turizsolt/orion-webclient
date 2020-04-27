@@ -3,16 +3,18 @@ import { ItemId } from '../model/Item/ItemId';
 import { StoredItem } from '../model/Item/StoredItem';
 import { Change } from '../model/Change/Change';
 import { ViewItem } from '../model/Item/ViewItem';
-import { updateItem } from '../ReduxStore/actions';
+import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 
 export class LocalStore {
   private store: Record<ItemId, StoredItem>;
+  private list: ItemId[];
   private reduxStore: Store;
 
   constructor(reduxStore: Store) {
     this.store = {};
     this.reduxStore = reduxStore;
+    this.list = [];
 
     for (let key of Object.keys(window.localStorage)) {
       const value = window.localStorage.getItem(key);
@@ -20,8 +22,10 @@ export class LocalStore {
       if (value) {
         this.store[id] = StoredItem.deserialise(value);
         this.updateItem(id);
+        this.list.push(id);
       }
     }
+    this.reduxStore.dispatch(createList(this.list));
   }
 
   changeItem(change: Change): void {
@@ -34,6 +38,8 @@ export class LocalStore {
       } else {
         this.store[id] = new StoredItem(id);
       }
+      this.list.push(id);
+      this.reduxStore.dispatch(addToList(id));
     }
 
     this.store[id].setField(fieldName, newValue);
