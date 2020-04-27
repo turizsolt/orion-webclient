@@ -4,6 +4,7 @@ import { StoredItem } from '../model/Item/StoredItem';
 import { Change } from '../model/Change/Change';
 import { ViewItem } from '../model/Item/ViewItem';
 import { updateItem } from '../ReduxStore/actions';
+import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 
 export class LocalStore {
   private store: Record<ItemId, StoredItem>;
@@ -18,17 +19,14 @@ export class LocalStore {
       const id = key.substr(5); // "item-${id}"
       if (value) {
         this.store[id] = StoredItem.deserialise(value);
-
-        const viewItem = this.getView(id);
-        this.reduxStore.dispatch(updateItem(viewItem));
+        this.updateItem(id);
       }
     }
   }
 
-  change(change: Change): void {
+  changeItem(change: Change): void {
     const { id, fieldName, oldValue, newValue } = change;
 
-    console.log('change', id, this.store[id]);
     if (!this.store[id]) {
       const value = window.localStorage.getItem(`item-${id}`);
       if (value) {
@@ -38,12 +36,20 @@ export class LocalStore {
       }
     }
 
-    console.log('set', fieldName, newValue);
     this.store[id].setField(fieldName, newValue);
+    this.updateItem(id);
+  }
 
+  addRelation(oneSideId: ItemId, relation: RelationType, otherSideId: ItemId) {
+    this.store[oneSideId].addRelation(relation, otherSideId);
+    this.store[otherSideId].addRelation(oppositeOf(relation), oneSideId);
+
+    this.updateItem(oneSideId);
+    this.updateItem(otherSideId);
+  }
+
+  updateItem(id: ItemId) {
     const viewItem = this.getView(id);
-    console.log('vi', viewItem);
-
     this.reduxStore.dispatch(updateItem(viewItem));
     window.localStorage.setItem(`item-${id}`, this.store[id].serialise());
   }
@@ -51,7 +57,8 @@ export class LocalStore {
   getView(id: ItemId): ViewItem {
     const viewItem: ViewItem = {
       id,
-      fields: []
+      fields: [],
+      children: this.store[id].getChildren()
     };
     for (let field of this.store[id].getFields()) {
       viewItem.fields.push({

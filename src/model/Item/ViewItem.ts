@@ -1,6 +1,9 @@
+import { ItemId } from './ItemId';
+
 export interface ViewItem {
   id: string;
   fields: ViewField[];
+  children: ItemId[];
 }
 
 export interface ViewField {
@@ -9,26 +12,3 @@ export interface ViewField {
   value: any;
   params?: any;
 }
-
-export const sampleItem: ViewItem = {
-  id: '1234567890',
-  fields: [
-    {
-      name: 'title',
-      type: 'String',
-      value: 'Lorem Ipsum'
-    },
-    {
-      name: 'description',
-      type: 'Text',
-      value: 'Lorem ipsum sit doloret anum.',
-      params: { color: 'green' }
-    },
-    {
-      name: 'state',
-      type: 'Enum',
-      value: 'todo',
-      params: { options: ['todo', 'doing', 'done'] }
-    }
-  ]
-};

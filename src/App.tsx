@@ -16,13 +16,13 @@ const Par: React.FC = () => {
 
   const handleClick = useCallback(() => {
     const id = idGen.generate();
-    local.change({
+    local.changeItem({
       id,
       fieldName: 'title',
       oldValue: undefined,
       newValue: 'rndstr'
     });
-    local.change({
+    local.changeItem({
       id: id,
       fieldName: 'description',
       oldValue: undefined,

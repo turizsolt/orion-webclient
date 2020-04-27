@@ -13,7 +13,6 @@ interface Props {
 
 export const TextFieldViewer: React.FC<Props> = props => {
   const { id, value, type, name, params } = props;
-  console.log('tfv', id, name, value);
   const local: LocalStore = useContext(LocalStoreContext);
 
   const [editing, setEditing] = useState(false);
@@ -26,7 +25,7 @@ export const TextFieldViewer: React.FC<Props> = props => {
 
   const handleFinishEditing = useCallback(() => {
     setEditing(false);
-    local.change({
+    local.changeItem({
       id: id,
       fieldName: name,
       oldValue: undefined,
