@@ -12,7 +12,7 @@ interface Props {
 }
 
 export const TextFieldViewer: React.FC<Props> = props => {
-  const { id, value, type, name, params } = props;
+  const { id, value, name } = props;
   const local: LocalStore = useContext(LocalStoreContext);
 
   const [editing, setEditing] = useState(false);
@@ -31,7 +31,7 @@ export const TextFieldViewer: React.FC<Props> = props => {
       oldValue: undefined,
       newValue: editValue
     });
-  }, [local, editValue]);
+  }, [local, editValue, id, name]);
 
   const handleEditValueChanged = useCallback(
     (event: FormEvent<HTMLInputElement>) => {

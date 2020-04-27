@@ -29,7 +29,7 @@ export class LocalStore {
   }
 
   changeItem(change: Change): void {
-    const { id, fieldName, oldValue, newValue } = change;
+    const { id, fieldName, newValue } = change;
 
     if (!this.store[id]) {
       const value = window.localStorage.getItem(`item-${id}`);

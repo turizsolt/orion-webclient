@@ -40,7 +40,7 @@ export const ItemViewer: React.FC<Props> = props => {
         <TextFieldViewer key={field.name} id={item.id} {...field} />
       ))}
       {item.children.map(child => (
-        <ItemViewer item={items[child]} />
+        <ItemViewer key={child} item={items[child]} />
       ))}
       <button onClick={handleClick(item.id)}>Add Children</button>
     </div>
