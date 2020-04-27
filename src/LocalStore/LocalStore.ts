@@ -1,9 +1,9 @@
-import { Change } from './Change';
-import { ItemId } from './ItemId';
-import { StoredItem } from './StoredItem';
 import { Store } from 'redux';
-import { updateItem } from './state/actions';
-import { ViewItem } from '../components/Editor/ViewItem';
+import { ItemId } from '../model/Item/ItemId';
+import { StoredItem } from '../model/Item/StoredItem';
+import { Change } from '../model/Change/Change';
+import { ViewItem } from '../model/Item/ViewItem';
+import { updateItem } from '../ReduxStore/actions';
 
 export class LocalStore {
   private store: Record<ItemId, StoredItem>;

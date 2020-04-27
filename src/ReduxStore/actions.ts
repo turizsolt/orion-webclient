@@ -1,5 +1,5 @@
 import actionCreatorFactory from 'typescript-fsa';
-import { ViewItem } from '../../components/Editor/ViewItem';
+import { ViewItem } from '../model/Item/ViewItem';
 
 const actionCreator = actionCreatorFactory();
 

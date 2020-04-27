@@ -1,6 +1,6 @@
 import React from 'react';
-import { ViewItem } from './ViewItem';
 import { TextFieldViewer } from './TextFieldViewer';
+import { ViewItem } from '../../model/Item/ViewItem';
 
 interface Props {
   item: ViewItem;

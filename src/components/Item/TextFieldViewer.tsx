@@ -1,7 +1,7 @@
 import React, { useState, useCallback, FormEvent, useContext } from 'react';
-import { LocalStore } from '../../Local/LocalStore';
 import { LocalStoreContext } from '../../App';
-import { ItemId } from '../../Local/ItemId';
+import { ItemId } from '../../model/Item/ItemId';
+import { LocalStore } from '../../LocalStore/LocalStore';
 
 interface Props {
   id: ItemId;

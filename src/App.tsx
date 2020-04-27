@@ -2,10 +2,10 @@ import React, { useContext, useCallback } from 'react';
 import { Provider, useStore, useSelector } from 'react-redux';
 import {} from './socket';
 import { Route, Switch, useParams, BrowserRouter } from 'react-router-dom';
-import { ItemViewer } from './components/Editor/ItemViewer';
-import { twoStore } from './Local/state';
-import { ItemId } from './Local/ItemId';
-import { LocalStore } from './Local/LocalStore';
+import { ItemViewer } from './components/Item/ItemViewer';
+import { LocalStore } from './LocalStore/LocalStore';
+import { ItemId } from './model/Item/ItemId';
+import { twoStore } from './ReduxStore';
 
 const Par: React.FC = () => {
   const { items, list } = useSelector((state: any) => state.appReducer);
