@@ -23,21 +23,24 @@ export interface FieldProps extends Props {
   onChange: (value: any) => void;
 }
 
+const inner = {
+  fontSize: '16px',
+  alignItems: 'center',
+  width: '100%'
+};
+
 const fieldStyle = style({
   display: 'flex',
   minHeight: '1.5em',
   fontSize: '16px',
   padding: '5px 0 5px 0',
+  alignItems: 'center',
   flexGrow: 1,
   $nest: {
-    '& input': {
-      fontSize: '16px',
-      width: '100%'
-    },
-    '& select': {
-      fontSize: '16px',
-      width: '100%'
-    }
+    '& div.outerInput': { flexGrow: 1 },
+    "& input:not([type='checkbox'])": inner,
+    '& select': inner,
+    '& textarea': { ...inner, height: '60px' }
   }
 });
 

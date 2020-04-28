@@ -35,7 +35,7 @@ export const EditableFieldViewer: React.FC<Props> = props => {
   );
 
   return (
-    <div>
+    <div className="outerInput">
       {!editing && (
         <div onClick={handleStartEditing}>
           {value.toString() || '[not set]'}
