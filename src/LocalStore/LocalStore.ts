@@ -5,6 +5,7 @@ import { Change } from '../model/Change/Change';
 import { ViewItem } from '../model/Item/ViewItem';
 import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
+import { FieldTypeOf } from '../model/Item/FieldTypeOf';
 
 export class LocalStore {
   private store: Record<ItemId, StoredItem>;
@@ -69,7 +70,7 @@ export class LocalStore {
     for (let field of this.store[id].getFields()) {
       viewItem.fields.push({
         name: field,
-        type: 'Text',
+        type: FieldTypeOf(field),
         value: this.store[id].getField(field)
       });
     }

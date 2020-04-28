@@ -1,7 +1,7 @@
 import React, { useState, useCallback, FormEvent } from 'react';
 import { FieldProps } from './FieldViewer';
 
-export const TextFieldViewer: React.FC<FieldProps> = props => {
+export const StringFieldViewer: React.FC<FieldProps> = props => {
   const { value, onChange } = props;
 
   const [editing, setEditing] = useState(false);
@@ -18,7 +18,7 @@ export const TextFieldViewer: React.FC<FieldProps> = props => {
   }, [editValue]);
 
   const handleEditValueChanged = useCallback(
-    (event: FormEvent<HTMLTextAreaElement>) => {
+    (event: FormEvent<HTMLInputElement>) => {
       setEditValue(event.currentTarget.value);
     },
     []
@@ -28,7 +28,8 @@ export const TextFieldViewer: React.FC<FieldProps> = props => {
     <div>
       {!editing && <div onClick={handleStartEditing}>{value}</div>}
       {editing && (
-        <textarea
+        <input
+          type="text"
           value={editValue}
           onChange={handleEditValueChanged}
           onBlur={handleFinishEditing}
