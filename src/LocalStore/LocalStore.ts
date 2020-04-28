@@ -64,6 +64,12 @@ export class LocalStore {
       oldValue: undefined,
       newValue: '3'
     });
+    this.changeItem({
+      id: id,
+      fieldName: 'due',
+      oldValue: undefined,
+      newValue: '2020-01-31T11:40'
+    });
     return id;
   }
 

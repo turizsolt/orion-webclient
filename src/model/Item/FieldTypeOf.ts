@@ -6,10 +6,12 @@ export const FieldTypeOf = (field: string): { type: string; params?: any } => {
       return { type: 'Boolean' };
     case 'count':
       return { type: 'Number' };
+    case 'due':
+      return { type: 'Date' };
     case 'state':
       return {
         type: 'Enum',
-        params: { values: [undefined, 'todo', 'doing', 'done'] }
+        params: { values: ['todo', 'doing', 'done'] }
       };
     default:
       return { type: 'String' };
