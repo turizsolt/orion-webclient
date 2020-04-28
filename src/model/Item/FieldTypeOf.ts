@@ -8,6 +8,8 @@ export const FieldTypeOf = (field: string): { type: string; params?: any } => {
       return { type: 'Number' };
     case 'due':
       return { type: 'Date' };
+    case 'color':
+      return { type: 'Color' };
     case 'state':
       return {
         type: 'Enum',

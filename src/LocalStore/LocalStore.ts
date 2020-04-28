@@ -70,6 +70,12 @@ export class LocalStore {
       oldValue: undefined,
       newValue: '2020-01-31T11:40'
     });
+    this.changeItem({
+      id: id,
+      fieldName: 'color',
+      oldValue: undefined,
+      newValue: '#ff7733'
+    });
     return id;
   }
 

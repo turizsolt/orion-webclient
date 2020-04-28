@@ -8,6 +8,7 @@ import { BooleanFieldViewer } from './BooleanFieldViewer';
 import { EnumFieldViewer } from './EnumFieldViewer';
 import { NumberFieldViewer } from './EditableFieldViewer/NumberFieldViewer';
 import { DateFieldViewer } from './EditableFieldViewer/DateFieldViewer';
+import { ColorFieldViewer } from './EditableFieldViewer/ColorFieldViewer';
 
 interface Props {
   id: ItemId;
@@ -44,6 +45,7 @@ export const FieldViewer: React.FC<Props> = props => {
     <>
       {type === 'Enum' && <EnumFieldViewer {...fieldProps} />}
       {type === 'Boolean' && <BooleanFieldViewer {...fieldProps} />}
+      {type === 'Color' && <ColorFieldViewer {...fieldProps} />}
       {type === 'Date' && <DateFieldViewer {...fieldProps} />}
       {type === 'Number' && <NumberFieldViewer {...fieldProps} />}
       {type === 'String' && <StringFieldViewer {...fieldProps} />}
