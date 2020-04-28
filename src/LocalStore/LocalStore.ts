@@ -58,6 +58,12 @@ export class LocalStore {
       oldValue: undefined,
       newValue: 'todo'
     });
+    this.changeItem({
+      id: id,
+      fieldName: 'count',
+      oldValue: undefined,
+      newValue: '3'
+    });
     return id;
   }
 

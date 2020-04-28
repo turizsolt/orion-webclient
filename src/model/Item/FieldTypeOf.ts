@@ -4,6 +4,8 @@ export const FieldTypeOf = (field: string): { type: string; params?: any } => {
       return { type: 'Text' };
     case 'isIt':
       return { type: 'Boolean' };
+    case 'count':
+      return { type: 'Number' };
     case 'state':
       return {
         type: 'Enum',
