@@ -5,6 +5,7 @@ export interface EditableProps {
   value: any;
   onChange: any;
   onBlur: any;
+  onKeyDown: any;
 }
 
 interface Props extends FieldProps {
@@ -27,6 +28,16 @@ export const EditableFieldViewer: React.FC<Props> = props => {
     onChange(editValue);
   }, [editValue, onChange]);
 
+  const handleKeyDown = useCallback(
+    (event: any) => {
+      if (event.which === 13 && !event.shiftKey) {
+        setEditing(false);
+        onChange(editValue);
+      }
+    },
+    [editValue, onChange]
+  );
+
   const handleEditValueChanged = useCallback(
     (event: FormEvent<HTMLInputElement>) => {
       setEditValue(event.currentTarget.value);
@@ -46,6 +57,7 @@ export const EditableFieldViewer: React.FC<Props> = props => {
           value={editValue}
           onChange={handleEditValueChanged}
           onBlur={handleFinishEditing}
+          onKeyDown={handleKeyDown}
         />
       )}
     </div>
