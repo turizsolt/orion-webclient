@@ -70,7 +70,7 @@ export class LocalStore {
     for (let field of this.store[id].getFields()) {
       viewItem.fields.push({
         name: field,
-        type: FieldTypeOf(field),
+        ...FieldTypeOf(field),
         value: this.store[id].getField(field)
       });
     }

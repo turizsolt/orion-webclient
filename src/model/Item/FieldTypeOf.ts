@@ -1,10 +1,15 @@
-export const FieldTypeOf = (field: string): string => {
+export const FieldTypeOf = (field: string): { type: string; params?: any } => {
   switch (field) {
     case 'description':
-      return 'Text';
+      return { type: 'Text' };
     case 'isIt':
-      return 'Boolean';
+      return { type: 'Boolean' };
+    case 'state':
+      return {
+        type: 'Enum',
+        params: { values: [undefined, 'todo', 'doing', 'done'] }
+      };
     default:
-      return 'String';
+      return { type: 'String' };
   }
 };

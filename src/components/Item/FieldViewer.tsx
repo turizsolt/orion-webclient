@@ -5,6 +5,7 @@ import { TextFieldViewer } from './EditableFieldViewer/TextFieldViewer';
 import { LocalStore } from '../../LocalStore/LocalStore';
 import { LocalStoreContext } from '../../App';
 import { BooleanFieldViewer } from './BooleanFieldViewer';
+import { EnumFieldViewer } from './EnumFieldViewer';
 
 interface Props {
   id: ItemId;
@@ -39,6 +40,7 @@ export const FieldViewer: React.FC<Props> = props => {
 
   return (
     <>
+      {type === 'Enum' && <EnumFieldViewer {...fieldProps} />}
       {type === 'Boolean' && <BooleanFieldViewer {...fieldProps} />}
       {type === 'String' && <StringFieldViewer {...fieldProps} />}
       {type === 'Text' && <TextFieldViewer {...fieldProps} />}
