@@ -7,5 +7,5 @@ export const DateFieldViewer: React.FC<FieldProps> = props => {
 };
 
 const Input: React.FC<EditableProps> = props => {
-  return <input type="datetime-local" {...props} />;
+  return <input autoFocus type="datetime-local" {...props} />;
 };

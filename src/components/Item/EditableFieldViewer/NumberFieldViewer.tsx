@@ -7,5 +7,5 @@ export const NumberFieldViewer: React.FC<FieldProps> = props => {
 };
 
 const Input: React.FC<EditableProps> = props => {
-  return <input type="number" {...props} />;
+  return <input autoFocus type="number" {...props} />;
 };

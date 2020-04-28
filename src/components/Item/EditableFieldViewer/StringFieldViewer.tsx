@@ -7,5 +7,5 @@ export const StringFieldViewer: React.FC<FieldProps> = props => {
 };
 
 const Input: React.FC<EditableProps> = props => {
-  return <input type="text" {...props} />;
+  return <input autoFocus type="text" {...props} />;
 };

@@ -7,5 +7,5 @@ export const ColorFieldViewer: React.FC<FieldProps> = props => {
 };
 
 const Input: React.FC<EditableProps> = props => {
-  return <input type="color" {...props} />;
+  return <input autoFocus type="color" {...props} />;
 };

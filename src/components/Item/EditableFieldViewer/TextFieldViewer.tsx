@@ -7,5 +7,5 @@ export const TextFieldViewer: React.FC<FieldProps> = props => {
 };
 
 const TextArea: React.FC<EditableProps> = props => {
-  return <textarea {...props} />;
+  return <textarea autoFocus {...props} />;
 };
