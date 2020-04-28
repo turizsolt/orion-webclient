@@ -26,6 +26,12 @@ export const RootItemViewer: React.FC = () => {
       oldValue: undefined,
       newValue: 'arghhhh'
     });
+    local.changeItem({
+      id: id,
+      fieldName: 'isIt',
+      oldValue: undefined,
+      newValue: true
+    });
   }, [local]);
 
   return (

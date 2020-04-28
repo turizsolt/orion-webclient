@@ -4,6 +4,7 @@ import { StringFieldViewer } from './EditableFieldViewer/StringFieldViewer';
 import { TextFieldViewer } from './EditableFieldViewer/TextFieldViewer';
 import { LocalStore } from '../../LocalStore/LocalStore';
 import { LocalStoreContext } from '../../App';
+import { BooleanFieldViewer } from './BooleanFieldViewer';
 
 interface Props {
   id: ItemId;
@@ -38,6 +39,7 @@ export const FieldViewer: React.FC<Props> = props => {
 
   return (
     <>
+      {type === 'Boolean' && <BooleanFieldViewer {...fieldProps} />}
       {type === 'String' && <StringFieldViewer {...fieldProps} />}
       {type === 'Text' && <TextFieldViewer {...fieldProps} />}
     </>
