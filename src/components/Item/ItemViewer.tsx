@@ -12,17 +12,18 @@ interface Props {
 }
 
 const itemStyle = style({
-  borderRadius: '5px',
+  borderRadius: '20px',
   backgroundColor: '#87b6b8',
   marginBottom: '5px'
 });
 
 const headerStyle = style({
   padding: '5px',
-  borderRadius: '5px',
+  borderRadius: '20px',
   backgroundColor: '#bcd2d3',
   display: 'flex',
   justifyContent: 'space-between',
+  alignItems: 'center',
   fontSize: '18px'
 });
 

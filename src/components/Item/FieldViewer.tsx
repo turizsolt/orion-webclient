@@ -26,7 +26,19 @@ export interface FieldProps extends Props {
 const fieldStyle = style({
   display: 'flex',
   minHeight: '1.5em',
-  flexGrow: 1
+  fontSize: '16px',
+  padding: '5px 0 5px 0',
+  flexGrow: 1,
+  $nest: {
+    '& input': {
+      fontSize: '16px',
+      width: '100%'
+    },
+    '& select': {
+      fontSize: '16px',
+      width: '100%'
+    }
+  }
 });
 
 const labelStyle = style({
