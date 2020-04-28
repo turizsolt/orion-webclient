@@ -1,7 +1,7 @@
 import React, { useContext, useCallback } from 'react';
 import { ItemId } from '../../model/Item/ItemId';
-import { StringFieldViewer } from './StringFieldViewer';
-import { TextFieldViewer } from './TextFieldViewer';
+import { StringFieldViewer } from './EditableFieldViewer/StringFieldViewer';
+import { TextFieldViewer } from './EditableFieldViewer/TextFieldViewer';
 import { LocalStore } from '../../LocalStore/LocalStore';
 import { LocalStoreContext } from '../../App';
 
@@ -23,7 +23,7 @@ export const FieldViewer: React.FC<Props> = props => {
   const local: LocalStore = useContext(LocalStoreContext);
 
   const handleChange = useCallback(
-    (value: any) => (_: any) => {
+    (value: any) => {
       local.changeItem({
         id: id,
         fieldName: name,
@@ -31,7 +31,7 @@ export const FieldViewer: React.FC<Props> = props => {
         newValue: value
       });
     },
-    [local, id]
+    [local, id, name]
   );
 
   const fieldProps = { ...props, onChange: handleChange };
