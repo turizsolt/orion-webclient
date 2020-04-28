@@ -6,6 +6,9 @@ import { ViewItem } from '../model/Item/ViewItem';
 import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 import { FieldTypeOf } from '../model/Item/FieldTypeOf';
+import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
+
+const idGen = new ActualIdGenerator();
 
 export class LocalStore {
   private store: Record<ItemId, StoredItem>;
@@ -27,6 +30,35 @@ export class LocalStore {
       }
     }
     this.reduxStore.dispatch(createList(this.list));
+  }
+
+  createItem(): ItemId {
+    const id = idGen.generate();
+    this.changeItem({
+      id,
+      fieldName: 'title',
+      oldValue: undefined,
+      newValue: 'rndstr'
+    });
+    this.changeItem({
+      id: id,
+      fieldName: 'description',
+      oldValue: undefined,
+      newValue: 'arghhhh'
+    });
+    this.changeItem({
+      id: id,
+      fieldName: 'isIt',
+      oldValue: undefined,
+      newValue: true
+    });
+    this.changeItem({
+      id: id,
+      fieldName: 'state',
+      oldValue: undefined,
+      newValue: 'todo'
+    });
+    return id;
   }
 
   changeItem(change: Change): void {

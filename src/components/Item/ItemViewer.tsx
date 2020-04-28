@@ -1,6 +1,5 @@
 import React, { useCallback, useContext } from 'react';
 import { ViewItem } from '../../model/Item/ViewItem';
-import { ActualIdGenerator } from '../../idGenerator/ActualIdGenerator';
 import { LocalStoreContext } from '../../App';
 import { LocalStore } from '../../LocalStore/LocalStore';
 import { ItemId } from '../../model/Item/ItemId';
@@ -12,8 +11,6 @@ interface Props {
   item: ViewItem;
 }
 
-const idGen = new ActualIdGenerator();
-
 export const ItemViewer: React.FC<Props> = props => {
   const { item } = props;
   const { items } = useSelector((state: any) => state.appReducer);
@@ -21,19 +18,7 @@ export const ItemViewer: React.FC<Props> = props => {
 
   const handleClick = useCallback(
     (parentId: ItemId) => (event: any) => {
-      const childrenId = idGen.generate();
-      local.changeItem({
-        id: childrenId,
-        fieldName: 'title',
-        oldValue: undefined,
-        newValue: 'new kid'
-      });
-      local.changeItem({
-        id: childrenId,
-        fieldName: 'description',
-        oldValue: undefined,
-        newValue: 'arghhhh'
-      });
+      const childrenId = local.createItem();
       local.addRelation(parentId, RelationType.Child, childrenId);
     },
     [local]
