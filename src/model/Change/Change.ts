@@ -1,6 +1,10 @@
-export interface Change {
+export interface ChangeItem {
   id: string;
-  fieldName: string;
+  changes: Change[];
+}
+
+export interface Change {
+  field: string;
   oldValue: any;
   newValue: any;
 }

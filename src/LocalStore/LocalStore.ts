@@ -1,12 +1,13 @@
 import { Store } from 'redux';
 import { ItemId } from '../model/Item/ItemId';
 import { StoredItem } from '../model/Item/StoredItem';
-import { Change } from '../model/Change/Change';
+import { ChangeItem } from '../model/Change/Change';
 import { ViewItem } from '../model/Item/ViewItem';
 import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 import { FieldTypeOf } from '../model/Item/FieldTypeOf';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
+import { socket } from '../socket';
 
 const idGen = new ActualIdGenerator();
 
@@ -36,51 +37,49 @@ export class LocalStore {
     const id = idGen.generate();
     this.changeItem({
       id,
-      fieldName: 'title',
-      oldValue: undefined,
-      newValue: 'rndstr'
-    });
-    this.changeItem({
-      id: id,
-      fieldName: 'description',
-      oldValue: undefined,
-      newValue: 'arghhhh'
-    });
-    this.changeItem({
-      id: id,
-      fieldName: 'isIt',
-      oldValue: undefined,
-      newValue: true
-    });
-    this.changeItem({
-      id: id,
-      fieldName: 'state',
-      oldValue: undefined,
-      newValue: 'todo'
-    });
-    this.changeItem({
-      id: id,
-      fieldName: 'count',
-      oldValue: undefined,
-      newValue: '3'
-    });
-    this.changeItem({
-      id: id,
-      fieldName: 'due',
-      oldValue: undefined,
-      newValue: '2020-01-31T11:40'
-    });
-    this.changeItem({
-      id: id,
-      fieldName: 'color',
-      oldValue: undefined,
-      newValue: '#ff7733'
+      changes: [
+        {
+          field: 'title',
+          oldValue: undefined,
+          newValue: 'rndstr'
+        },
+        {
+          field: 'description',
+          oldValue: undefined,
+          newValue: 'arghhhh'
+        },
+        {
+          field: 'isIt',
+          oldValue: undefined,
+          newValue: true
+        },
+        {
+          field: 'state',
+          oldValue: undefined,
+          newValue: 'todo'
+        },
+        {
+          field: 'count',
+          oldValue: undefined,
+          newValue: '3'
+        },
+        {
+          field: 'due',
+          oldValue: undefined,
+          newValue: '2020-01-31T11:40'
+        },
+        {
+          field: 'color',
+          oldValue: undefined,
+          newValue: '#ff7733'
+        }
+      ]
     });
     return id;
   }
 
-  changeItem(change: Change): void {
-    const { id, fieldName, newValue } = change;
+  changeItem(change: ChangeItem): void {
+    const { id, changes } = change;
 
     if (!this.store[id]) {
       const value = window.localStorage.getItem(`item-${id}`);
@@ -92,9 +91,12 @@ export class LocalStore {
       this.list.push(id);
       this.reduxStore.dispatch(addToList(id));
     }
-
-    this.store[id].setField(fieldName, newValue);
+    for (let ch of changes) {
+      const { field, newValue } = ch;
+      this.store[id].setField(field, newValue);
+    }
     this.updateItem(id);
+    socket.emit('changeItem', change);
   }
 
   addRelation(oneSideId: ItemId, relation: RelationType, otherSideId: ItemId) {

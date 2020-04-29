@@ -49,20 +49,18 @@ const labelStyle = style({
 });
 
 export const FieldViewer: React.FC<Props> = props => {
-  const { type, id, name, params } = props;
+  const { type, id, name, params, value: oldValue } = props;
 
   const local: LocalStore = useContext(LocalStoreContext);
 
   const handleChange = useCallback(
-    (value: any) => {
+    (newValue: any) => {
       local.changeItem({
         id: id,
-        fieldName: name,
-        oldValue: undefined,
-        newValue: value
+        changes: [{ field: name, oldValue, newValue }]
       });
     },
-    [local, id, name]
+    [local, id, name, oldValue]
   );
 
   const fieldProps = { ...props, onChange: handleChange };
