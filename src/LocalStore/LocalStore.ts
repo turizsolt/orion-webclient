@@ -2,7 +2,7 @@ import { Store } from 'redux';
 import { ItemId } from '../model/Item/ItemId';
 import { StoredItem } from '../model/Item/StoredItem';
 import { ChangeItem } from '../model/Change/Change';
-import { ViewItem, ViewField } from '../model/Item/ViewItem';
+import { ViewItem } from '../model/Item/ViewItem';
 import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 import { FieldTypeOf } from '../model/Item/FieldTypeOf';
@@ -80,6 +80,11 @@ export class LocalStore {
   }
 
   changeItem(change: ChangeItem): void {
+    this.changeItemProcess(change, Updateness.Local);
+    socket.emit('changeItem', change);
+  }
+
+  changeItemProcess(change: ChangeItem, updateness: Updateness): void {
     const { id, changes } = change;
 
     if (!this.store[id]) {
@@ -95,9 +100,54 @@ export class LocalStore {
     for (let ch of changes) {
       const { field, newValue } = ch;
       this.store[id].setField(field, newValue);
+      this.store[id].setFieldUpdateness(field, updateness);
     }
     this.updateItem(id);
-    socket.emit('changeItem', change);
+  }
+
+  changeItemAccepted(change: ChangeItem): void {
+    const { id, changes } = change;
+
+    for (let ch of changes) {
+      const { field } = ch;
+      this.store[id].setFieldUpdateness(field, Updateness.JustUpdated);
+      const storedItem = this.store[id];
+      setTimeout(() => {
+        if (storedItem.getFieldUpdateness(field) === Updateness.JustUpdated) {
+          storedItem.setFieldUpdateness(field, Updateness.UpToDate);
+          this.updateItem(id);
+        }
+      }, 1500);
+    }
+    this.updateItem(id);
+  }
+
+  changeItemHappened(change: ChangeItem): void {
+    const { id, changes } = change;
+
+    if (!this.store[id]) {
+      const value = window.localStorage.getItem(`item-${id}`);
+      if (value) {
+        this.store[id] = StoredItem.deserialise(value);
+      } else {
+        this.store[id] = new StoredItem(id);
+      }
+      this.list.push(id);
+    }
+    for (let ch of changes) {
+      const { field, newValue } = ch;
+      this.store[id].setField(field, newValue);
+      this.store[id].setFieldUpdateness(field, Updateness.JustUpdated);
+
+      const storedItem = this.store[id];
+      setTimeout(() => {
+        if (storedItem.getFieldUpdateness(field) === Updateness.JustUpdated) {
+          storedItem.setFieldUpdateness(field, Updateness.UpToDate);
+          this.updateItem(id);
+        }
+      }, 1500);
+    }
+    this.updateItem(id);
   }
 
   addRelation(oneSideId: ItemId, relation: RelationType, otherSideId: ItemId) {
@@ -126,50 +176,14 @@ export class LocalStore {
         name: field,
         ...FieldTypeOf(field),
         value: this.store[id].getField(field),
-        updateness: [
-          Updateness.Conflict,
-          Updateness.Editing,
-          Updateness.JustUpdated,
-          Updateness.Local,
-          Updateness.UpToDate
-        ][(Math.random() * 5) | 0]
+        updateness: this.store[id].getFieldUpdateness(field)
       });
     }
-    viewItem.updateness = computeUpdateness(viewItem.fields);
+    viewItem.updateness = this.store[id].getUpdateness();
     return viewItem;
   }
 
   get(id: ItemId): StoredItem {
     return this.store[id];
   }
-}
-
-function udv(u: Updateness): number {
-  switch (u) {
-    case Updateness.Conflict:
-      return 0;
-    case Updateness.Local:
-      return 1;
-    case Updateness.Editing:
-      return 2;
-    case Updateness.JustUpdated:
-      return 3;
-    case Updateness.UpToDate:
-      return 4;
-    default:
-      return -1;
-  }
-}
-
-function computeUpdateness(fields: ViewField[]): Updateness {
-  if (fields.length === 0) return Updateness.UpToDate;
-  let min = udv(fields[0].updateness);
-  let val = fields[0].updateness;
-  for (let i = 1; i < fields.length; i++) {
-    if (udv(fields[i].updateness) < min) {
-      min = udv(fields[i].updateness);
-      val = fields[i].updateness;
-    }
-  }
-  return val;
 }

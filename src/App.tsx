@@ -6,6 +6,8 @@ import { twoStore } from './ReduxStore';
 import { RootItemViewer } from './components/Item/RootItemViewer';
 import { OneItemViewer } from './components/Item/OneItemViewer';
 import { style } from 'typestyle';
+import { socket } from './socket';
+import { ChangeItem } from './model/Change/Change';
 
 const localStore = new LocalStore(twoStore);
 
@@ -35,3 +37,11 @@ const App: React.FC = () => {
 };
 
 export default App;
+
+socket.on('changeItemAccepted', (data: ChangeItem) => {
+  localStore.changeItemAccepted(data);
+});
+
+socket.on('changeItemHappened', (data: ChangeItem) => {
+  localStore.changeItemHappened(data);
+});
