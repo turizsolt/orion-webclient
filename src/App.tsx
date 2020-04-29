@@ -45,3 +45,7 @@ socket.on('changeItemAccepted', (data: ChangeItem) => {
 socket.on('changeItemHappened', (data: ChangeItem) => {
   localStore.changeItemHappened(data);
 });
+
+socket.on('changeItemConflicted', (data: ChangeItem) => {
+  localStore.changeItemConflicted(data);
+});

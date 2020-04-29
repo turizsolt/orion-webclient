@@ -80,11 +80,6 @@ export class LocalStore {
   }
 
   changeItem(change: ChangeItem): void {
-    this.changeItemProcess(change, Updateness.Local);
-    socket.emit('changeItem', change);
-  }
-
-  changeItemProcess(change: ChangeItem, updateness: Updateness): void {
     const { id, changes } = change;
 
     if (!this.store[id]) {
@@ -97,12 +92,30 @@ export class LocalStore {
       this.list.push(id);
       this.reduxStore.dispatch(addToList(id));
     }
+    const modifiedChange: ChangeItem = { id: change.id, changes: [] };
     for (let ch of changes) {
       const { field, newValue } = ch;
       this.store[id].setField(field, newValue);
-      this.store[id].setFieldUpdateness(field, updateness);
+      if (this.store[id].getFieldUpdateness(field) === Updateness.Conflict) {
+        modifiedChange.changes.push({
+          ...ch,
+          oldValue: this.store[id].getAuxilaryField('their', field)
+        });
+        this.store[id].setFieldUpdateness(field, Updateness.Resolved);
+        if (
+          this.store[id].countFieldUpdateness(field, Updateness.Conflict) === 0
+        ) {
+          this.store[id].removeAuxilaryField('own');
+          this.store[id].removeAuxilaryField('their');
+        }
+      } else {
+        modifiedChange.changes.push(ch);
+        this.store[id].setFieldUpdateness(field, Updateness.Local);
+      }
     }
     this.updateItem(id);
+
+    socket.emit('changeItem', modifiedChange);
   }
 
   changeItemAccepted(change: ChangeItem): void {
@@ -122,6 +135,22 @@ export class LocalStore {
     this.updateItem(id);
   }
 
+  changeItemConflicted(change: ChangeItem): void {
+    const { id, changes } = change;
+
+    for (let ch of changes) {
+      const { field } = ch;
+      this.store[id].setFieldUpdateness(field, Updateness.Conflict);
+
+      this.store[id].addAuxilaryField('own');
+      this.store[id].setAuxilaryField('own', field, ch.newValue);
+
+      this.store[id].addAuxilaryField('their');
+      this.store[id].setAuxilaryField('their', field, ch.serverValue);
+    }
+    this.updateItem(id);
+  }
+
   changeItemHappened(change: ChangeItem): void {
     const { id, changes } = change;
 
@@ -135,17 +164,34 @@ export class LocalStore {
       this.list.push(id);
     }
     for (let ch of changes) {
-      const { field, newValue } = ch;
-      this.store[id].setField(field, newValue);
-      this.store[id].setFieldUpdateness(field, Updateness.JustUpdated);
+      const { field, newValue, oldValue } = ch;
+      if (
+        this.store[id].hasField(field) &&
+        this.store[id].getField(field) !== oldValue
+      ) {
+        this.store[id].setFieldUpdateness(field, Updateness.Conflict);
 
-      const storedItem = this.store[id];
-      setTimeout(() => {
-        if (storedItem.getFieldUpdateness(field) === Updateness.JustUpdated) {
-          storedItem.setFieldUpdateness(field, Updateness.UpToDate);
-          this.updateItem(id);
-        }
-      }, 1500);
+        this.store[id].addAuxilaryField('own');
+        this.store[id].setAuxilaryField(
+          'own',
+          field,
+          this.store[id].getField(field)
+        );
+
+        this.store[id].addAuxilaryField('their');
+        this.store[id].setAuxilaryField('their', field, ch.newValue);
+      } else {
+        this.store[id].setField(field, newValue);
+        this.store[id].setFieldUpdateness(field, Updateness.JustUpdated);
+
+        const storedItem = this.store[id];
+        setTimeout(() => {
+          if (storedItem.getFieldUpdateness(field) === Updateness.JustUpdated) {
+            storedItem.setFieldUpdateness(field, Updateness.UpToDate);
+            this.updateItem(id);
+          }
+        }, 1500);
+      }
     }
     this.updateItem(id);
   }

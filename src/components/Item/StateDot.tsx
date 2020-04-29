@@ -18,6 +18,7 @@ const dotStyle = style({
 
 const symbols: Record<Updateness, { color: string; sign: string }> = {
   [Updateness.Conflict]: { color: 'yellow', sign: '!' },
+  [Updateness.Resolved]: { color: 'purple', sign: 'R' },
   [Updateness.Local]: { color: 'blue', sign: 'L' },
   [Updateness.Editing]: { color: 'white', sign: 'E' },
   [Updateness.JustUpdated]: { color: 'lime', sign: 'K' },

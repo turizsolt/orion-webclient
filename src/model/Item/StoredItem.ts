@@ -11,12 +11,14 @@ export interface StoredField {
 export class StoredItem {
   private id: ItemId;
   private fields: Record<string, StoredField>;
+  private auxilaryFields: Record<string, Record<string, any>>;
   private relations: Relation[];
   private updateness: Updateness;
 
   constructor(id: ItemId) {
     this.id = id;
     this.fields = {};
+    this.auxilaryFields = {};
     this.relations = [];
     this.updateness = Updateness.UpToDate;
   }
@@ -29,6 +31,24 @@ export class StoredItem {
       };
     }
     this.fields[fieldName].value = value;
+  }
+
+  setAuxilaryField(auxName: string, fieldName: string, value: any) {
+    this.auxilaryFields[auxName][fieldName] = value;
+  }
+
+  getAuxilaryField(auxName: string, fieldName: string) {
+    return this.auxilaryFields[auxName][fieldName];
+  }
+
+  addAuxilaryField(name: string) {
+    if (!this.auxilaryFields[name]) {
+      this.auxilaryFields[name] = {};
+    }
+  }
+
+  removeAuxilaryField(name: string) {
+    delete this.auxilaryFields[name];
   }
 
   setFieldUpdateness(fieldName: string, updateness: Updateness) {
@@ -44,12 +64,26 @@ export class StoredItem {
     return this.fields[fieldName].value;
   }
 
+  hasField(fieldName: string): boolean {
+    return !!this.fields[fieldName];
+  }
+
   getFieldUpdateness(fieldName: string) {
     return this.fields[fieldName].updateness;
   }
 
   getUpdateness() {
     return this.updateness;
+  }
+
+  countFieldUpdateness(field: string, updateness: Updateness) {
+    let count = 0;
+    for (let field of Object.keys(this.fields)) {
+      if (this.fields[field].updateness === updateness) {
+        count++;
+      }
+    }
+    return count;
   }
 
   getFields(): string[] {
@@ -70,16 +104,23 @@ export class StoredItem {
     return JSON.stringify({
       id: this.id,
       fields: this.fields,
+      auxilaryFields: this.auxilaryFields,
       relations: this.relations
     });
   }
 
   static deserialise(json: string): StoredItem {
-    const { id, fields, relations } = JSON.parse(json);
+    const { id, fields, auxilaryFields, relations } = JSON.parse(json);
     const storedItem = new StoredItem(id);
     for (let key of Object.keys(fields)) {
       storedItem.setField(key, fields[key].value);
       storedItem.setFieldUpdateness(key, fields[key].updateness);
+    }
+    for (let key of Object.keys(auxilaryFields)) {
+      storedItem.addAuxilaryField(key);
+      for (let key2 of Object.keys(fields)) {
+        storedItem.setAuxilaryField(key, key2, auxilaryFields[key][key2]);
+      }
     }
     for (let relation of relations) {
       storedItem.addRelation(relation.type, relation.otherSideId);
@@ -92,14 +133,16 @@ function udv(u: Updateness): number {
   switch (u) {
     case Updateness.Conflict:
       return 0;
-    case Updateness.Local:
+    case Updateness.Resolved:
       return 1;
-    case Updateness.Editing:
+    case Updateness.Local:
       return 2;
-    case Updateness.JustUpdated:
+    case Updateness.Editing:
       return 3;
-    case Updateness.UpToDate:
+    case Updateness.JustUpdated:
       return 4;
+    case Updateness.UpToDate:
+      return 5;
     default:
       return -1;
   }

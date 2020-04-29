@@ -7,4 +7,5 @@ export interface Change {
   field: string;
   oldValue: any;
   newValue: any;
+  serverValue?: any;
 }
