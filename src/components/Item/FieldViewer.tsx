@@ -10,6 +10,8 @@ import { NumberFieldViewer } from './EditableFieldViewer/NumberFieldViewer';
 import { DateFieldViewer } from './EditableFieldViewer/DateFieldViewer';
 import { ColorFieldViewer } from './EditableFieldViewer/ColorFieldViewer';
 import { style } from 'typestyle';
+import { StateDot } from './StateDot';
+import { Updateness } from '../../model/Updateness';
 
 interface Props {
   id: ItemId;
@@ -17,6 +19,7 @@ interface Props {
   type: string;
   name: string;
   params?: any;
+  updateness: Updateness;
 }
 
 export interface FieldProps extends Props {
@@ -49,7 +52,7 @@ const labelStyle = style({
 });
 
 export const FieldViewer: React.FC<Props> = props => {
-  const { type, id, name, params, value: oldValue } = props;
+  const { type, id, name, params, value: oldValue, updateness } = props;
 
   const local: LocalStore = useContext(LocalStoreContext);
 
@@ -68,6 +71,7 @@ export const FieldViewer: React.FC<Props> = props => {
 
   return (
     <div className={fieldStyle}>
+      {!noLabel && <StateDot symbol={updateness} />}
       {!noLabel && <div className={labelStyle}>{name}</div>}
       {type === 'Enum' && <EnumFieldViewer {...fieldProps} />}
       {type === 'Boolean' && <BooleanFieldViewer {...fieldProps} />}

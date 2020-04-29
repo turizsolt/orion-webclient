@@ -7,6 +7,7 @@ import { RelationType } from '../../model/Relation/RelationType';
 import { useSelector } from 'react-redux';
 import { FieldViewer } from './FieldViewer';
 import { style } from 'typestyle';
+import { StateDot } from './StateDot';
 interface Props {
   item: ViewItem;
 }
@@ -42,7 +43,7 @@ export const ItemViewer: React.FC<Props> = props => {
   const { items } = useSelector((state: any) => state.appReducer);
   const local: LocalStore = useContext(LocalStoreContext);
 
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(false);
 
   const handleClick = useCallback(
     (parentId: ItemId) => (event: any) => {
@@ -60,6 +61,7 @@ export const ItemViewer: React.FC<Props> = props => {
     <>
       <div className={itemStyle}>
         <div className={headerStyle}>
+          <StateDot symbol={item.updateness} />
           <FieldViewer
             id={item.id}
             {...item.fields[0]}
