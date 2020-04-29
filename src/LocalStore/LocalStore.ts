@@ -211,9 +211,11 @@ export class LocalStore {
   }
 
   getView(id: ItemId): ViewItem {
+    const auxilaryColumns = this.store[id].getAuxilaryNames();
     const viewItem: ViewItem = {
       id,
       fields: [],
+      auxilaryColumns,
       children: this.store[id].getChildren(),
       updateness: Updateness.UpToDate
     };
@@ -222,7 +224,10 @@ export class LocalStore {
         name: field,
         ...FieldTypeOf(field),
         value: this.store[id].getField(field),
-        updateness: this.store[id].getFieldUpdateness(field)
+        updateness: this.store[id].getFieldUpdateness(field),
+        auxilaryValues: auxilaryColumns.map(name =>
+          this.store[id].getAuxilaryField(name, field)
+        )
       });
     }
     viewItem.updateness = this.store[id].getUpdateness();

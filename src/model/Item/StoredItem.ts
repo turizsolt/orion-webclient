@@ -38,7 +38,9 @@ export class StoredItem {
   }
 
   getAuxilaryField(auxName: string, fieldName: string) {
-    return this.auxilaryFields[auxName][fieldName];
+    return (
+      this.auxilaryFields[auxName] && this.auxilaryFields[auxName][fieldName]
+    );
   }
 
   addAuxilaryField(name: string) {
@@ -49,6 +51,14 @@ export class StoredItem {
 
   removeAuxilaryField(name: string) {
     delete this.auxilaryFields[name];
+  }
+
+  getAuxilaryNames() {
+    const names = [];
+    for (const key of Object.keys(this.auxilaryFields)) {
+      names.push(key);
+    }
+    return names;
   }
 
   setFieldUpdateness(fieldName: string, updateness: Updateness) {

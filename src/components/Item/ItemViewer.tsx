@@ -59,6 +59,7 @@ export const ItemViewer: React.FC<Props> = props => {
 
   return (
     <>
+      {false && <div>[{item.auxilaryColumns.join(', ')}]</div>}
       <div className={itemStyle}>
         <div className={headerStyle}>
           <StateDot symbol={item.updateness} />
@@ -73,7 +74,14 @@ export const ItemViewer: React.FC<Props> = props => {
         {!collapsed && (
           <div className={propsStyle}>
             {item.fields.map(field => (
-              <FieldViewer key={field.name} id={item.id} {...field} />
+              <div key={field.name}>
+                <FieldViewer id={item.id} {...field} />
+                {field.auxilaryValues.map((value, index) => (
+                  <div key={index}>
+                    {value ? `${item.auxilaryColumns[index]}: ${value}` : ''}
+                  </div>
+                ))}
+              </div>
             ))}
             <button onClick={handleClick(item.id)}>+ Add child</button>
           </div>
