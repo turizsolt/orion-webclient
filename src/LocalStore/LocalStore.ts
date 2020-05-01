@@ -9,6 +9,7 @@ import { FieldTypeOf } from '../model/Item/FieldTypeOf';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { socket } from '../socket';
 import { Updateness } from '../model/Updateness';
+import { createTemplate } from './CreateTemplate';
 
 const idGen = new ActualIdGenerator();
 
@@ -38,50 +39,12 @@ export class LocalStore {
     const id = idGen.generate();
     this.changeItem({
       id,
-      changes: [
-        {
-          field: 'title',
-          oldValue: undefined,
-          newValue: 'rndstr'
-        },
-        {
-          field: 'description',
-          oldValue: undefined,
-          newValue: 'arghhhh'
-        },
-        {
-          field: 'isIt',
-          oldValue: undefined,
-          newValue: true
-        },
-        {
-          field: 'state',
-          oldValue: undefined,
-          newValue: 'todo'
-        },
-        {
-          field: 'count',
-          oldValue: undefined,
-          newValue: '3'
-        },
-        {
-          field: 'due',
-          oldValue: undefined,
-          newValue: '2020-01-31T11:40'
-        },
-        {
-          field: 'color',
-          oldValue: undefined,
-          newValue: '#ff7733'
-        }
-      ]
+      changes: createTemplate
     });
     return id;
   }
 
-  changeItem(change: ChangeItem): void {
-    const { id, changes } = change;
-
+  loadItemIfNotPresent(id: ItemId) {
     if (!this.store[id]) {
       const value = window.localStorage.getItem(`item-${id}`);
       if (value) {
@@ -92,6 +55,13 @@ export class LocalStore {
       this.list.push(id);
       this.reduxStore.dispatch(addToList(id));
     }
+  }
+
+  changeItem(change: ChangeItem): void {
+    const { id, changes } = change;
+
+    this.loadItemIfNotPresent(id);
+
     const modifiedChange: ChangeItem = { id: change.id, changes: [] };
     for (let ch of changes) {
       const { field, newValue } = ch;
@@ -152,15 +122,8 @@ export class LocalStore {
   changeItemHappened(change: ChangeItem): void {
     const { id, changes } = change;
 
-    if (!this.store[id]) {
-      const value = window.localStorage.getItem(`item-${id}`);
-      if (value) {
-        this.store[id] = StoredItem.deserialise(value);
-      } else {
-        this.store[id] = new StoredItem(id);
-      }
-      this.list.push(id);
-    }
+    this.loadItemIfNotPresent(id);
+
     for (let ch of changes) {
       const { field, newValue, oldValue } = ch;
       if (
