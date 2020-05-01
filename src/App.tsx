@@ -7,7 +7,7 @@ import { RootItemViewer } from './components/Item/RootItemViewer';
 import { OneItemViewer } from './components/Item/OneItemViewer';
 import { style } from 'typestyle';
 import { socket } from './socket';
-import { ChangeItem } from './model/Change/Change';
+import { ChangeItem, ServerGetItem } from './model/Change/Change';
 import { ActualIdGenerator } from './idGenerator/ActualIdGenerator';
 
 const localStore = new LocalStore(twoStore);
@@ -50,4 +50,8 @@ socket.on('changeItemHappened', (data: ChangeItem) => {
 
 socket.on('changeItemConflicted', (data: ChangeItem) => {
   localStore.changeItemConflicted(data);
+});
+
+socket.on('allItem', (data: ServerGetItem[]) => {
+  localStore.allItem(data);
 });

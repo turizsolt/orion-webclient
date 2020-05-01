@@ -11,4 +11,14 @@ export interface Change {
   changeId: ChangeId;
 }
 
+export interface ServerGetItem {
+  id: string;
+  changes: ServerGet[];
+}
+
+export interface ServerGet {
+  field: string;
+  serverValue: any;
+}
+
 export type ChangeId = string;

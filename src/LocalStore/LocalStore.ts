@@ -1,7 +1,7 @@
 import { Store } from 'redux';
 import { ItemId } from '../model/Item/ItemId';
 import { StoredItem } from '../model/Item/StoredItem';
-import { ChangeItem, Change } from '../model/Change/Change';
+import { ChangeItem, Change, ServerGetItem } from '../model/Change/Change';
 import { ViewItem } from '../model/Item/ViewItem';
 import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
@@ -131,6 +131,22 @@ export class LocalStore {
     }
     this.updateItem(id);
     this.updateItemSoon(id);
+  }
+
+  allItem(getItems: ServerGetItem[]): void {
+    for (const item of getItems) {
+      const { id, changes } = item;
+      this.loadItemIfNotPresent(id);
+
+      for (let ch of changes) {
+        const { field, serverValue } = ch;
+
+        this.items[id].setField(field, serverValue);
+        this.items[id].setFieldUpdateness(field, Updateness.UpToDate);
+      }
+      // todo update ItemSSSSS
+      this.updateItem(id);
+    }
   }
 
   addRelation(oneSideId: ItemId, relation: RelationType, otherSideId: ItemId) {
