@@ -101,6 +101,7 @@ export class LocalStore {
     for (let ch of changes) {
       this.items[id].setFieldUpdateness(ch.field, Updateness.JustUpdated);
       this.items[id].removeFieldChange(ch.field);
+      delete this.changes[ch.changeId];
     }
     this.updateItem(id);
     this.updateItemSoon(id);
@@ -137,14 +138,32 @@ export class LocalStore {
     for (const item of getItems) {
       const { id, changes } = item;
       this.loadItemIfNotPresent(id);
+      const storedItem = this.items[id];
 
       for (let ch of changes) {
         const { field, serverValue } = ch;
 
-        this.items[id].setField(field, serverValue);
-        this.items[id].setFieldUpdateness(field, Updateness.UpToDate);
+        if (!storedItem.hasField(field)) {
+          storedItem.setField(field, serverValue);
+          storedItem.setFieldUpdateness(field, Updateness.UpToDate);
+        } else if (storedItem.hasConflict(field)) {
+          storedItem.setAuxilaryField('their', field, serverValue);
+        } else {
+          const chg = storedItem.getFieldChange(field);
+
+          if (!chg || (chg && chg.oldValue === serverValue)) {
+            storedItem.setField(field, serverValue);
+            storedItem.setFieldUpdateness(field, Updateness.UpToDate);
+          } else {
+            storedItem.setConflict(
+              field,
+              storedItem.getField(field),
+              serverValue
+            );
+          }
+        }
       }
-      // todo update ItemSSSSS
+      // todo update ItemSSSSS, one block outer
       this.updateItem(id);
     }
   }

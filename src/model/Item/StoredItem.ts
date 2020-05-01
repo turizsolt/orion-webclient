@@ -39,6 +39,10 @@ export class StoredItem {
     this.fields[fieldName].change = change;
   }
 
+  getFieldChange(fieldName: string): Change | undefined {
+    return this.fields[fieldName].change;
+  }
+
   removeFieldChange(fieldName: string) {
     delete this.fields[fieldName].change;
   }
@@ -191,7 +195,10 @@ export class StoredItem {
   }
 
   hasConflict(field: string): boolean {
-    return this.getFieldUpdateness(field) === Updateness.Conflict;
+    return (
+      this.hasField(field) &&
+      this.getFieldUpdateness(field) === Updateness.Conflict
+    );
   }
 
   resolveConflict(field: string): void {
