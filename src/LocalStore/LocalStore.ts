@@ -1,7 +1,7 @@
 import { Store } from 'redux';
 import { ItemId } from '../model/Item/ItemId';
 import { StoredItem } from '../model/Item/StoredItem';
-import { ChangeItem, Change, ServerGetItem } from '../model/Change/Change';
+import { ChangeItem, ServerGetItem } from '../model/Change/Change';
 import { ViewItem } from '../model/Item/ViewItem';
 import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
@@ -13,7 +13,7 @@ import { idGen } from '../App';
 
 export class LocalStore {
   private items: Record<ItemId, StoredItem>;
-  private changes: Record<ItemId, Change>;
+  private changes: Record<ItemId, ChangeItem>;
   private list: ItemId[];
   private reduxStore: Store;
 
@@ -89,7 +89,7 @@ export class LocalStore {
         storedItem.setFieldUpdateness(field, Updateness.Local);
       }
       storedItem.setFieldChange(field, modCh);
-      this.changes[modCh.changeId] = modCh;
+      this.changes[modCh.changeId] = { id, changes: [modCh] };
       modifiedChange.changes.push(modCh);
     }
     this.updateItem(id);
@@ -165,6 +165,16 @@ export class LocalStore {
       }
       // todo update ItemSSSSS, one block outer
       this.updateItem(id);
+    }
+
+    this.sendRecentChanges();
+  }
+
+  sendRecentChanges() {
+    // todo bulk send
+    console.log('send recent', this.changes);
+    for (const key of Object.keys(this.changes)) {
+      socket.emit('changeItem', this.changes[key]);
     }
   }
 
