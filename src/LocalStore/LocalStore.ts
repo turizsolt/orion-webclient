@@ -10,6 +10,7 @@ import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { socket } from '../socket';
 import { Updateness } from '../model/Updateness';
 import { createTemplate } from './CreateTemplate';
+import { throwStatement } from '@babel/types';
 
 const idGen = new ActualIdGenerator();
 
@@ -44,77 +45,67 @@ export class LocalStore {
     return id;
   }
 
-  loadItemIfNotPresent(id: ItemId) {
+  loadItemIfNotPresentWithDispatch(id: ItemId) {
     if (!this.store[id]) {
-      const value = window.localStorage.getItem(`item-${id}`);
-      if (value) {
-        this.store[id] = StoredItem.deserialise(value);
-      } else {
-        this.store[id] = new StoredItem(id);
-      }
-      this.list.push(id);
+      this.load(id);
       this.reduxStore.dispatch(addToList(id));
     }
   }
 
+  loadItemIfNotPresent(id: ItemId) {
+    if (!this.store[id]) {
+      this.load(id);
+    }
+  }
+
+  load(id: ItemId) {
+    const value = window.localStorage.getItem(`item-${id}`);
+    if (value) {
+      this.store[id] = StoredItem.deserialise(value);
+    } else {
+      this.store[id] = new StoredItem(id);
+    }
+    this.list.push(id);
+  }
+
   changeItem(change: ChangeItem): void {
     const { id, changes } = change;
-
-    this.loadItemIfNotPresent(id);
-
     const modifiedChange: ChangeItem = { id: change.id, changes: [] };
+
+    this.loadItemIfNotPresentWithDispatch(id);
+    const storedItem = this.store[id];
+
     for (let ch of changes) {
       const { field, newValue } = ch;
-      this.store[id].setField(field, newValue);
-      if (this.store[id].getFieldUpdateness(field) === Updateness.Conflict) {
+      storedItem.setField(field, newValue);
+      if (storedItem.hasConflict(field)) {
         modifiedChange.changes.push({
           ...ch,
-          oldValue: this.store[id].getAuxilaryField('their', field)
+          oldValue: storedItem.getAuxilaryField('their', field)
         });
-        this.store[id].setFieldUpdateness(field, Updateness.Resolved);
-        if (this.store[id].countFieldUpdateness(Updateness.Conflict) === 0) {
-          this.store[id].removeAuxilaryField('own');
-          this.store[id].removeAuxilaryField('their');
-        }
+        storedItem.resolveConflict(field);
       } else {
         modifiedChange.changes.push(ch);
-        this.store[id].setFieldUpdateness(field, Updateness.Local);
+        storedItem.setFieldUpdateness(field, Updateness.Local);
       }
     }
     this.updateItem(id);
-
     socket.emit('changeItem', modifiedChange);
   }
 
   changeItemAccepted(change: ChangeItem): void {
     const { id, changes } = change;
-
     for (let ch of changes) {
-      const { field } = ch;
-      this.store[id].setFieldUpdateness(field, Updateness.JustUpdated);
-      const storedItem = this.store[id];
-      setTimeout(() => {
-        if (storedItem.getFieldUpdateness(field) === Updateness.JustUpdated) {
-          storedItem.setFieldUpdateness(field, Updateness.UpToDate);
-          this.updateItem(id);
-        }
-      }, 1500);
+      this.store[id].setFieldUpdateness(ch.field, Updateness.JustUpdated);
     }
     this.updateItem(id);
+    this.updateItemSoon(id);
   }
 
   changeItemConflicted(change: ChangeItem): void {
     const { id, changes } = change;
-
     for (let ch of changes) {
-      const { field } = ch;
-      this.store[id].setFieldUpdateness(field, Updateness.Conflict);
-
-      this.store[id].addAuxilaryField('own');
-      this.store[id].setAuxilaryField('own', field, ch.newValue);
-
-      this.store[id].addAuxilaryField('their');
-      this.store[id].setAuxilaryField('their', field, ch.serverValue);
+      this.store[id].setConflict(ch.field, ch.newValue, ch.serverValue);
     }
     this.updateItem(id);
   }
@@ -124,37 +115,18 @@ export class LocalStore {
 
     this.loadItemIfNotPresent(id);
 
+    const storedItem = this.store[id];
     for (let ch of changes) {
       const { field, newValue, oldValue } = ch;
-      if (
-        this.store[id].hasField(field) &&
-        this.store[id].getField(field) !== oldValue
-      ) {
-        this.store[id].setFieldUpdateness(field, Updateness.Conflict);
-
-        this.store[id].addAuxilaryField('own');
-        this.store[id].setAuxilaryField(
-          'own',
-          field,
-          this.store[id].getField(field)
-        );
-
-        this.store[id].addAuxilaryField('their');
-        this.store[id].setAuxilaryField('their', field, ch.newValue);
+      if (storedItem.willConflict(field, oldValue)) {
+        storedItem.setConflict(field, storedItem.getField(field), newValue);
       } else {
         this.store[id].setField(field, newValue);
         this.store[id].setFieldUpdateness(field, Updateness.JustUpdated);
-
-        const storedItem = this.store[id];
-        setTimeout(() => {
-          if (storedItem.getFieldUpdateness(field) === Updateness.JustUpdated) {
-            storedItem.setFieldUpdateness(field, Updateness.UpToDate);
-            this.updateItem(id);
-          }
-        }, 1500);
       }
     }
     this.updateItem(id);
+    this.updateItemSoon(id);
   }
 
   addRelation(oneSideId: ItemId, relation: RelationType, otherSideId: ItemId) {
@@ -165,6 +137,14 @@ export class LocalStore {
     this.updateItem(otherSideId);
   }
 
+  updateItemSoon(id: ItemId) {
+    const storedItem = this.store[id];
+    setTimeout(() => {
+      storedItem.updateJustUpdatesToUpToDate();
+      this.updateItem(id);
+    }, 1500);
+  }
+
   updateItem(id: ItemId) {
     const viewItem = this.getView(id);
     this.reduxStore.dispatch(updateItem(viewItem));
@@ -173,15 +153,19 @@ export class LocalStore {
 
   getView(id: ItemId): ViewItem {
     const auxilaryColumns = this.store[id].getAuxilaryNames();
-    const viewItem: ViewItem = {
+    return {
       id,
-      fields: [],
+      fields: this.getViewFields(id, auxilaryColumns),
       auxilaryColumns,
       children: this.store[id].getChildren(),
-      updateness: Updateness.UpToDate
+      updateness: this.store[id].getUpdateness()
     };
+  }
+
+  private getViewFields(id: ItemId, auxilaryColumns: string[]) {
+    const fields = [];
     for (let field of this.store[id].getFields()) {
-      viewItem.fields.push({
+      fields.push({
         name: field,
         ...FieldTypeOf(field),
         value: this.store[id].getField(field),
@@ -191,8 +175,7 @@ export class LocalStore {
         )
       });
     }
-    viewItem.updateness = this.store[id].getUpdateness();
-    return viewItem;
+    return fields;
   }
 
   get(id: ItemId): StoredItem {

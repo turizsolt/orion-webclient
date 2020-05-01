@@ -155,4 +155,40 @@ export class StoredItem {
     }
     return storedItem;
   }
+
+  /*** higher order ***/
+
+  setConflict(field: string, ownValue: any, theirValue: any): void {
+    this.setFieldUpdateness(field, Updateness.Conflict);
+
+    this.addAuxilaryField('own');
+    this.setAuxilaryField('own', field, ownValue);
+
+    this.addAuxilaryField('their');
+    this.setAuxilaryField('their', field, theirValue);
+  }
+
+  willConflict(field: string, serverValue: any): boolean {
+    return this.hasField(field) && this.getField(field) !== serverValue;
+  }
+
+  updateJustUpdatesToUpToDate(): void {
+    for (let field of Object.keys(this.fields)) {
+      if (this.fields[field].updateness === Updateness.JustUpdated) {
+        this.setFieldUpdateness(field, Updateness.UpToDate);
+      }
+    }
+  }
+
+  hasConflict(field: string): boolean {
+    return this.getFieldUpdateness(field) === Updateness.Conflict;
+  }
+
+  resolveConflict(field: string): void {
+    this.setFieldUpdateness(field, Updateness.Resolved);
+    if (this.countFieldUpdateness(Updateness.Conflict) === 0) {
+      this.removeAuxilaryField('own');
+      this.removeAuxilaryField('their');
+    }
+  }
 }
