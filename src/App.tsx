@@ -8,8 +8,10 @@ import { OneItemViewer } from './components/Item/OneItemViewer';
 import { style } from 'typestyle';
 import { socket } from './socket';
 import { ChangeItem } from './model/Change/Change';
+import { ActualIdGenerator } from './idGenerator/ActualIdGenerator';
 
 const localStore = new LocalStore(twoStore);
+export const idGen = new ActualIdGenerator();
 
 export const LocalStoreContext = React.createContext(localStore);
 

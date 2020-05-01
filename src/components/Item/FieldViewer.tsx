@@ -3,7 +3,7 @@ import { ItemId } from '../../model/Item/ItemId';
 import { StringFieldViewer } from './EditableFieldViewer/StringFieldViewer';
 import { TextFieldViewer } from './EditableFieldViewer/TextFieldViewer';
 import { LocalStore } from '../../LocalStore/LocalStore';
-import { LocalStoreContext } from '../../App';
+import { LocalStoreContext, idGen } from '../../App';
 import { BooleanFieldViewer } from './BooleanFieldViewer';
 import { EnumFieldViewer } from './EnumFieldViewer';
 import { NumberFieldViewer } from './EditableFieldViewer/NumberFieldViewer';
@@ -60,7 +60,9 @@ export const FieldViewer: React.FC<Props> = props => {
     (newValue: any) => {
       local.changeItem({
         id: id,
-        changes: [{ field: name, oldValue, newValue }]
+        changes: [
+          { field: name, oldValue, newValue, changeId: idGen.generate() }
+        ]
       });
     },
     [local, id, name, oldValue]

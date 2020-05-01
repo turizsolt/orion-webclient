@@ -8,4 +8,7 @@ export interface Change {
   oldValue: any;
   newValue: any;
   serverValue?: any;
+  changeId: ChangeId;
 }
+
+export type ChangeId = string;
