@@ -1,7 +1,7 @@
 import { ItemId } from './ItemId';
 import { Relation } from '../Relation/Relation';
 import { RelationType } from '../Relation/RelationType';
-import { Updateness } from '../Updateness';
+import { Updateness, updatenessToNumber } from '../Updateness';
 
 export interface StoredField {
   updateness: Updateness;
@@ -63,7 +63,7 @@ export class StoredItem {
 
   setFieldUpdateness(fieldName: string, updateness: Updateness) {
     this.fields[fieldName].updateness = updateness;
-    this.updateness = computeUpdateness(this.fields);
+    this.computeUpdateness();
   }
 
   addRelation(type: RelationType, otherSideId: ItemId) {
@@ -86,7 +86,7 @@ export class StoredItem {
     return this.updateness;
   }
 
-  countFieldUpdateness(field: string, updateness: Updateness) {
+  countFieldUpdateness(updateness: Updateness) {
     let count = 0;
     for (let field of Object.keys(this.fields)) {
       if (this.fields[field].updateness === updateness) {
@@ -108,6 +108,24 @@ export class StoredItem {
     return this.relations
       .filter(x => x.type === RelationType.Child)
       .map(x => x.otherSideId);
+  }
+
+  private computeUpdateness(): void {
+    const fieldList: StoredField[] = this.getFields().map(f => this.fields[f]);
+
+    if (fieldList.length === 0) {
+      this.updateness = Updateness.UpToDate;
+    } else {
+      let min = updatenessToNumber(fieldList[0].updateness);
+      let val = fieldList[0].updateness;
+      for (let i = 1; i < fieldList.length; i++) {
+        if (updatenessToNumber(fieldList[i].updateness) < min) {
+          min = updatenessToNumber(fieldList[i].updateness);
+          val = fieldList[i].updateness;
+        }
+      }
+      this.updateness = val;
+    }
   }
 
   serialise(): string {
@@ -137,40 +155,4 @@ export class StoredItem {
     }
     return storedItem;
   }
-}
-
-function udv(u: Updateness): number {
-  switch (u) {
-    case Updateness.Conflict:
-      return 0;
-    case Updateness.Resolved:
-      return 1;
-    case Updateness.Local:
-      return 2;
-    case Updateness.Editing:
-      return 3;
-    case Updateness.JustUpdated:
-      return 4;
-    case Updateness.UpToDate:
-      return 5;
-    default:
-      return -1;
-  }
-}
-
-function computeUpdateness(fields: Record<string, StoredField>): Updateness {
-  const fieldList: StoredField[] = [];
-  for (const key of Object.keys(fields)) {
-    fieldList.push(fields[key]);
-  }
-  if (fieldList.length === 0) return Updateness.UpToDate;
-  let min = udv(fieldList[0].updateness);
-  let val = fieldList[0].updateness;
-  for (let i = 1; i < fieldList.length; i++) {
-    if (udv(fieldList[i].updateness) < min) {
-      min = udv(fieldList[i].updateness);
-      val = fieldList[i].updateness;
-    }
-  }
-  return val;
 }

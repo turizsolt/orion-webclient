@@ -102,9 +102,7 @@ export class LocalStore {
           oldValue: this.store[id].getAuxilaryField('their', field)
         });
         this.store[id].setFieldUpdateness(field, Updateness.Resolved);
-        if (
-          this.store[id].countFieldUpdateness(field, Updateness.Conflict) === 0
-        ) {
+        if (this.store[id].countFieldUpdateness(Updateness.Conflict) === 0) {
           this.store[id].removeAuxilaryField('own');
           this.store[id].removeAuxilaryField('their');
         }
