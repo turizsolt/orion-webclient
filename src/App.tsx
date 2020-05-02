@@ -22,6 +22,7 @@ const appStyle = style({ margin: '10px' });
 const App: React.FC = () => {
   return (
     <div className={appStyle}>
+      <button onClick={() => localStorage.clear()}>Clear localstorage</button>
       <Provider store={twoStore}>
         <LocalStoreContext.Provider value={localStore}>
           <BrowserRouter>

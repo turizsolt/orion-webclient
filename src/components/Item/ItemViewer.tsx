@@ -43,7 +43,7 @@ export const ItemViewer: React.FC<Props> = props => {
   const { items } = useSelector((state: any) => state.appReducer);
   const local: LocalStore = useContext(LocalStoreContext);
 
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   const handleClick = useCallback(
     (parentId: ItemId) => (event: any) => {
@@ -68,42 +68,48 @@ export const ItemViewer: React.FC<Props> = props => {
 
   return (
     <>
-      {false && <div>[{item.auxilaryColumns.join(', ')}]</div>}
-      <div className={itemStyle}>
-        <div className={headerStyle}>
-          <StateDot symbol={item.updateness} />
-          <FieldViewer
-            id={item.id}
-            {...item.fields[0]}
-            params={{ noLabel: true }}
-          />
-          <div>{item.id}</div>
-          <button onClick={handleCollapse}>{collapsed ? 'V' : 'A'}</button>
-        </div>
-        {!collapsed && (
-          <div className={propsStyle}>
-            {item.fields.map(field => (
-              <div key={field.name}>
-                <FieldViewer id={item.id} {...field} />
-                {field.auxilaryValues.map((value, index) => (
-                  <div key={index}>
-                    {value ? `${item.auxilaryColumns[index]}: ${value}` : ''}
+      {item && (
+        <>
+          {false && <div>[{item.auxilaryColumns.join(', ')}]</div>}
+          <div className={itemStyle}>
+            <div className={headerStyle}>
+              <StateDot symbol={item.updateness} />
+              <FieldViewer
+                id={item.id}
+                {...item.fields[0]}
+                params={{ noLabel: true }}
+              />
+              <div>{item.id}</div>
+              <button onClick={handleCollapse}>{collapsed ? 'V' : 'A'}</button>
+            </div>
+            {!collapsed && (
+              <div className={propsStyle}>
+                {item.fields.map(field => (
+                  <div key={field.name}>
+                    <FieldViewer id={item.id} {...field} />
+                    {field.auxilaryValues.map((value, index) => (
+                      <div key={index}>
+                        {value
+                          ? `${item.auxilaryColumns[index]}: ${value}`
+                          : ''}
+                      </div>
+                    ))}
                   </div>
                 ))}
+                <button onClick={handleClick(item.id)}>+ Add child</button>
+                <button onClick={handleClickRemove(item.id)}>
+                  - Detach first parent
+                </button>
               </div>
-            ))}
-            <button onClick={handleClick(item.id)}>+ Add child</button>
-            <button onClick={handleClickRemove(item.id)}>
-              - Detach first parent
-            </button>
+            )}
           </div>
-        )}
-      </div>
-      <div className={childrenStyle}>
-        {item.children.map(child => (
-          <ItemViewer key={child} item={items[child]} />
-        ))}
-      </div>
+          <div className={childrenStyle}>
+            {item.children.map(child => (
+              <ItemViewer key={child} item={items[child]} />
+            ))}
+          </div>
+        </>
+      )}
     </>
   );
 };

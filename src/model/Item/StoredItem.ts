@@ -80,6 +80,17 @@ export class StoredItem {
     this.computeUpdateness();
   }
 
+  hasRelation(type: RelationType, otherSideId: ItemId) {
+    const index = this.relations.findIndex(
+      x => x.type === type && x.otherSideId === otherSideId
+    );
+    return index > -1;
+  }
+
+  getRelations(): Relation[] {
+    return this.relations;
+  }
+
   addRelation(type: RelationType, otherSideId: ItemId) {
     const index = this.relations.findIndex(
       x => x.type === type && x.otherSideId === otherSideId

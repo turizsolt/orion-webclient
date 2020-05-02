@@ -136,7 +136,7 @@ export class LocalStore {
 
   allItem(getItems: ServerGetItem[]): void {
     for (const item of getItems) {
-      const { id, changes } = item;
+      const { id, changes, relations } = item;
       this.loadItemIfNotPresent(id);
       const storedItem = this.items[id];
 
@@ -160,6 +160,26 @@ export class LocalStore {
               storedItem.getField(field),
               serverValue
             );
+          }
+        }
+      }
+
+      for (const rel of relations) {
+        if (storedItem.hasRelation(rel.type, rel.otherSideId)) {
+          storedItem.addRelationAccepted(rel.type, rel.otherSideId);
+        } else {
+          storedItem.addRelation(rel.type, rel.otherSideId);
+          storedItem.addRelationAccepted(rel.type, rel.otherSideId);
+        }
+      }
+
+      for (const rel of storedItem.getRelations()) {
+        const index = relations.findIndex(
+          x => x.type === rel.type && x.otherSideId === rel.otherSideId
+        );
+        if (index === -1) {
+          if (rel.updateness === Updateness.UpToDate) {
+            storedItem.removeRelationAccepted(rel.type, rel.otherSideId);
           }
         }
       }

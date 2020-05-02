@@ -1,3 +1,5 @@
+import { Relation } from '../Relation/Relation';
+
 export interface ChangeItem {
   id: string;
   changes: Change[];
@@ -14,6 +16,7 @@ export interface Change {
 export interface ServerGetItem {
   id: string;
   changes: ServerGet[];
+  relations: Relation[];
 }
 
 export interface ServerGet {
