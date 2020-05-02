@@ -179,11 +179,99 @@ export class LocalStore {
   }
 
   addRelation(oneSideId: ItemId, relation: RelationType, otherSideId: ItemId) {
+    this.addRelationHandle(oneSideId, relation, otherSideId);
+    socket.emit('addRelation', {
+      oneSideId,
+      relation,
+      otherSideId,
+      changeId: idGen.generate()
+    });
+  }
+
+  addRelationHandle(
+    oneSideId: ItemId,
+    relation: RelationType,
+    otherSideId: ItemId
+  ) {
     this.items[oneSideId].addRelation(relation, otherSideId);
     this.items[otherSideId].addRelation(oppositeOf(relation), oneSideId);
 
     this.updateItem(oneSideId);
     this.updateItem(otherSideId);
+  }
+
+  addRelationAccepted(
+    oneSideId: ItemId,
+    relation: RelationType,
+    otherSideId: ItemId
+  ) {
+    this.items[oneSideId].addRelationAccepted(relation, otherSideId);
+    this.items[otherSideId].addRelationAccepted(
+      oppositeOf(relation),
+      oneSideId
+    );
+
+    this.updateItem(oneSideId);
+    this.updateItem(otherSideId);
+  }
+
+  addRelationHappened(
+    oneSideId: ItemId,
+    relation: RelationType,
+    otherSideId: ItemId
+  ) {
+    this.addRelationHandle(oneSideId, relation, otherSideId);
+    this.addRelationAccepted(oneSideId, relation, otherSideId);
+  }
+
+  removeRelation(
+    oneSideId: ItemId,
+    relation: RelationType,
+    otherSideId: ItemId
+  ) {
+    this.removeRelationHandle(oneSideId, relation, otherSideId);
+    socket.emit('removeRelation', {
+      oneSideId,
+      relation,
+      otherSideId,
+      changeId: idGen.generate()
+    });
+  }
+
+  removeRelationHandle(
+    oneSideId: ItemId,
+    relation: RelationType,
+    otherSideId: ItemId
+  ) {
+    this.items[oneSideId].removeRelation(relation, otherSideId);
+    this.items[otherSideId].removeRelation(oppositeOf(relation), oneSideId);
+
+    this.updateItem(oneSideId);
+    this.updateItem(otherSideId);
+  }
+
+  removeRelationAccepted(
+    oneSideId: ItemId,
+    relation: RelationType,
+    otherSideId: ItemId
+  ) {
+    this.items[oneSideId].removeRelationAccepted(relation, otherSideId);
+    this.items[otherSideId].removeRelationAccepted(
+      oppositeOf(relation),
+      oneSideId
+    );
+
+    this.updateItem(oneSideId);
+    this.updateItem(otherSideId);
+  }
+
+  removeRelationHappened(
+    oneSideId: ItemId,
+    relation: RelationType,
+    otherSideId: ItemId
+  ) {
+    this.removeRelationHandle(oneSideId, relation, otherSideId);
+    this.removeRelationAccepted(oneSideId, relation, otherSideId);
   }
 
   updateItemSoon(id: ItemId) {
@@ -207,6 +295,7 @@ export class LocalStore {
       fields: this.getViewFields(id, auxilaryColumns),
       auxilaryColumns,
       children: this.items[id].getChildren(),
+      parents: this.items[id].getParents(),
       updateness: this.items[id].getUpdateness()
     };
   }

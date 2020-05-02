@@ -53,6 +53,15 @@ export const ItemViewer: React.FC<Props> = props => {
     [local]
   );
 
+  const handleClickRemove = useCallback(
+    (id: ItemId) => (event: any) => {
+      if (item.parents.length === 0) return;
+      const parentId = item.parents[0];
+      local.removeRelation(id, RelationType.Parent, parentId);
+    },
+    [local, item]
+  );
+
   const handleCollapse = useCallback(() => {
     setCollapsed(!collapsed);
   }, [collapsed]);
@@ -84,6 +93,9 @@ export const ItemViewer: React.FC<Props> = props => {
               </div>
             ))}
             <button onClick={handleClick(item.id)}>+ Add child</button>
+            <button onClick={handleClickRemove(item.id)}>
+              - Detach first parent
+            </button>
           </div>
         )}
       </div>

@@ -6,6 +6,7 @@ export interface ViewItem {
   fields: ViewField[];
   auxilaryColumns: string[];
   children: ItemId[];
+  parents: ItemId[];
   updateness: Updateness;
 }
 

@@ -81,7 +81,44 @@ export class StoredItem {
   }
 
   addRelation(type: RelationType, otherSideId: ItemId) {
-    this.relations.push({ type, otherSideId });
+    const index = this.relations.findIndex(
+      x => x.type === type && x.otherSideId === otherSideId
+    );
+    if (index === -1) {
+      this.relations.push({ type, otherSideId, updateness: Updateness.Local });
+    }
+  }
+
+  addRelationAccepted(type: RelationType, otherSideId: ItemId) {
+    const index = this.relations.findIndex(
+      x => x.type === type && x.otherSideId === otherSideId
+    );
+    if (index > -1) {
+      this.relations[index] = {
+        type,
+        otherSideId,
+        updateness: Updateness.UpToDate
+      };
+    }
+  }
+
+  removeRelation(type: RelationType, otherSideId: ItemId) {
+    const index = this.relations.findIndex(
+      x => x.type === type && x.otherSideId === otherSideId
+    );
+    if (index > -1) {
+      this.relations[index] = {
+        type,
+        otherSideId,
+        updateness: Updateness.GoneLocal
+      };
+    }
+  }
+
+  removeRelationAccepted(type: RelationType, otherSideId: ItemId) {
+    this.relations = this.relations.filter(
+      x => !(x.type === type && x.otherSideId === otherSideId)
+    );
   }
 
   getField(fieldName: string) {
@@ -121,6 +158,12 @@ export class StoredItem {
   getChildren(): ItemId[] {
     return this.relations
       .filter(x => x.type === RelationType.Child)
+      .map(x => x.otherSideId);
+  }
+
+  getParents(): ItemId[] {
+    return this.relations
+      .filter(x => x.type === RelationType.Parent)
       .map(x => x.otherSideId);
   }
 
