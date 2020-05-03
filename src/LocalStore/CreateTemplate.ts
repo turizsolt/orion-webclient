@@ -5,6 +5,11 @@ export const createTemplate = [
     newValue: 'rndstr'
   },
   {
+    field: 'deleted',
+    oldValue: undefined,
+    newValue: false
+  },
+  {
     field: 'description',
     oldValue: undefined,
     newValue: 'arghhhh'
