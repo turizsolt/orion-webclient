@@ -1,10 +1,10 @@
 import openSocket from 'socket.io-client';
+declare var window: any;
 
 let sock;
 
 try {
-  // sock = openSocket('http://api.orion.zsiri.eu:80/');
-  sock = openSocket('http://localhost:8902/');
+  sock = openSocket(window.socketIoUrl);
 } catch {
   sock = { on: () => {}, emit: () => {} };
 }
