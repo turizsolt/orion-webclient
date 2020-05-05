@@ -9,6 +9,7 @@ import { FieldViewer } from './FieldViewer';
 import { style } from 'typestyle';
 import { StateDot } from './StateDot';
 import { Link } from 'react-router-dom';
+import { ItemAdderViewer } from './ItemAdderViewer';
 interface Props {
   item: ViewItem;
 }
@@ -39,6 +40,10 @@ const propsStyle = style({
   fontSize: '14px'
 });
 
+const headerButtonStyle = style({
+  marginLeft: '5px'
+});
+
 export const ItemViewer: React.FC<Props> = props => {
   const { item } = props;
   const { items } = useSelector((state: any) => state.appReducer);
@@ -46,16 +51,8 @@ export const ItemViewer: React.FC<Props> = props => {
 
   const [collapsed, setCollapsed] = useState(true);
 
-  const handleClick = useCallback(
-    (parentId: ItemId) => (event: any) => {
-      const childrenId = local.createItem();
-      local.addRelation(parentId, RelationType.Child, childrenId);
-    },
-    [local]
-  );
-
-  const handleClickRemove = useCallback(
-    (id: ItemId) => (event: any) => {
+  const handleDetachFromParent = useCallback(
+    (id: ItemId) => (_: any) => {
       if (item.parents.length === 0) return;
       const parentId = item.parents[0];
       local.removeRelation(id, RelationType.Parent, parentId);
@@ -66,6 +63,16 @@ export const ItemViewer: React.FC<Props> = props => {
   const handleCollapse = useCallback(() => {
     setCollapsed(!collapsed);
   }, [collapsed]);
+
+  const [showChildrenAdder, setShowChildrenAdder] = useState(false);
+
+  const handleNew = useCallback(() => {
+    setShowChildrenAdder(true);
+  }, []);
+
+  const handleNewClose = useCallback(() => {
+    setShowChildrenAdder(false);
+  }, []);
 
   return (
     <>
@@ -83,7 +90,12 @@ export const ItemViewer: React.FC<Props> = props => {
               <div>
                 <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
               </div>
-              <button onClick={handleCollapse}>{collapsed ? 'V' : 'A'}</button>
+              <button className={headerButtonStyle} onClick={handleNew}>
+                {'+'}
+              </button>
+              <button className={headerButtonStyle} onClick={handleCollapse}>
+                {collapsed ? 'V' : 'A'}
+              </button>
             </div>
             {!collapsed && (
               <div className={propsStyle}>
@@ -99,8 +111,8 @@ export const ItemViewer: React.FC<Props> = props => {
                     ))}
                   </div>
                 ))}
-                <button onClick={handleClick(item.id)}>+ Add child</button>
-                <button onClick={handleClickRemove(item.id)}>
+                <button onClick={handleNew}>+ Add child</button>
+                <button onClick={handleDetachFromParent(item.id)}>
                   - Detach first parent
                 </button>
               </div>
@@ -110,6 +122,9 @@ export const ItemViewer: React.FC<Props> = props => {
             {item.children.map(child => (
               <ItemViewer key={child} item={items[child]} />
             ))}
+            {showChildrenAdder && (
+              <ItemAdderViewer parentId={item.id} onClose={handleNewClose} />
+            )}
           </div>
         </>
       )}

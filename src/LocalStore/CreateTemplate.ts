@@ -2,7 +2,7 @@ export const createTemplate = [
   {
     field: 'title',
     oldValue: undefined,
-    newValue: 'rndstr'
+    newValue: ''
   },
   {
     field: 'deleted',

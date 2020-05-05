@@ -1,17 +1,21 @@
-import React, { useContext, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { ItemViewer } from './ItemViewer';
 import { ItemId } from '../../model/Item/ItemId';
 import { useSelector } from 'react-redux';
-import { LocalStoreContext } from '../../App';
-import { LocalStore } from '../../LocalStore/LocalStore';
+import { ItemAdderViewer } from './ItemAdderViewer';
 
 export const RootItemViewer: React.FC = () => {
   const { items, list } = useSelector((state: any) => state.appReducer);
-  const local: LocalStore = useContext(LocalStoreContext);
 
-  const handleClick = useCallback(() => {
-    local.createItem();
-  }, [local]);
+  const [showChildrenAdder, setShowChildrenAdder] = useState(false);
+
+  const handleNew = useCallback(() => {
+    setShowChildrenAdder(true);
+  }, []);
+
+  const handleNewClose = useCallback(() => {
+    setShowChildrenAdder(false);
+  }, []);
 
   return (
     <div>
@@ -20,7 +24,10 @@ export const RootItemViewer: React.FC = () => {
         .map((id: ItemId) => (
           <ItemViewer key={id} item={items[id]} />
         ))}
-      <button onClick={handleClick}>Add</button>
+      {showChildrenAdder && (
+        <ItemAdderViewer parentId={undefined} onClose={handleNewClose} />
+      )}
+      <button onClick={handleNew}>Add</button>
     </div>
   );
 };
