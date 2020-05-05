@@ -1,23 +1,33 @@
-export const FieldTypeOf = (field: string): { type: string; params?: any } => {
-  switch (field) {
-    case 'description':
-      return { type: 'Text' };
-    case 'isIt':
-      return { type: 'Boolean' };
-    case 'deleted':
-      return { type: 'Boolean' };
-    case 'count':
-      return { type: 'Number' };
-    case 'due':
-      return { type: 'Date' };
-    case 'color':
-      return { type: 'Color' };
-    case 'state':
-      return {
-        type: 'Enum',
-        params: { values: ['todo', 'doing', 'done'] }
-      };
-    default:
-      return { type: 'String' };
-  }
+interface FieldType {
+  type: string;
+  params?: any;
+  getDefaultValue: () => any;
+}
+
+interface NamedFieldType extends FieldType {
+  name: string;
+}
+
+const types: Record<string, FieldType> = {
+  description: { type: 'Text', getDefaultValue: () => '' },
+  isIt: { type: 'Boolean', getDefaultValue: () => false },
+  deleted: { type: 'Boolean', getDefaultValue: () => false },
+  count: { type: 'Number', getDefaultValue: () => 0 },
+  due: { type: 'Date', getDefaultValue: () => new Date().toISOString() },
+  color: { type: 'Color', getDefaultValue: () => '#000000' },
+  state: {
+    type: 'Enum',
+    params: { values: ['todo', 'doing', 'done'] },
+    getDefaultValue: () => 'todo'
+  },
+  default: { type: 'String', getDefaultValue: () => '' }
 };
+
+export const FieldTypeOf = (field: string): FieldType => {
+  return types[field] || types.default;
+};
+
+export const fieldTypeList: NamedFieldType[] = [];
+for (const name of Object.keys(types)) {
+  fieldTypeList.push({ ...types[name], name });
+}

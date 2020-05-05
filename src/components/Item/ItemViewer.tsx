@@ -1,6 +1,6 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useState, FormEvent } from 'react';
 import { ViewItem } from '../../model/Item/ViewItem';
-import { LocalStoreContext } from '../../App';
+import { LocalStoreContext, idGen } from '../../App';
 import { LocalStore } from '../../LocalStore/LocalStore';
 import { ItemId } from '../../model/Item/ItemId';
 import { RelationType } from '../../model/Relation/RelationType';
@@ -10,6 +10,7 @@ import { style } from 'typestyle';
 import { StateDot } from './StateDot';
 import { Link } from 'react-router-dom';
 import { ItemAdderViewer } from './ItemAdderViewer';
+import { FieldTypeOf, fieldTypeList } from '../../model/Item/FieldTypeOf';
 interface Props {
   item: ViewItem;
 }
@@ -64,6 +65,25 @@ export const ItemViewer: React.FC<Props> = props => {
     setCollapsed(!collapsed);
   }, [collapsed]);
 
+  const handleAddField = useCallback(
+    (event: FormEvent<HTMLSelectElement>) => {
+      const field = event.currentTarget.value;
+      local.changeItem({
+        id: item.id,
+        changes: [
+          {
+            changeId: idGen.generate(),
+            field,
+            oldValue: undefined,
+            newValue: FieldTypeOf(field).getDefaultValue()
+          }
+        ]
+      });
+      event.currentTarget.value = '';
+    },
+    [item, local]
+  );
+
   const [showChildrenAdder, setShowChildrenAdder] = useState(false);
 
   const handleNew = useCallback(() => {
@@ -111,6 +131,14 @@ export const ItemViewer: React.FC<Props> = props => {
                     ))}
                   </div>
                 ))}
+                <select onChange={handleAddField}>
+                  <option value="">Add field</option>
+                  {fieldTypeList.map(fieldType => (
+                    <option value={fieldType.name}>
+                      {fieldType.name} ({fieldType.type})
+                    </option>
+                  ))}
+                </select>
                 <button onClick={handleNew}>+ Add child</button>
                 <button onClick={handleDetachFromParent(item.id)}>
                   - Detach first parent
