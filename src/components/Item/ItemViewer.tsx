@@ -134,7 +134,7 @@ export const ItemViewer: React.FC<Props> = props => {
                 <select onChange={handleAddField}>
                   <option value="">Add field</option>
                   {fieldTypeList.map(fieldType => (
-                    <option value={fieldType.name}>
+                    <option value={fieldType.name} key={fieldType.name}>
                       {fieldType.name} ({fieldType.type})
                     </option>
                   ))}

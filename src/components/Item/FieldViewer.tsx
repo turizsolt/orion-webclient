@@ -68,6 +68,20 @@ export const FieldViewer: React.FC<Props> = props => {
     [local, id, name, oldValue]
   );
 
+  const handleRemoveField = useCallback(() => {
+    local.changeItem({
+      id: id,
+      changes: [
+        {
+          field: name,
+          oldValue,
+          newValue: undefined,
+          changeId: idGen.generate()
+        }
+      ]
+    });
+  }, [local, id, name, oldValue]);
+
   const fieldProps = { ...props, onChange: handleChange };
   const noLabel = params && params.noLabel;
 
@@ -82,6 +96,7 @@ export const FieldViewer: React.FC<Props> = props => {
       {type === 'Number' && <NumberFieldViewer {...fieldProps} />}
       {type === 'String' && <StringFieldViewer {...fieldProps} />}
       {type === 'Text' && <TextFieldViewer {...fieldProps} />}
+      {!noLabel && <button onClick={handleRemoveField}>x</button>}
     </div>
   );
 };
