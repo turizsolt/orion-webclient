@@ -15,9 +15,11 @@ export const RootItemViewer: React.FC = () => {
 
   return (
     <div>
-      {list.map((id: ItemId) => (
-        <ItemViewer key={id} item={items[id]} />
-      ))}
+      {list
+        .filter((x: ItemId) => items[x].parents.length === 0)
+        .map((id: ItemId) => (
+          <ItemViewer key={id} item={items[id]} />
+        ))}
       <button onClick={handleClick}>Add</button>
     </div>
   );
