@@ -8,6 +8,7 @@ import { useSelector } from 'react-redux';
 import { FieldViewer } from './FieldViewer';
 import { style } from 'typestyle';
 import { StateDot } from './StateDot';
+import { Link } from 'react-router-dom';
 interface Props {
   item: ViewItem;
 }
@@ -79,7 +80,9 @@ export const ItemViewer: React.FC<Props> = props => {
                 {...item.fields[0]}
                 params={{ noLabel: true }}
               />
-              <div>{item.id}</div>
+              <div>
+                <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
+              </div>
               <button onClick={handleCollapse}>{collapsed ? 'V' : 'A'}</button>
             </div>
             {!collapsed && (
