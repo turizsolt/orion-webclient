@@ -51,6 +51,7 @@ export const ItemViewer: React.FC<Props> = props => {
   const local: LocalStore = useContext(LocalStoreContext);
 
   const [collapsed, setCollapsed] = useState(true);
+  const [childrenCollapsed, setChildrenCollapsed] = useState(true);
 
   const handleDetachFromParent = useCallback(
     (id: ItemId) => (_: any) => {
@@ -64,6 +65,10 @@ export const ItemViewer: React.FC<Props> = props => {
   const handleCollapse = useCallback(() => {
     setCollapsed(!collapsed);
   }, [collapsed]);
+
+  const handleChildrenCollapse = useCallback(() => {
+    setChildrenCollapsed(!childrenCollapsed);
+  }, [childrenCollapsed]);
 
   const handleAddField = useCallback(
     (event: FormEvent<HTMLSelectElement>) => {
@@ -94,6 +99,13 @@ export const ItemViewer: React.FC<Props> = props => {
     setShowChildrenAdder(false);
   }, []);
 
+  const f = (x: ItemId) => {
+    return true;
+    //  !items[x].originalFields.deleted ||
+    //  items[x].originalFields.deleted.value !== true
+    //);
+  };
+
   return (
     <>
       {item && (
@@ -115,6 +127,12 @@ export const ItemViewer: React.FC<Props> = props => {
               </button>
               <button className={headerButtonStyle} onClick={handleCollapse}>
                 {collapsed ? 'V' : 'A'}
+              </button>
+              <button
+                className={headerButtonStyle}
+                onClick={handleChildrenCollapse}
+              >
+                {childrenCollapsed ? item.children.length : '-'}
               </button>
             </div>
             {!collapsed && (
@@ -147,9 +165,10 @@ export const ItemViewer: React.FC<Props> = props => {
             )}
           </div>
           <div className={childrenStyle}>
-            {item.children.map(child => (
-              <ItemViewer key={child} item={items[child]} />
-            ))}
+            {!childrenCollapsed &&
+              item.children
+                .filter(f)
+                .map(child => <ItemViewer key={child} item={items[child]} />)}
             {showChildrenAdder && (
               <ItemAdderViewer parentId={item.id} onClose={handleNewClose} />
             )}

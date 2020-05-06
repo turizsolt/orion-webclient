@@ -313,6 +313,7 @@ export class LocalStore {
     return {
       id,
       fields: this.getViewFields(id, auxilaryColumns),
+      originalFields: this.items[id].getOriginalFields(),
       auxilaryColumns,
       children: this.items[id].getChildren(),
       parents: this.items[id].getParents(),

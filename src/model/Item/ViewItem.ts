@@ -4,6 +4,7 @@ import { Updateness } from '../Updateness';
 export interface ViewItem {
   id: string;
   fields: ViewField[];
+  originalFields: Record<string, any>;
   auxilaryColumns: string[];
   children: ItemId[];
   parents: ItemId[];

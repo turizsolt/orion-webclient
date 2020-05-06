@@ -5,7 +5,9 @@ import { useSelector } from 'react-redux';
 import { ItemAdderViewer } from './ItemAdderViewer';
 
 export const RootItemViewer: React.FC = () => {
-  const { items, list } = useSelector((state: any) => state.appReducer);
+  const { items, list, filters } = useSelector(
+    (state: any) => state.appReducer
+  );
 
   const [showChildrenAdder, setShowChildrenAdder] = useState(false);
 
@@ -17,13 +19,47 @@ export const RootItemViewer: React.FC = () => {
     setShowChildrenAdder(false);
   }, []);
 
+  //   const order = (arr: ItemId[]): ItemId[] => {
+  //     arr.sort((a, b) => {
+  //       if (
+  //         items[a].originalFields.title.value <
+  //         items[b].originalFields.title.value
+  //       )
+  //         return -1;
+  //       if (
+  //         items[a].originalFields.title.value >
+  //         items[b].originalFields.title.value
+  //       )
+  //         return 1;
+  //       return 0;
+  //     });
+  //     return arr;
+  //   };
+
+  //   const f = (x: ItemId) => {
+  //     return (
+  //       items[x].parents.length === 0 && true
+  //       //(items[x].originalFields.title &&
+  //       //  items[x].originalFields.title.value.includes('alma')) &&
+  //       //(!items[x].originalFields.deleted ||
+  //       //  items[x].originalFields.deleted.value !== true)
+  //     );
+  //   };
+
+  const f = (x: ItemId) => {
+    for (const filter of filters) {
+      if (filter.on && !filter.f(items)(x)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
   return (
     <div>
-      {list
-        .filter((x: ItemId) => items[x].parents.length === 0)
-        .map((id: ItemId) => (
-          <ItemViewer key={id} item={items[id]} />
-        ))}
+      {list.filter(f).map((id: ItemId) => (
+        <ItemViewer key={id} item={items[id]} />
+      ))}
       {showChildrenAdder && (
         <ItemAdderViewer parentId={undefined} onClose={handleNewClose} />
       )}
