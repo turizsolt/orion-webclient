@@ -12,7 +12,7 @@ export const BooleanFieldViewer: React.FC<FieldProps> = props => {
   );
 
   return (
-    <div>
+    <div style={{ flexGrow: 1 }}>
       <input type="checkbox" checked={value} onChange={handleChanged} />
     </div>
   );
