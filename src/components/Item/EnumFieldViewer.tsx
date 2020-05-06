@@ -14,7 +14,7 @@ export const EnumFieldViewer: React.FC<FieldProps> = props => {
   const values = params.values as string[];
 
   return (
-    <div>
+    <div style={{ flexGrow: 1 }}>
       <select onChange={handleChanged} value={value}>
         {values.map(option => (
           <option key={option} value={option}>

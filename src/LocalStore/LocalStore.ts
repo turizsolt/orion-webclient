@@ -313,6 +313,7 @@ export class LocalStore {
     return {
       id,
       fields: this.getViewFields(id, auxilaryColumns),
+      originalFields: this.items[id].getOriginalFields(),
       auxilaryColumns,
       children: this.items[id].getChildren(),
       parents: this.items[id].getParents(),
@@ -323,15 +324,17 @@ export class LocalStore {
   private getViewFields(id: ItemId, auxilaryColumns: string[]) {
     const fields = [];
     for (let field of this.items[id].getFields()) {
-      fields.push({
-        name: field,
-        ...FieldTypeOf(field),
-        value: this.items[id].getField(field),
-        updateness: this.items[id].getFieldUpdateness(field),
-        auxilaryValues: auxilaryColumns.map(name =>
-          this.items[id].getAuxilaryField(name, field)
-        )
-      });
+      if (this.items[id].getField(field) !== undefined) {
+        fields.push({
+          name: field,
+          ...FieldTypeOf(field),
+          value: this.items[id].getField(field),
+          updateness: this.items[id].getFieldUpdateness(field),
+          auxilaryValues: auxilaryColumns.map(name =>
+            this.items[id].getAuxilaryField(name, field)
+          )
+        });
+      }
     }
     return fields;
   }

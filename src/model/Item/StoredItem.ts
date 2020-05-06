@@ -91,6 +91,10 @@ export class StoredItem {
     return this.relations;
   }
 
+  getOriginalFields(): Record<string, any> {
+    return this.fields;
+  }
+
   addRelation(type: RelationType, otherSideId: ItemId) {
     const index = this.relations.findIndex(
       x => x.type === type && x.otherSideId === otherSideId

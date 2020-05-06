@@ -1,6 +1,6 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useState, FormEvent } from 'react';
 import { ViewItem } from '../../model/Item/ViewItem';
-import { LocalStoreContext } from '../../App';
+import { LocalStoreContext, idGen } from '../../App';
 import { LocalStore } from '../../LocalStore/LocalStore';
 import { ItemId } from '../../model/Item/ItemId';
 import { RelationType } from '../../model/Relation/RelationType';
@@ -8,6 +8,9 @@ import { useSelector } from 'react-redux';
 import { FieldViewer } from './FieldViewer';
 import { style } from 'typestyle';
 import { StateDot } from './StateDot';
+import { Link } from 'react-router-dom';
+import { ItemAdderViewer } from './ItemAdderViewer';
+import { FieldTypeOf, fieldTypeList } from '../../model/Item/FieldTypeOf';
 interface Props {
   item: ViewItem;
 }
@@ -38,23 +41,20 @@ const propsStyle = style({
   fontSize: '14px'
 });
 
+const headerButtonStyle = style({
+  marginLeft: '5px'
+});
+
 export const ItemViewer: React.FC<Props> = props => {
   const { item } = props;
   const { items } = useSelector((state: any) => state.appReducer);
   const local: LocalStore = useContext(LocalStoreContext);
 
   const [collapsed, setCollapsed] = useState(true);
+  const [childrenCollapsed, setChildrenCollapsed] = useState(true);
 
-  const handleClick = useCallback(
-    (parentId: ItemId) => (event: any) => {
-      const childrenId = local.createItem();
-      local.addRelation(parentId, RelationType.Child, childrenId);
-    },
-    [local]
-  );
-
-  const handleClickRemove = useCallback(
-    (id: ItemId) => (event: any) => {
+  const handleDetachFromParent = useCallback(
+    (id: ItemId) => (_: any) => {
       if (item.parents.length === 0) return;
       const parentId = item.parents[0];
       local.removeRelation(id, RelationType.Parent, parentId);
@@ -65,6 +65,46 @@ export const ItemViewer: React.FC<Props> = props => {
   const handleCollapse = useCallback(() => {
     setCollapsed(!collapsed);
   }, [collapsed]);
+
+  const handleChildrenCollapse = useCallback(() => {
+    setChildrenCollapsed(!childrenCollapsed);
+  }, [childrenCollapsed]);
+
+  const handleAddField = useCallback(
+    (event: FormEvent<HTMLSelectElement>) => {
+      const field = event.currentTarget.value;
+      local.changeItem({
+        id: item.id,
+        changes: [
+          {
+            changeId: idGen.generate(),
+            field,
+            oldValue: undefined,
+            newValue: FieldTypeOf(field).getDefaultValue()
+          }
+        ]
+      });
+      event.currentTarget.value = '';
+    },
+    [item, local]
+  );
+
+  const [showChildrenAdder, setShowChildrenAdder] = useState(false);
+
+  const handleNew = useCallback(() => {
+    setShowChildrenAdder(true);
+  }, []);
+
+  const handleNewClose = useCallback(() => {
+    setShowChildrenAdder(false);
+  }, []);
+
+  const f = (x: ItemId) => {
+    return true;
+    //  !items[x].originalFields.deleted ||
+    //  items[x].originalFields.deleted.value !== true
+    //);
+  };
 
   return (
     <>
@@ -79,8 +119,21 @@ export const ItemViewer: React.FC<Props> = props => {
                 {...item.fields[0]}
                 params={{ noLabel: true }}
               />
-              <div>{item.id}</div>
-              <button onClick={handleCollapse}>{collapsed ? 'V' : 'A'}</button>
+              <div>
+                <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
+              </div>
+              <button className={headerButtonStyle} onClick={handleNew}>
+                {'+'}
+              </button>
+              <button className={headerButtonStyle} onClick={handleCollapse}>
+                {collapsed ? 'V' : 'A'}
+              </button>
+              <button
+                className={headerButtonStyle}
+                onClick={handleChildrenCollapse}
+              >
+                {childrenCollapsed ? item.children.length : '-'}
+              </button>
             </div>
             {!collapsed && (
               <div className={propsStyle}>
@@ -96,17 +149,29 @@ export const ItemViewer: React.FC<Props> = props => {
                     ))}
                   </div>
                 ))}
-                <button onClick={handleClick(item.id)}>+ Add child</button>
-                <button onClick={handleClickRemove(item.id)}>
+                <select onChange={handleAddField}>
+                  <option value="">Add field</option>
+                  {fieldTypeList.map(fieldType => (
+                    <option value={fieldType.name} key={fieldType.name}>
+                      {fieldType.name} ({fieldType.type})
+                    </option>
+                  ))}
+                </select>
+                <button onClick={handleNew}>+ Add child</button>
+                <button onClick={handleDetachFromParent(item.id)}>
                   - Detach first parent
                 </button>
               </div>
             )}
           </div>
           <div className={childrenStyle}>
-            {item.children.map(child => (
-              <ItemViewer key={child} item={items[child]} />
-            ))}
+            {!childrenCollapsed &&
+              item.children
+                .filter(f)
+                .map(child => <ItemViewer key={child} item={items[child]} />)}
+            {showChildrenAdder && (
+              <ItemAdderViewer parentId={item.id} onClose={handleNewClose} />
+            )}
           </div>
         </>
       )}
