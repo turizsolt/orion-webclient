@@ -1,7 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Route, Switch, BrowserRouter } from 'react-router-dom';
-import { LocalStore } from './LocalStore/LocalStore';
+import { Actions } from './LocalStore/Actions';
 import { twoStore } from './ReduxStore';
 import { RootItemViewer } from './components/Item/RootItemViewer';
 import { OneItemViewer } from './components/Item/OneItemViewer';
@@ -12,10 +12,10 @@ import { ActualIdGenerator } from './idGenerator/ActualIdGenerator';
 import { ItemId } from './model/Item/ItemId';
 import { RelationType } from './model/Relation/RelationType';
 
-const localStore = new LocalStore(twoStore);
+const actions = new Actions(twoStore);
 export const idGen = new ActualIdGenerator();
 
-export const LocalStoreContext = React.createContext(localStore);
+export const ActionsContext = React.createContext(actions);
 
 const appStyle = style({ margin: '10px' });
 
@@ -24,7 +24,7 @@ const App: React.FC = () => {
     <div className={appStyle}>
       <button onClick={() => localStorage.clear()}>Clear localstorage</button>
       <Provider store={twoStore}>
-        <LocalStoreContext.Provider value={localStore}>
+        <ActionsContext.Provider value={actions}>
           <BrowserRouter>
             <Switch>
               <Route path="/:id">
@@ -35,7 +35,7 @@ const App: React.FC = () => {
               </Route>
             </Switch>
           </BrowserRouter>
-        </LocalStoreContext.Provider>
+        </ActionsContext.Provider>
       </Provider>
     </div>
   );
@@ -44,19 +44,19 @@ const App: React.FC = () => {
 export default App;
 
 socket.on('changeItemAccepted', (data: ChangeItem) => {
-  localStore.changeItemAccepted(data);
+  actions.changeItemAccepted(data);
 });
 
 socket.on('changeItemHappened', (data: ChangeItem) => {
-  localStore.changeItemHappened(data);
+  actions.changeItemHappened(data);
 });
 
 socket.on('changeItemConflicted', (data: ChangeItem) => {
-  localStore.changeItemConflicted(data);
+  actions.changeItemConflicted(data);
 });
 
 socket.on('allItem', (data: ServerGetItem[]) => {
-  localStore.allItem(data);
+  actions.allItem(data);
 });
 
 type RelationChange = {
@@ -67,31 +67,19 @@ type RelationChange = {
 };
 
 socket.on('addRelationAccepted', (data: RelationChange) => {
-  localStore.addRelationAccepted(
-    data.oneSideId,
-    data.relation,
-    data.otherSideId
-  );
+  actions.addRelationAccepted(data.oneSideId, data.relation, data.otherSideId);
 });
 
 socket.on('addRelationAlreadyExists', (data: RelationChange) => {
-  localStore.addRelationAccepted(
-    data.oneSideId,
-    data.relation,
-    data.otherSideId
-  );
+  actions.addRelationAccepted(data.oneSideId, data.relation, data.otherSideId);
 });
 
 socket.on('addRelationHappened', (data: RelationChange) => {
-  localStore.addRelationHappened(
-    data.oneSideId,
-    data.relation,
-    data.otherSideId
-  );
+  actions.addRelationHappened(data.oneSideId, data.relation, data.otherSideId);
 });
 
 socket.on('removeRelationAccepted', (data: RelationChange) => {
-  localStore.removeRelationAccepted(
+  actions.removeRelationAccepted(
     data.oneSideId,
     data.relation,
     data.otherSideId
@@ -99,7 +87,7 @@ socket.on('removeRelationAccepted', (data: RelationChange) => {
 });
 
 socket.on('removeRelationAlreadyExists', (data: RelationChange) => {
-  localStore.removeRelationAccepted(
+  actions.removeRelationAccepted(
     data.oneSideId,
     data.relation,
     data.otherSideId
@@ -107,7 +95,7 @@ socket.on('removeRelationAlreadyExists', (data: RelationChange) => {
 });
 
 socket.on('removeRelationHappened', (data: RelationChange) => {
-  localStore.removeRelationHappened(
+  actions.removeRelationHappened(
     data.oneSideId,
     data.relation,
     data.otherSideId

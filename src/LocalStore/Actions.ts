@@ -11,7 +11,7 @@ import { Updateness } from '../model/Updateness';
 import { createTemplate } from './CreateTemplate';
 import { idGen } from '../App';
 
-export class LocalStore {
+export class Actions {
   private items: Record<ItemId, StoredItem>;
   private changes: Record<ItemId, ChangeItem>;
   private list: ItemId[];
