@@ -3,7 +3,7 @@ import { Store } from '../src/LocalStore/Store';
 import { VoidDispatcher } from '../src/LocalStore/VoidDispatcher';
 import { VoidLocalStorage } from '../src/LocalStore/VoidLocalStorage';
 import { VoidServerCommunication } from '../src/LocalStore/VoidServerCommunication';
-import { Change } from '../src/model/Change/Change';
+import { Change, ChangeResponse } from '../src/model/Change/Change';
 import { Transaction } from '../src/model/Transaction/Transaction';
 import { RelationType } from '../src/model/Relation/RelationType';
 import { Updateness } from '../src/model/Updateness';
@@ -20,7 +20,8 @@ describe('Commit', () => {
       field: 'title',
       oldValue: undefined,
       newValue: 'Lorem Ipsum',
-      changeId: idGen.generate()
+      changeId: idGen.generate(),
+      response: ChangeResponse.Pending
     };
     const transaction = new Transaction();
     transaction.add(change);
@@ -35,6 +36,7 @@ describe('Commit', () => {
     expect(store.getItem(itemId).getField('title')).equals('Lorem Ipsum');
     expect(store.getLastTransaction()).equals(transaction);
     expect(store.getLastChange()).equals(change);
+    expect(store.getItem(itemId).getUpdateness()).equals(Updateness.Local);
   });
 
   it('create a relation, then remove it', () => {
@@ -51,7 +53,8 @@ describe('Commit', () => {
       field: 'title',
       oldValue: undefined,
       newValue: 'Parent',
-      changeId: idGen.generate()
+      changeId: idGen.generate(),
+      response: ChangeResponse.Pending
     };
 
     const childItemId = '2';
@@ -61,7 +64,8 @@ describe('Commit', () => {
       field: 'title',
       oldValue: undefined,
       newValue: 'Children',
-      changeId: idGen.generate()
+      changeId: idGen.generate(),
+      response: ChangeResponse.Pending
     };
 
     const transaction = new Transaction();
@@ -75,7 +79,8 @@ describe('Commit', () => {
       oneSideId: parentItemId,
       relation: RelationType.Child,
       otherSideId: childItemId,
-      changeId: '8'
+      changeId: '8',
+      response: ChangeResponse.Pending
     };
 
     const transactionRel = new Transaction();
@@ -95,7 +100,8 @@ describe('Commit', () => {
       oneSideId: parentItemId,
       relation: RelationType.Child,
       otherSideId: childItemId,
-      changeId: '9'
+      changeId: '9',
+      response: ChangeResponse.Pending
     };
 
     const transactionRel2 = new Transaction();
@@ -109,5 +115,111 @@ describe('Commit', () => {
     expect(store.getItem(childItemId).getRelations()[0].updateness).equals(
       Updateness.GoneLocal
     );
+  });
+
+  it('create an item, server accepts it', () => {
+    const store = new Store(
+      new VoidDispatcher(),
+      new VoidLocalStorage(),
+      new VoidServerCommunication()
+    );
+
+    const itemId = '1';
+    const changeId = idGen.generate();
+    const change: Change = {
+      type: 'ItemChange',
+      itemId,
+      field: 'title',
+      oldValue: undefined,
+      newValue: 'Lorem Ipsum',
+      changeId,
+      response: ChangeResponse.Pending
+    };
+    const transaction = new Transaction();
+    transaction.add(change);
+    store.commit(transaction);
+
+    // coming back
+
+    const changeBack: Change = { ...change, response: ChangeResponse.Accepted };
+    const transactionBack = new Transaction(transaction.getId());
+    transactionBack.add(changeBack);
+    store.commit(transactionBack);
+
+    expect(store.getItem(itemId).getUpdateness()).equals(
+      Updateness.JustUpdated
+    );
+
+    expect(store.getChangeList().length).equals(1);
+    expect(store.getTransactionList().length).equals(1);
+  });
+
+  it('create an item, server rejects it', () => {
+    const store = new Store(
+      new VoidDispatcher(),
+      new VoidLocalStorage(),
+      new VoidServerCommunication()
+    );
+
+    const itemId = '1';
+    const changeId = idGen.generate();
+    const change: Change = {
+      type: 'ItemChange',
+      itemId,
+      field: 'title',
+      oldValue: undefined,
+      newValue: 'Lorem Ipsum',
+      changeId,
+      response: ChangeResponse.Pending
+    };
+    const transaction = new Transaction();
+    transaction.add(change);
+    store.commit(transaction);
+
+    // coming back
+
+    const changeBack: Change = {
+      ...change,
+      oldValue: 'Something Else',
+      response: ChangeResponse.Rejected
+    };
+    const transactionBack = new Transaction(transaction.getId());
+    transactionBack.add(changeBack);
+    store.commit(transactionBack);
+
+    expect(store.getItem(itemId).getUpdateness()).equals(Updateness.Conflict);
+
+    expect(store.getChangeList().length).equals(1);
+    expect(store.getTransactionList().length).equals(1);
+  });
+
+  it('happened a creation somewhere', () => {
+    const store = new Store(
+      new VoidDispatcher(),
+      new VoidLocalStorage(),
+      new VoidServerCommunication()
+    );
+
+    const itemId = '1';
+    const changeId = idGen.generate();
+    const change: Change = {
+      type: 'ItemChange',
+      itemId,
+      field: 'title',
+      oldValue: undefined,
+      newValue: 'Lorem Ipsum',
+      changeId,
+      response: ChangeResponse.Happened
+    };
+    const transaction = new Transaction();
+    transaction.add(change);
+    store.commit(transaction);
+
+    expect(store.getItem(itemId).getUpdateness()).equals(
+      Updateness.JustUpdated
+    );
+
+    expect(store.getChangeList().length).equals(1);
+    expect(store.getTransactionList().length).equals(1);
   });
 });

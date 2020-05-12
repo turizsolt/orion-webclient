@@ -4,6 +4,13 @@ import { FieldName } from '../Item/FieldName';
 import { ChangeId } from './ChangeId';
 import { RelationType } from '../Relation/RelationType';
 
+export enum ChangeResponse {
+  Pending = 'pending',
+  Accepted = 'accepted',
+  Rejected = 'rejected',
+  Happened = 'happened'
+}
+
 export type Change = ItemChange | RelationChange;
 
 export interface ItemChange {
@@ -13,6 +20,7 @@ export interface ItemChange {
   oldValue: any;
   newValue: any;
   changeId: ChangeId;
+  response: ChangeResponse;
 }
 
 export type RelationChange = {
@@ -21,6 +29,7 @@ export type RelationChange = {
   relation: RelationType;
   otherSideId: ItemId;
   changeId: ChangeId;
+  response: ChangeResponse;
 };
 
 /* OBSOLETE below */

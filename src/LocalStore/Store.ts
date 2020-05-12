@@ -1,6 +1,11 @@
 import { ItemId } from '../model/Item/ItemId';
 import { StoredItem } from '../model/Item/StoredItem';
-import { ChangeItem, ServerGetItem, Change } from '../model/Change/Change';
+import {
+  ChangeItem,
+  ServerGetItem,
+  Change,
+  ChangeResponse
+} from '../model/Change/Change';
 import { ViewItem } from '../model/Item/ViewItem';
 import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
@@ -372,14 +377,39 @@ export class Store {
     return this.xchanges[this.changeList[this.changeList.length - 1]];
   }
 
+  getTransactionList(): TransactionId[] {
+    return this.transactionList;
+  }
+
+  getChangeList(): ChangeId[] {
+    return this.changeList;
+  }
+
   commit(transaction: Transaction) {
     for (const change of transaction.getChanges()) {
       switch (change.type) {
         case 'ItemChange':
-          this.changeItem({
-            id: change.itemId,
-            changes: [{ ...change, changeId: idGen.generate() }]
-          });
+          if (change.response === ChangeResponse.Pending) {
+            this.changeItem({
+              id: change.itemId,
+              changes: [{ ...change }]
+            });
+          } else if (change.response === ChangeResponse.Accepted) {
+            this.changeItemAccepted({
+              id: change.itemId,
+              changes: [{ ...change }]
+            });
+          } else if (change.response === ChangeResponse.Rejected) {
+            this.changeItemConflicted({
+              id: change.itemId,
+              changes: [{ ...change, serverValue: change.oldValue }]
+            });
+          } else if (change.response === ChangeResponse.Happened) {
+            this.changeItemHappened({
+              id: change.itemId,
+              changes: [{ ...change }]
+            });
+          }
           break;
 
         case 'AddRelation':
@@ -400,12 +430,16 @@ export class Store {
       }
 
       const changeId = change.changeId;
+      if (!this.xchanges[changeId]) {
+        this.changeList.push(changeId);
+      }
       this.xchanges[changeId] = change;
-      this.changeList.push(changeId);
     }
 
     const transId = transaction.getId();
+    if (!this.transactions[transId]) {
+      this.transactionList.push(transId);
+    }
     this.transactions[transId] = transaction;
-    this.transactionList.push(transId);
   }
 }

@@ -7,9 +7,9 @@ const idGen = new ActualIdGenerator();
 export class Transaction {
   private changes: Change[];
   private id: TransactionId;
-  constructor() {
+  constructor(id?: TransactionId) {
     this.changes = [];
-    this.id = idGen.generate();
+    this.id = id || idGen.generate();
   }
 
   add(change: Change) {
