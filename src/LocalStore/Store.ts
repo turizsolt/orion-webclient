@@ -5,13 +5,13 @@ import { ViewItem } from '../model/Item/ViewItem';
 import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 import { FieldTypeOf } from '../model/Item/FieldTypeOf';
-import { socket } from '../socket';
 import { Updateness } from '../model/Updateness';
 import { createTemplate } from './CreateTemplate';
 import { Transaction } from '../model/Transaction/Transaction';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Dispatcher } from './Dispatcher';
 import { LocalStorage } from './LocalStorage';
+import { ServerCommunication } from './ServerCommunication';
 
 const idGen = new ActualIdGenerator();
 
@@ -22,7 +22,8 @@ export class Store {
 
   constructor(
     private dispatcher: Dispatcher,
-    private localStorage: LocalStorage
+    private localStorage: LocalStorage,
+    private serverCommunication: ServerCommunication
   ) {
     this.items = {};
     this.changes = {};
@@ -98,7 +99,7 @@ export class Store {
       modifiedChange.changes.push(modCh);
     }
     this.updateItem(id);
-    socket.emit('changeItem', modifiedChange);
+    this.serverCommunication.emit('changeItem', modifiedChange);
   }
 
   changeItemAccepted(change: ChangeItem): void {
@@ -199,13 +200,13 @@ export class Store {
     // todo bulk send
     console.log('send recent', this.changes);
     for (const key of Object.keys(this.changes)) {
-      socket.emit('changeItem', this.changes[key]);
+      this.serverCommunication.emit('changeItem', this.changes[key]);
     }
   }
 
   addRelation(oneSideId: ItemId, relation: RelationType, otherSideId: ItemId) {
     this.addRelationHandle(oneSideId, relation, otherSideId);
-    socket.emit('addRelation', {
+    this.serverCommunication.emit('addRelation', {
       oneSideId,
       relation,
       otherSideId,
@@ -255,7 +256,7 @@ export class Store {
     otherSideId: ItemId
   ) {
     this.removeRelationHandle(oneSideId, relation, otherSideId);
-    socket.emit('removeRelation', {
+    this.serverCommunication.emit('removeRelation', {
       oneSideId,
       relation,
       otherSideId,

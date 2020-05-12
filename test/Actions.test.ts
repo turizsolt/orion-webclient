@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { Store } from '../src/LocalStore/Store';
 import { VoidDispatcher } from '../src/LocalStore/VoidDispatcher';
 import { VoidLocalStorage } from '../src/LocalStore/VoidLocalStorage';
+import { VoidServerCommunication } from '../src/LocalStore/VoidServerCommunication';
 import { Change } from '../src/model/Change/Change';
 import { Transaction } from '../src/model/Transaction/Transaction';
 
@@ -16,7 +17,11 @@ describe('Actions', () => {
     };
     const transaction = new Transaction();
     transaction.add(change);
-    const store = new Store(new VoidDispatcher(), new VoidLocalStorage());
+    const store = new Store(
+      new VoidDispatcher(),
+      new VoidLocalStorage(),
+      new VoidServerCommunication()
+    );
     store.commit(transaction);
 
     expect(store.hasItem(itemId)).equals(true);

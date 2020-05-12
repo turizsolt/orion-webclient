@@ -2,6 +2,7 @@ import { Relation } from '../Relation/Relation';
 import { ItemId } from '../Item/ItemId';
 import { FieldName } from '../Item/FieldName';
 import { ChangeId } from './ChangeId';
+import { RelationType } from '../Relation/RelationType';
 
 export interface Change {
   itemId: ItemId;
@@ -9,6 +10,13 @@ export interface Change {
   oldValue: any;
   newValue: any;
 }
+
+export type RelationChange = {
+  oneSideId: ItemId;
+  relation: RelationType;
+  otherSideId: ItemId;
+  changeId: ChangeId;
+};
 
 /* OBSOLETE below */
 

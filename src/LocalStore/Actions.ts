@@ -4,11 +4,19 @@ import { ItemId } from '../model/Item/ItemId';
 import { RelationType } from '../model/Relation/RelationType';
 import { Dispatcher } from './Dispatcher';
 import { DefaultLocalStorage } from './DefaultLocalStorage';
+import { SocketServerCommunication } from './SocketServerCommunication';
+import { socket } from '../socket';
+import { initServerSocket } from './initServerSocket';
 
 export class Actions {
   private store: Store;
   constructor(dispatcher: Dispatcher) {
-    this.store = new Store(dispatcher, new DefaultLocalStorage());
+    this.store = new Store(
+      dispatcher,
+      new DefaultLocalStorage(),
+      new SocketServerCommunication(socket)
+    );
+    initServerSocket(this.store);
   }
 
   changeItem(change: ChangeItem): void {
