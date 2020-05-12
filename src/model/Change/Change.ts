@@ -12,6 +12,7 @@ export interface ItemChange {
   field: FieldName;
   oldValue: any;
   newValue: any;
+  changeId: ChangeId;
 }
 
 export type RelationChange = {

@@ -7,6 +7,9 @@ import { Change } from '../src/model/Change/Change';
 import { Transaction } from '../src/model/Transaction/Transaction';
 import { RelationType } from '../src/model/Relation/RelationType';
 import { Updateness } from '../src/model/Updateness';
+import { ActualIdGenerator } from '../src/idGenerator/ActualIdGenerator';
+
+const idGen = new ActualIdGenerator();
 
 describe('Commit', () => {
   it('create an item', () => {
@@ -16,7 +19,8 @@ describe('Commit', () => {
       itemId,
       field: 'title',
       oldValue: undefined,
-      newValue: 'Lorem Ipsum'
+      newValue: 'Lorem Ipsum',
+      changeId: idGen.generate()
     };
     const transaction = new Transaction();
     transaction.add(change);
@@ -29,6 +33,8 @@ describe('Commit', () => {
 
     expect(store.hasItem(itemId)).equals(true);
     expect(store.getItem(itemId).getField('title')).equals('Lorem Ipsum');
+    expect(store.getLastTransaction()).equals(transaction);
+    expect(store.getLastChange()).equals(change);
   });
 
   it('create a relation, then remove it', () => {
@@ -44,7 +50,8 @@ describe('Commit', () => {
       itemId: parentItemId,
       field: 'title',
       oldValue: undefined,
-      newValue: 'Parent'
+      newValue: 'Parent',
+      changeId: idGen.generate()
     };
 
     const childItemId = '2';
@@ -53,7 +60,8 @@ describe('Commit', () => {
       itemId: childItemId,
       field: 'title',
       oldValue: undefined,
-      newValue: 'Children'
+      newValue: 'Children',
+      changeId: idGen.generate()
     };
 
     const transaction = new Transaction();

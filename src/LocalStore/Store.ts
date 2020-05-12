@@ -1,6 +1,6 @@
 import { ItemId } from '../model/Item/ItemId';
 import { StoredItem } from '../model/Item/StoredItem';
-import { ChangeItem, ServerGetItem } from '../model/Change/Change';
+import { ChangeItem, ServerGetItem, Change } from '../model/Change/Change';
 import { ViewItem } from '../model/Item/ViewItem';
 import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
@@ -12,6 +12,8 @@ import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Dispatcher } from './Dispatcher';
 import { LocalStorage } from './LocalStorage';
 import { ServerCommunication } from './ServerCommunication';
+import { ChangeId } from '../model/Change/ChangeId';
+import { TransactionId } from '../model/Transaction/TransactionId';
 
 const idGen = new ActualIdGenerator();
 
@@ -345,12 +347,29 @@ export class Store {
     return fields;
   }
 
+  /*** neu ***/
+
   hasItem(id: ItemId): boolean {
     return !!this.items[id];
   }
 
   getItem(id: ItemId): StoredItem {
     return this.items[id];
+  }
+
+  private transactions: Record<TransactionId, Transaction> = {};
+  private transactionList: TransactionId[] = [];
+  private xchanges: Record<ChangeId, Change> = {};
+  private changeList: ChangeId[] = [];
+
+  getLastTransaction(): Transaction {
+    return this.transactions[
+      this.transactionList[this.transactionList.length - 1]
+    ];
+  }
+
+  getLastChange(): Change {
+    return this.xchanges[this.changeList[this.changeList.length - 1]];
   }
 
   commit(transaction: Transaction) {
@@ -379,6 +398,14 @@ export class Store {
           );
           break;
       }
+
+      const changeId = change.changeId;
+      this.xchanges[changeId] = change;
+      this.changeList.push(changeId);
     }
+
+    const transId = transaction.getId();
+    this.transactions[transId] = transaction;
+    this.transactionList.push(transId);
   }
 }
