@@ -4,7 +4,10 @@ import { FieldName } from '../Item/FieldName';
 import { ChangeId } from './ChangeId';
 import { RelationType } from '../Relation/RelationType';
 
-export interface Change {
+export type Change = ItemChange | RelationChange;
+
+export interface ItemChange {
+  type: 'ItemChange';
   itemId: ItemId;
   field: FieldName;
   oldValue: any;
@@ -12,6 +15,7 @@ export interface Change {
 }
 
 export type RelationChange = {
+  type: 'AddRelation' | 'RemoveRelation';
   oneSideId: ItemId;
   relation: RelationType;
   otherSideId: ItemId;

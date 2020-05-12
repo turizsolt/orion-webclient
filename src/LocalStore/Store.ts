@@ -355,10 +355,30 @@ export class Store {
 
   commit(transaction: Transaction) {
     for (const change of transaction.getChanges()) {
-      this.changeItem({
-        id: change.itemId,
-        changes: [{ ...change, changeId: idGen.generate() }]
-      });
+      switch (change.type) {
+        case 'ItemChange':
+          this.changeItem({
+            id: change.itemId,
+            changes: [{ ...change, changeId: idGen.generate() }]
+          });
+          break;
+
+        case 'AddRelation':
+          this.addRelation(
+            change.oneSideId,
+            change.relation,
+            change.otherSideId
+          );
+          break;
+
+        case 'RemoveRelation':
+          this.removeRelation(
+            change.oneSideId,
+            change.relation,
+            change.otherSideId
+          );
+          break;
+      }
     }
   }
 }
