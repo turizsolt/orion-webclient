@@ -7,12 +7,14 @@ import { RootItemViewer } from './components/Item/RootItemViewer';
 import { OneItemViewer } from './components/Item/OneItemViewer';
 import { style } from 'typestyle';
 import { socket } from './socket';
-import { ChangeItem, ServerGetItem, ChangeId } from './model/Change/Change';
+import { ChangeItem, ServerGetItem } from './model/Change/Change';
 import { ActualIdGenerator } from './idGenerator/ActualIdGenerator';
 import { ItemId } from './model/Item/ItemId';
 import { RelationType } from './model/Relation/RelationType';
+import { ReduxDispatcher } from './LocalStore/ReduxDispatcher';
 
-const actions = new Actions(twoStore);
+const dispatcher = new ReduxDispatcher(twoStore);
+const actions = new Actions(dispatcher);
 export const idGen = new ActualIdGenerator();
 
 export const ActionsContext = React.createContext(actions);
@@ -43,61 +45,61 @@ const App: React.FC = () => {
 
 export default App;
 
-socket.on('changeItemAccepted', (data: ChangeItem) => {
-  actions.changeItemAccepted(data);
-});
+// socket.on('changeItemAccepted', (data: ChangeItem) => {
+//   actions.changeItemAccepted(data);
+// });
 
-socket.on('changeItemHappened', (data: ChangeItem) => {
-  actions.changeItemHappened(data);
-});
+// socket.on('changeItemHappened', (data: ChangeItem) => {
+//   actions.changeItemHappened(data);
+// });
 
-socket.on('changeItemConflicted', (data: ChangeItem) => {
-  actions.changeItemConflicted(data);
-});
+// socket.on('changeItemConflicted', (data: ChangeItem) => {
+//   actions.changeItemConflicted(data);
+// });
 
-socket.on('allItem', (data: ServerGetItem[]) => {
-  actions.allItem(data);
-});
+// socket.on('allItem', (data: ServerGetItem[]) => {
+//   actions.allItem(data);
+// });
 
-type RelationChange = {
-  oneSideId: ItemId;
-  relation: RelationType;
-  otherSideId: ItemId;
-  changeId: ChangeId;
-};
+// type RelationChange = {
+//   oneSideId: ItemId;
+//   relation: RelationType;
+//   otherSideId: ItemId;
+//   changeId: ChangeId;
+// };
 
-socket.on('addRelationAccepted', (data: RelationChange) => {
-  actions.addRelationAccepted(data.oneSideId, data.relation, data.otherSideId);
-});
+// socket.on('addRelationAccepted', (data: RelationChange) => {
+//   actions.addRelationAccepted(data.oneSideId, data.relation, data.otherSideId);
+// });
 
-socket.on('addRelationAlreadyExists', (data: RelationChange) => {
-  actions.addRelationAccepted(data.oneSideId, data.relation, data.otherSideId);
-});
+// socket.on('addRelationAlreadyExists', (data: RelationChange) => {
+//   actions.addRelationAccepted(data.oneSideId, data.relation, data.otherSideId);
+// });
 
-socket.on('addRelationHappened', (data: RelationChange) => {
-  actions.addRelationHappened(data.oneSideId, data.relation, data.otherSideId);
-});
+// socket.on('addRelationHappened', (data: RelationChange) => {
+//   actions.addRelationHappened(data.oneSideId, data.relation, data.otherSideId);
+// });
 
-socket.on('removeRelationAccepted', (data: RelationChange) => {
-  actions.removeRelationAccepted(
-    data.oneSideId,
-    data.relation,
-    data.otherSideId
-  );
-});
+// socket.on('removeRelationAccepted', (data: RelationChange) => {
+//   actions.removeRelationAccepted(
+//     data.oneSideId,
+//     data.relation,
+//     data.otherSideId
+//   );
+// });
 
-socket.on('removeRelationAlreadyExists', (data: RelationChange) => {
-  actions.removeRelationAccepted(
-    data.oneSideId,
-    data.relation,
-    data.otherSideId
-  );
-});
+// socket.on('removeRelationAlreadyExists', (data: RelationChange) => {
+//   actions.removeRelationAccepted(
+//     data.oneSideId,
+//     data.relation,
+//     data.otherSideId
+//   );
+// });
 
-socket.on('removeRelationHappened', (data: RelationChange) => {
-  actions.removeRelationHappened(
-    data.oneSideId,
-    data.relation,
-    data.otherSideId
-  );
-});
+// socket.on('removeRelationHappened', (data: RelationChange) => {
+//   actions.removeRelationHappened(
+//     data.oneSideId,
+//     data.relation,
+//     data.otherSideId
+//   );
+// });

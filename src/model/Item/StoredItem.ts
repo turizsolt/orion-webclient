@@ -2,12 +2,12 @@ import { ItemId } from './ItemId';
 import { Relation } from '../Relation/Relation';
 import { RelationType } from '../Relation/RelationType';
 import { Updateness, updatenessToNumber } from '../Updateness';
-import { Change } from '../Change/Change';
+import { OldChange } from '../Change/Change';
 
 export interface StoredField {
   updateness: Updateness;
   value: any;
-  change?: Change;
+  change?: OldChange;
 }
 
 export class StoredItem {
@@ -35,11 +35,11 @@ export class StoredItem {
     this.fields[fieldName].value = value;
   }
 
-  setFieldChange(fieldName: string, change: Change) {
+  setFieldChange(fieldName: string, change: OldChange) {
     this.fields[fieldName].change = change;
   }
 
-  getFieldChange(fieldName: string): Change | undefined {
+  getFieldChange(fieldName: string): OldChange | undefined {
     return this.fields[fieldName].change;
   }
 

@@ -1,39 +1,9 @@
 import { expect } from 'chai';
-
-export type FieldName = string;
-export type ItemId = string;
-
-export interface Change {
-  itemId: ItemId;
-  field: FieldName;
-  oldValue: any;
-  newValue: any;
-}
-
-export class Transaction {
-  private changes: Change[];
-  constructor() {
-    this.changes = [];
-  }
-
-  add(change: Change) {
-    this.changes.push(change);
-  }
-}
-
-export class Store {
-  commit(transaction: Transaction) {
-    console.log('committed', transaction);
-  }
-
-  hasItem(itemId: ItemId): boolean {
-    return true;
-  }
-
-  getItem(itemId: ItemId): { getField: (field: string) => any } {
-    return { getField: (field: string) => 'Lorem Ipsum' };
-  }
-}
+import { Store } from '../src/LocalStore/Store';
+import { VoidDispatcher } from '../src/LocalStore/VoidDispatcher';
+import { VoidLocalStorage } from '../src/LocalStore/VoidLocalStorage';
+import { Change } from '../src/model/Change/Change';
+import { Transaction } from '../src/model/Transaction/Transaction';
 
 describe('Actions', () => {
   it('create an item', () => {
@@ -46,7 +16,7 @@ describe('Actions', () => {
     };
     const transaction = new Transaction();
     transaction.add(change);
-    const store = new Store();
+    const store = new Store(new VoidDispatcher(), new VoidLocalStorage());
     store.commit(transaction);
 
     expect(store.hasItem(itemId)).equals(true);
