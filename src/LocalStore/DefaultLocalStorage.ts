@@ -1,4 +1,6 @@
-export class DefaultLocalStorage {
+import { LocalStorage } from './LocalStorage';
+
+export class DefaultLocalStorage implements LocalStorage {
   getItem(key: string): any {
     return window.localStorage.getItem(key);
   }
@@ -7,5 +9,8 @@ export class DefaultLocalStorage {
   }
   clear(): void {
     window.localStorage.clear();
+  }
+  getKeys(): string[] {
+    return Object.keys(window.localStorage);
   }
 }

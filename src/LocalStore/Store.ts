@@ -29,7 +29,7 @@ export class Store {
     this.changes = {};
     this.list = [];
 
-    for (let key of Object.keys(this.localStorage)) {
+    for (let key of this.localStorage.getKeys()) {
       const value = this.localStorage.getItem(key);
       const id = key.substr(5); // "item-${id}"
       if (value) {
