@@ -8,9 +8,16 @@ import { OneItemViewer } from './components/Item/OneItemViewer';
 import { style } from 'typestyle';
 import { ActualIdGenerator } from './idGenerator/ActualIdGenerator';
 import { ReduxDispatcher } from './LocalStore/ReduxDispatcher';
+import { DefaultLocalStorage } from './LocalStore/DefaultLocalStorage';
+import { SocketServerCommunication } from './LocalStore/SocketServerCommunication';
+import { socket } from './socket';
 
 const dispatcher = new ReduxDispatcher(twoStore);
-const actions = new Actions(dispatcher);
+const actions = new Actions(
+  dispatcher,
+  new DefaultLocalStorage(),
+  new SocketServerCommunication(socket)
+);
 export const idGen = new ActualIdGenerator();
 
 export const ActionsContext = React.createContext(actions);
