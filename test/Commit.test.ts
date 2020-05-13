@@ -13,22 +13,27 @@ import {
 describe('Commit', () => {
   it('create an item', () => {
     const store = createStore();
-    const { itemId, change, transaction } = commitItemChange(store, {
+    const { itemId, changeId, change, transaction } = commitItemChange(store, {
       newValue: LOREM_IPSUM
     });
 
+    const item = store.getItem(itemId);
     expect(store.hasItem(itemId)).equals(true);
-    expect(store.getItem(itemId).getField(FIELD)).equals(LOREM_IPSUM);
-    expect(store.getItem(itemId).getUpdateness()).equals(Updateness.Local);
+    expect(item.getField(FIELD)).equals(LOREM_IPSUM);
+    expect(item.getUpdateness()).equals(Updateness.Local);
 
     expect(store.getLastTransaction()).equals(transaction);
     expect(store.getLastChange()).equals(change);
+
+    expect(store.hasChange(changeId)).equals(true);
+    expect(store.getChange(changeId).response).equals(ChangeResponse.Pending);
+    expect(item.getFieldChange(FIELD)).equals(change);
   });
 
   it('create an item, server accepts it', () => {
     const store = createStore();
 
-    const { itemId, change, transaction } = commitItemChange(store, {
+    const { itemId, changeId, change, transaction } = commitItemChange(store, {
       newValue: LOREM_IPSUM
     });
 
@@ -46,12 +51,15 @@ describe('Commit', () => {
 
     expect(store.getChangeList().length).equals(1);
     expect(store.getTransactionList().length).equals(1);
+
+    expect(store.getChange(changeId).response).equals(ChangeResponse.Accepted);
+    expect(item.getFieldChange(FIELD)).equals(undefined);
   });
 
   it('create an item, server rejects it, then resolving', () => {
     const store = createStore();
 
-    const { itemId, change, transaction } = commitItemChange(store, {
+    const { itemId, changeId, change, transaction } = commitItemChange(store, {
       newValue: LOREM_IPSUM
     });
 
@@ -75,7 +83,13 @@ describe('Commit', () => {
     expect(store.getChangeList().length).equals(1);
     expect(store.getTransactionList().length).equals(1);
 
-    commitItemChange(store, {
+    expect(store.getChange(changeId).response).equals(ChangeResponse.Rejected);
+    expect(item.getFieldChange(FIELD)).equals(undefined);
+
+    const {
+      changeId: resolvedChangeId,
+      change: resolvedChange
+    } = commitItemChange(store, {
       itemId,
       oldValue: SOMETHING_ELSE,
       newValue: LOREM_IPSUM
@@ -88,12 +102,18 @@ describe('Commit', () => {
     expect(resolvedItem.getField(FIELD)).equals(LOREM_IPSUM);
     expect(resolvedItem.getAuxilaryField(OURS, FIELD)).equals(undefined);
     expect(resolvedItem.getAuxilaryField(THEIRS, FIELD)).equals(undefined);
+
+    expect(store.getChange(changeId).response).equals(ChangeResponse.Rejected);
+    expect(store.getChange(resolvedChangeId).response).equals(
+      ChangeResponse.Pending
+    );
+    expect(resolvedItem.getFieldChange(FIELD)).equals(resolvedChange);
   });
 
   it('happened a creation somewhere', () => {
     const store = createStore();
 
-    const { itemId } = commitItemChange(store, {
+    const { itemId, changeId } = commitItemChange(store, {
       newValue: LOREM_IPSUM,
       response: ChangeResponse.Happened
     });
@@ -104,16 +124,19 @@ describe('Commit', () => {
 
     expect(store.getChangeList().length).equals(1);
     expect(store.getTransactionList().length).equals(1);
+
+    expect(store.getChange(changeId).response).equals(ChangeResponse.Happened);
+    expect(item.getFieldChange(FIELD)).equals(undefined);
   });
 
   it('happened a creation somewhere, and conflicting to local', () => {
     const store = createStore();
 
-    const { itemId } = commitItemChange(store, {
+    const { itemId, changeId: localChangeId } = commitItemChange(store, {
       newValue: LOREM_IPSUM
     });
 
-    commitItemChange(store, {
+    const { changeId: happenedChangeId } = commitItemChange(store, {
       itemId,
       oldValue: undefined,
       newValue: SOMETHING_ELSE,
@@ -128,5 +151,13 @@ describe('Commit', () => {
 
     expect(store.getChangeList().length).equals(2);
     expect(store.getTransactionList().length).equals(2);
+
+    expect(store.getChange(happenedChangeId).response).equals(
+      ChangeResponse.Happened
+    );
+    expect(store.getChange(localChangeId).response).equals(
+      ChangeResponse.Rejected
+    );
+    expect(item.getFieldChange(FIELD)).equals(undefined);
   });
 });

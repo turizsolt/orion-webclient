@@ -387,6 +387,14 @@ export class Store {
     return this.changeList;
   }
 
+  hasChange(changeId: ChangeId): boolean {
+    return !!this.xchanges[changeId];
+  }
+
+  getChange(changeId: ChangeId): Change {
+    return this.xchanges[changeId];
+  }
+
   changeItem2(change: ItemChange): void {
     this.loadItemIfNotPresentWithDispatch(change.itemId);
     const storedItem = this.items[change.itemId];
@@ -418,6 +426,11 @@ export class Store {
         storedItem.getField(change.field),
         change.newValue
       );
+
+      const lastChange = storedItem.getFieldChange(change.field);
+      if (lastChange) {
+        this.xchanges[lastChange.changeId].response = ChangeResponse.Rejected;
+      }
     } else {
       storedItem.setField(change.field, change.newValue);
       storedItem.setFieldUpdateness(
@@ -425,7 +438,15 @@ export class Store {
         this.updatenessFromResponse(change.response)
       );
     }
-    //storedItem.setFieldChange(change.field, change);
+
+    if (change.response === ChangeResponse.Pending) {
+      storedItem.setFieldChange(change.field, change);
+    } else {
+      storedItem.removeFieldChange(change.field);
+    }
+
+    // send to socket
+    // update indicated items and changes and maybe lists
   }
 
   updatenessFromResponse(response: ChangeResponse): Updateness {

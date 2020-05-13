@@ -23,6 +23,7 @@ export const createStore = (): Store => {
 interface ItemChangeTransaction {
   itemId: ItemId;
   change: ItemChange;
+  changeId: ChangeId;
   transaction: Transaction;
 }
 
@@ -50,7 +51,12 @@ export const commitItemChange = (
   const transaction = new Transaction(props.transactionId);
   transaction.add(change);
   store.commit(transaction);
-  return { itemId: change.itemId, change, transaction };
+  return {
+    itemId: change.itemId,
+    changeId: change.changeId,
+    change,
+    transaction
+  };
 };
 
 export const LOREM_IPSUM = 'Lorem Ipsum';
