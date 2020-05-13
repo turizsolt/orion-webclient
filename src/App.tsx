@@ -11,6 +11,7 @@ import { ReduxDispatcher } from './LocalStore/ReduxDispatcher';
 import { DefaultLocalStorage } from './LocalStore/DefaultLocalStorage';
 import { SocketServerCommunication } from './LocalStore/SocketServerCommunication';
 import { socket } from './socket';
+import { Changes } from './Changes';
 
 const dispatcher = new ReduxDispatcher(twoStore);
 const actions = new Actions(
@@ -41,6 +42,7 @@ const App: React.FC = () => {
             </Switch>
           </BrowserRouter>
         </ActionsContext.Provider>
+        <Changes />
       </Provider>
     </div>
   );

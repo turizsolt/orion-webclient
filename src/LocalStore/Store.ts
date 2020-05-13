@@ -7,7 +7,12 @@ import {
   ItemChange
 } from '../model/Change/Change';
 import { ViewItem } from '../model/Item/ViewItem';
-import { updateItem, createList, addToList } from '../ReduxStore/actions';
+import {
+  updateItem,
+  createItemList,
+  addToItems,
+  updateChange
+} from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 import { FieldTypeOf } from '../model/Item/FieldTypeOf';
 import { Updateness } from '../model/Updateness';
@@ -20,6 +25,7 @@ import { ChangeId } from '../model/Change/ChangeId';
 import { TransactionId } from '../model/Transaction/TransactionId';
 import { THEIRS } from '../model/OursTheirs';
 import { AffectedChanges } from '../model/AffectedChanges';
+import { ViewChange } from '../model/Change/ViewChange';
 
 const idGen = new ActualIdGenerator();
 
@@ -37,6 +43,8 @@ export class Store {
     private serverCommunication: ServerCommunication
   ) {
     for (let key of this.localStorage.getKeys()) {
+      if (!key.startsWith('item-')) continue;
+
       const value = this.localStorage.getItem(key);
       const id = key.substr(5); // "item-${id}"
       if (value) {
@@ -45,13 +53,13 @@ export class Store {
         this.itemList.push(id);
       }
     }
-    this.dispatcher.dispatch(createList(this.itemList));
+    this.dispatcher.dispatch(createItemList(this.itemList));
   }
 
   loadItemIfNotPresentWithDispatch(id: ItemId) {
     if (!this.items[id]) {
       this.load(id);
-      this.dispatcher.dispatch(addToList(id));
+      this.dispatcher.dispatch(addToItems(id));
     }
   }
 
@@ -248,6 +256,15 @@ export class Store {
     }
   }
 
+  updateChange(changeId: ChangeId) {
+    const viewChange: ViewChange = this.getChange(changeId);
+    this.dispatcher.dispatch(updateChange(viewChange));
+    this.localStorage.setItem(
+      `change-${changeId}`,
+      JSON.stringify(this.changes[changeId])
+    );
+  }
+
   getView(id: ItemId): ViewItem {
     const auxilaryColumns = this.items[id].getAuxilaryNames();
     return {
@@ -441,5 +458,8 @@ export class Store {
     this.transactions[transId] = transaction;
 
     affectedItems.forEach((itemId: ItemId) => this.updateItem(itemId));
+    affectedChanges.forEach((changeId: ChangeId) =>
+      this.updateChange(changeId)
+    );
   }
 }

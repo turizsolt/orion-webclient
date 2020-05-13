@@ -1,12 +1,21 @@
 import { AnyAction } from 'redux';
 import { isType } from 'typescript-fsa';
-import { updateItem, addToList, createList, setFilters } from './actions';
+import {
+  updateItem,
+  addToItems,
+  createItemList,
+  setFilters,
+  updateChange,
+  addToChanges
+} from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem } from '../model/Item/ViewItem';
 
 const initialState = {
   items: {},
-  list: [],
+  itemsList: [],
+  changes: {},
+  changeList: [],
   filters: [
     {
       id: 'roots',
@@ -49,18 +58,38 @@ export const appReducer = (state: X = initialState, action: AnyAction): X => {
     };
   }
 
-  if (isType(action, addToList)) {
+  if (isType(action, updateChange)) {
     return {
       ...state,
-      list: pushIfUnique(state.list, action.payload),
+      changes: {
+        ...state.changes,
+        [action.payload.changeId]: action.payload
+      },
+      changeList: pushIfUnique(state.changeList, action.payload.changeId),
       version: state.version + 1
     };
   }
 
-  if (isType(action, createList)) {
+  if (isType(action, addToItems)) {
     return {
       ...state,
-      list: action.payload,
+      itemList: pushIfUnique(state.itemList, action.payload),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, addToChanges)) {
+    return {
+      ...state,
+      changeList: pushIfUnique(state.changeList, action.payload),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, createItemList)) {
+    return {
+      ...state,
+      itemList: action.payload,
       version: state.version + 1
     };
   }
