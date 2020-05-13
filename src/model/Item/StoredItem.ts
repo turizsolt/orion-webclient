@@ -3,6 +3,7 @@ import { Relation } from '../Relation/Relation';
 import { RelationType } from '../Relation/RelationType';
 import { Updateness, updatenessToNumber } from '../Updateness';
 import { OldChange } from '../Change/Change';
+import { OURS, THEIRS } from '../OursTheirs';
 
 export interface StoredField {
   updateness: Updateness;
@@ -230,14 +231,14 @@ export class StoredItem {
 
   /*** higher order ***/
 
-  setConflict(field: string, ownValue: any, theirValue: any): void {
+  setConflict(field: string, oursValue: any, theirsValue: any): void {
     this.setFieldUpdateness(field, Updateness.Conflict);
 
-    this.addAuxilaryField('own');
-    this.setAuxilaryField('own', field, ownValue);
+    this.addAuxilaryField(OURS);
+    this.setAuxilaryField(OURS, field, oursValue);
 
-    this.addAuxilaryField('their');
-    this.setAuxilaryField('their', field, theirValue);
+    this.addAuxilaryField(THEIRS);
+    this.setAuxilaryField(THEIRS, field, theirsValue);
   }
 
   willConflict(field: string, serverValue: any): boolean {
@@ -262,8 +263,8 @@ export class StoredItem {
   resolveConflict(field: string): void {
     this.setFieldUpdateness(field, Updateness.Resolved);
     if (this.countFieldUpdateness(Updateness.Conflict) === 0) {
-      this.removeAuxilaryField('own');
-      this.removeAuxilaryField('their');
+      this.removeAuxilaryField(OURS);
+      this.removeAuxilaryField(THEIRS);
     }
   }
 }
