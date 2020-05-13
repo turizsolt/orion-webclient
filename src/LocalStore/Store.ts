@@ -40,16 +40,25 @@ export class Store {
     private serverCommunication: ServerCommunication
   ) {
     for (let key of this.localStorage.getKeys()) {
-      if (!key.startsWith('item-')) continue;
-
-      const value = this.localStorage.getItem(key);
-      const id = key.substr(5); // "item-${id}"
-      if (value) {
-        this.items[id] = StoredItem.deserialise(value);
-        this.updateItem(id);
-        this.itemList.push(id);
+      if (!key.startsWith('item-')) {
+        const value = this.localStorage.getItem(key);
+        const id = key.substr(7); // "change-${id}"
+        if (value) {
+          this.changes[id] = JSON.parse(value);
+          this.updateChange(id);
+          this.changeList.push(id);
+        }
+      } else {
+        const value = this.localStorage.getItem(key);
+        const id = key.substr(5); // "item-${id}"
+        if (value) {
+          this.items[id] = StoredItem.deserialise(value);
+          this.updateItem(id);
+          this.itemList.push(id);
+        }
       }
     }
+    // todo ez itt csinál bármit is?
     this.dispatcher.dispatch(createItemList(this.itemList));
   }
 
