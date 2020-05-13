@@ -412,6 +412,20 @@ export class Store {
     }
   }
 
+  private addFn: Record<ChangeResponse, Function> = {
+    [ChangeResponse.Pending]: this.addRelation,
+    [ChangeResponse.Accepted]: this.addRelationAccepted,
+    [ChangeResponse.Happened]: this.addRelationHappened,
+    [ChangeResponse.Rejected]: this.addRelationAccepted
+  };
+
+  private remFn: Record<ChangeResponse, Function> = {
+    [ChangeResponse.Pending]: this.removeRelation,
+    [ChangeResponse.Accepted]: this.removeRelationAccepted,
+    [ChangeResponse.Happened]: this.removeRelationHappened,
+    [ChangeResponse.Rejected]: this.removeRelationAccepted
+  };
+
   commit(transaction: Transaction) {
     const affectedItems = new Set<ItemId>();
     const affectedChanges = new Set<ChangeId>();
@@ -428,7 +442,8 @@ export class Store {
           break;
 
         case 'AddRelation':
-          this.addRelation(
+          this.addFn[change.response].call(
+            this,
             change.oneSideId,
             change.relation,
             change.otherSideId
@@ -436,7 +451,8 @@ export class Store {
           break;
 
         case 'RemoveRelation':
-          this.removeRelation(
+          this.remFn[change.response].call(
+            this,
             change.oneSideId,
             change.relation,
             change.otherSideId
