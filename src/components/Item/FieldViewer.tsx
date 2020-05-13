@@ -3,7 +3,7 @@ import { ItemId } from '../../model/Item/ItemId';
 import { StringFieldViewer } from './EditableFieldViewer/StringFieldViewer';
 import { TextFieldViewer } from './EditableFieldViewer/TextFieldViewer';
 import { Actions } from '../../LocalStore/Actions';
-import { ActionsContext, idGen } from '../../App';
+import { ActionsContext } from '../../App';
 import { BooleanFieldViewer } from './BooleanFieldViewer';
 import { EnumFieldViewer } from './EnumFieldViewer';
 import { NumberFieldViewer } from './EditableFieldViewer/NumberFieldViewer';
@@ -58,28 +58,13 @@ export const FieldViewer: React.FC<Props> = props => {
 
   const handleChange = useCallback(
     (newValue: any) => {
-      actions.changeItem({
-        id: id,
-        changes: [
-          { field: name, oldValue, newValue, changeId: idGen.generate() }
-        ]
-      });
+      actions.changeItem(id, name, oldValue, newValue);
     },
     [actions, id, name, oldValue]
   );
 
   const handleRemoveField = useCallback(() => {
-    actions.changeItem({
-      id: id,
-      changes: [
-        {
-          field: name,
-          oldValue,
-          newValue: undefined,
-          changeId: idGen.generate()
-        }
-      ]
-    });
+    actions.changeItem(id, name, oldValue, undefined);
   }, [actions, id, name, oldValue]);
 
   const fieldProps = { ...props, onChange: handleChange };

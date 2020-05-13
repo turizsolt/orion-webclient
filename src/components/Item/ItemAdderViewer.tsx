@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useState, FormEvent } from 'react';
-import { ActionsContext, idGen } from '../../App';
+import { ActionsContext } from '../../App';
 import { Actions } from '../../LocalStore/Actions';
 import { ItemId } from '../../model/Item/ItemId';
 import { RelationType } from '../../model/Relation/RelationType';
@@ -56,18 +56,7 @@ export const ItemAdderViewer: React.FC<Props> = props => {
 
   const save = useCallback(
     (value: string) => {
-      const childrenId = actions.createItem();
-      actions.changeItem({
-        id: childrenId,
-        changes: [
-          {
-            changeId: idGen.generate(),
-            field: 'title',
-            oldValue: '',
-            newValue: value
-          }
-        ]
-      });
+      const childrenId = actions.createItem('title', value);
       if (parentId) {
         actions.addRelation(parentId, RelationType.Child, childrenId);
       }

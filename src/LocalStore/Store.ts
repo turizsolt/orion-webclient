@@ -1,7 +1,6 @@
 import { ItemId } from '../model/Item/ItemId';
 import { StoredItem } from '../model/Item/StoredItem';
 import {
-  ChangeItem,
   ServerGetItem,
   Change,
   ChangeResponse,
@@ -12,7 +11,6 @@ import { updateItem, createList, addToList } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 import { FieldTypeOf } from '../model/Item/FieldTypeOf';
 import { Updateness } from '../model/Updateness';
-import { createTemplate } from './CreateTemplate';
 import { Transaction } from '../model/Transaction/Transaction';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Dispatcher } from './Dispatcher';
@@ -26,38 +24,28 @@ import { AffectedChanges } from '../model/AffectedChanges';
 const idGen = new ActualIdGenerator();
 
 export class Store {
-  private items: Record<ItemId, StoredItem>;
-  private changes: Record<ItemId, ChangeItem>;
-  private list: ItemId[];
+  private items: Record<ItemId, StoredItem> = {};
+  private itemList: ItemId[] = [];
+  private transactions: Record<TransactionId, Transaction> = {};
+  private transactionList: TransactionId[] = [];
+  private changes: Record<ChangeId, Change> = {};
+  private changeList: ChangeId[] = [];
 
   constructor(
     private dispatcher: Dispatcher,
     private localStorage: LocalStorage,
     private serverCommunication: ServerCommunication
   ) {
-    this.items = {};
-    this.changes = {};
-    this.list = [];
-
     for (let key of this.localStorage.getKeys()) {
       const value = this.localStorage.getItem(key);
       const id = key.substr(5); // "item-${id}"
       if (value) {
         this.items[id] = StoredItem.deserialise(value);
         this.updateItem(id);
-        this.list.push(id);
+        this.itemList.push(id);
       }
     }
-    this.dispatcher.dispatch(createList(this.list));
-  }
-
-  createItem(): ItemId {
-    const id = idGen.generate();
-    this.changeItem({
-      id,
-      changes: createTemplate.map(c => ({ ...c, changeId: idGen.generate() }))
-    });
-    return id;
+    this.dispatcher.dispatch(createList(this.itemList));
   }
 
   loadItemIfNotPresentWithDispatch(id: ItemId) {
@@ -80,79 +68,7 @@ export class Store {
     } else {
       this.items[id] = new StoredItem(id);
     }
-    this.list.push(id);
-  }
-
-  changeItem(change: ChangeItem): void {
-    const { id, changes } = change;
-    const modifiedChange: ChangeItem = { id: change.id, changes: [] };
-
-    this.loadItemIfNotPresentWithDispatch(id);
-    const storedItem = this.items[id];
-
-    for (let ch of changes) {
-      const { field, newValue } = ch;
-      storedItem.setField(field, newValue);
-      let modCh;
-      if (storedItem.hasConflict(field)) {
-        modCh = {
-          ...ch,
-          oldValue: storedItem.getAuxilaryField(THEIRS, field)
-        };
-        storedItem.resolveConflict(field);
-      } else {
-        modCh = ch;
-        storedItem.setFieldUpdateness(field, Updateness.Local);
-      }
-      storedItem.setFieldChange(field, {
-        ...modCh,
-        type: 'ItemChange',
-        response: ChangeResponse.Pending,
-        itemId: id
-      });
-      this.changes[modCh.changeId] = { id, changes: [modCh] };
-      modifiedChange.changes.push(modCh);
-    }
-    this.updateItem(id);
-    this.serverCommunication.emit('changeItem', modifiedChange);
-  }
-
-  changeItemAccepted(change: ChangeItem): void {
-    const { id, changes } = change;
-    for (let ch of changes) {
-      this.items[id].setFieldUpdateness(ch.field, Updateness.JustUpdated);
-      this.items[id].removeFieldChange(ch.field);
-      delete this.changes[ch.changeId];
-    }
-    this.updateItem(id);
-    this.updateItemSoon(id);
-  }
-
-  changeItemConflicted(change: ChangeItem): void {
-    const { id, changes } = change;
-    for (let ch of changes) {
-      this.items[id].setConflict(ch.field, ch.newValue, ch.serverValue);
-    }
-    this.updateItem(id);
-  }
-
-  changeItemHappened(change: ChangeItem): void {
-    const { id, changes } = change;
-
-    this.loadItemIfNotPresent(id);
-
-    const storedItem = this.items[id];
-    for (let ch of changes) {
-      const { field, newValue, oldValue } = ch;
-      if (storedItem.willConflict(field, oldValue)) {
-        storedItem.setConflict(field, storedItem.getField(field), newValue);
-      } else {
-        this.items[id].setField(field, newValue);
-        this.items[id].setFieldUpdateness(field, Updateness.JustUpdated);
-      }
-    }
-    this.updateItem(id);
-    this.updateItemSoon(id);
+    this.itemList.push(id);
   }
 
   allItem(getItems: ServerGetItem[]): void {
@@ -327,6 +243,9 @@ export class Store {
     const viewItem = this.getView(id);
     this.dispatcher.dispatch(updateItem(viewItem));
     this.localStorage.setItem(`item-${id}`, this.items[id].serialise());
+    if (this.items[id].getUpdateness() === Updateness.JustUpdated) {
+      this.updateItemSoon(id);
+    }
   }
 
   getView(id: ItemId): ViewItem {
@@ -370,11 +289,6 @@ export class Store {
     return this.items[id];
   }
 
-  private transactions: Record<TransactionId, Transaction> = {};
-  private transactionList: TransactionId[] = [];
-  private xchanges: Record<ChangeId, Change> = {};
-  private changeList: ChangeId[] = [];
-
   getLastTransaction(): Transaction {
     return this.transactions[
       this.transactionList[this.transactionList.length - 1]
@@ -382,7 +296,7 @@ export class Store {
   }
 
   getLastChange(): Change {
-    return this.xchanges[this.changeList[this.changeList.length - 1]];
+    return this.changes[this.changeList[this.changeList.length - 1]];
   }
 
   getTransactionList(): TransactionId[] {
@@ -394,11 +308,11 @@ export class Store {
   }
 
   hasChange(changeId: ChangeId): boolean {
-    return !!this.xchanges[changeId];
+    return !!this.changes[changeId];
   }
 
   getChange(changeId: ChangeId): Change {
-    return this.xchanges[changeId];
+    return this.changes[changeId];
   }
 
   changeItem2(change: ItemChange): AffectedChanges {
@@ -410,6 +324,10 @@ export class Store {
 
     if (change.response === ChangeResponse.Rejected) {
       storedItem.setConflict(change.field, change.newValue, change.oldValue);
+      storedItem.setFieldUpdateness(
+        change.field,
+        this.updatenessFromResponse(change.response)
+      );
     } else if (
       change.response === ChangeResponse.Pending &&
       storedItem.hasConflict(change.field)
@@ -437,7 +355,7 @@ export class Store {
 
       const lastChange = storedItem.getFieldChange(change.field);
       if (lastChange) {
-        this.xchanges[lastChange.changeId].response = ChangeResponse.Rejected;
+        this.changes[lastChange.changeId].response = ChangeResponse.Rejected;
         affectedChanges.push(lastChange.changeId);
       }
     } else {
@@ -478,12 +396,18 @@ export class Store {
   }
 
   commit(transaction: Transaction) {
+    const affectedItems = new Set<ItemId>();
+    const affectedChanges = new Set<ChangeId>();
+
     for (const change of transaction.getChanges()) {
       switch (change.type) {
         case 'ItemChange':
-          const processed = this.changeItem2(change);
+          const proced = this.changeItem2(change);
           // to server processed.changes
+
           // másik kettőnek meg a Redux felé
+          proced.affectedItems.map(itemId => affectedItems.add(itemId));
+          proced.affectedChanges.map(changeId => affectedChanges.add(changeId));
           break;
 
         case 'AddRelation':
@@ -504,10 +428,10 @@ export class Store {
       }
 
       const changeId = change.changeId;
-      if (!this.xchanges[changeId]) {
+      if (!this.changes[changeId]) {
         this.changeList.push(changeId);
       }
-      this.xchanges[changeId] = change;
+      this.changes[changeId] = change;
     }
 
     const transId = transaction.getId();
@@ -515,5 +439,7 @@ export class Store {
       this.transactionList.push(transId);
     }
     this.transactions[transId] = transaction;
+
+    affectedItems.forEach((itemId: ItemId) => this.updateItem(itemId));
   }
 }

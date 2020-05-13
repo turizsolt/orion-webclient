@@ -1,22 +1,18 @@
 import { socket } from '../socket';
 import { Store } from './Store';
-import {
-  ChangeItem,
-  ServerGetItem,
-  RelationChange
-} from '../model/Change/Change';
+import { ServerGetItem, RelationChange } from '../model/Change/Change';
 
 export const initServerSocket = (store: Store) => {
-  socket.on('changeItemAccepted', (data: ChangeItem) => {
-    store.changeItemAccepted(data);
+  socket.on('changeItemAccepted', (data: any) => {
+    // store.changeItemAccepted(data);
   });
 
-  socket.on('changeItemHappened', (data: ChangeItem) => {
-    store.changeItemHappened(data);
+  socket.on('changeItemHappened', (data: any) => {
+    // store.changeItemHappened(data);
   });
 
-  socket.on('changeItemConflicted', (data: ChangeItem) => {
-    store.changeItemConflicted(data);
+  socket.on('changeItemConflicted', (data: any) => {
+    // store.changeItemConflicted(data);
   });
 
   socket.on('allItem', (data: ServerGetItem[]) => {

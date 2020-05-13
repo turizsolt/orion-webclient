@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState, FormEvent } from 'react';
 import { ViewItem } from '../../model/Item/ViewItem';
-import { ActionsContext, idGen } from '../../App';
+import { ActionsContext } from '../../App';
 import { Actions } from '../../LocalStore/Actions';
 import { ItemId } from '../../model/Item/ItemId';
 import { RelationType } from '../../model/Relation/RelationType';
@@ -73,17 +73,12 @@ export const ItemViewer: React.FC<Props> = props => {
   const handleAddField = useCallback(
     (event: FormEvent<HTMLSelectElement>) => {
       const field = event.currentTarget.value;
-      actions.changeItem({
-        id: item.id,
-        changes: [
-          {
-            changeId: idGen.generate(),
-            field,
-            oldValue: undefined,
-            newValue: FieldTypeOf(field).getDefaultValue()
-          }
-        ]
-      });
+      actions.changeItem(
+        item.id,
+        field,
+        undefined,
+        FieldTypeOf(field).getDefaultValue()
+      );
       event.currentTarget.value = '';
     },
     [item, actions]

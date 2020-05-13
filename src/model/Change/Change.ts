@@ -34,19 +34,6 @@ export type RelationChange = {
 
 /* OBSOLETE below */
 
-export interface ChangeItem {
-  id: string;
-  changes: OldChange[];
-}
-
-export interface OldChange {
-  field: string;
-  oldValue: any;
-  newValue: any;
-  serverValue?: any;
-  changeId: ChangeId;
-}
-
 export interface ServerGetItem {
   id: string;
   changes: ServerGet[];
