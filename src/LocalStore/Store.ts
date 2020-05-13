@@ -145,12 +145,12 @@ export class Store {
 
   addRelation(oneSideId: ItemId, relation: RelationType, otherSideId: ItemId) {
     this.addRelationHandle(oneSideId, relation, otherSideId);
-    this.serverCommunication.emit('addRelation', {
-      oneSideId,
-      relation,
-      otherSideId,
-      changeId: idGen.generate()
-    });
+    // this.serverCommunication.emit('addRelation', {
+    //   oneSideId,
+    //   relation,
+    //   otherSideId,
+    //   changeId: idGen.generate()
+    // });
   }
 
   addRelationHandle(
@@ -160,9 +160,6 @@ export class Store {
   ) {
     this.items[oneSideId].addRelation(relation, otherSideId);
     this.items[otherSideId].addRelation(oppositeOf(relation), oneSideId);
-
-    this.updateItem(oneSideId);
-    this.updateItem(otherSideId);
   }
 
   addRelationAccepted(
@@ -175,9 +172,6 @@ export class Store {
       oppositeOf(relation),
       oneSideId
     );
-
-    this.updateItem(oneSideId);
-    this.updateItem(otherSideId);
   }
 
   addRelationHappened(
@@ -195,12 +189,12 @@ export class Store {
     otherSideId: ItemId
   ) {
     this.removeRelationHandle(oneSideId, relation, otherSideId);
-    this.serverCommunication.emit('removeRelation', {
-      oneSideId,
-      relation,
-      otherSideId,
-      changeId: idGen.generate()
-    });
+    // this.serverCommunication.emit('removeRelation', {
+    //   oneSideId,
+    //   relation,
+    //   otherSideId,
+    //   changeId: idGen.generate()
+    // });
   }
 
   removeRelationHandle(
@@ -210,9 +204,6 @@ export class Store {
   ) {
     this.items[oneSideId].removeRelation(relation, otherSideId);
     this.items[otherSideId].removeRelation(oppositeOf(relation), oneSideId);
-
-    this.updateItem(oneSideId);
-    this.updateItem(otherSideId);
   }
 
   removeRelationAccepted(
@@ -225,9 +216,6 @@ export class Store {
       oppositeOf(relation),
       oneSideId
     );
-
-    this.updateItem(oneSideId);
-    this.updateItem(otherSideId);
   }
 
   removeRelationHappened(
@@ -332,7 +320,7 @@ export class Store {
     return this.changes[changeId];
   }
 
-  changeItem2(change: ItemChange): AffectedChanges {
+  changeItem(change: ItemChange): AffectedChanges {
     this.loadItemIfNotPresentWithDispatch(change.itemId);
     const storedItem = this.items[change.itemId];
     let modifiedChange = change;
@@ -433,10 +421,7 @@ export class Store {
     for (const change of transaction.getChanges()) {
       switch (change.type) {
         case 'ItemChange':
-          const proced = this.changeItem2(change);
-          // to server processed.changes
-
-          // másik kettőnek meg a Redux felé
+          const proced = this.changeItem(change);
           proced.affectedItems.map(itemId => affectedItems.add(itemId));
           proced.affectedChanges.map(changeId => affectedChanges.add(changeId));
           break;
@@ -448,6 +433,10 @@ export class Store {
             change.relation,
             change.otherSideId
           );
+
+          affectedItems.add(change.oneSideId);
+          affectedItems.add(change.otherSideId);
+          affectedChanges.add(change.changeId);
           break;
 
         case 'RemoveRelation':
@@ -457,6 +446,9 @@ export class Store {
             change.relation,
             change.otherSideId
           );
+          affectedItems.add(change.oneSideId);
+          affectedItems.add(change.otherSideId);
+          affectedChanges.add(change.changeId);
           break;
       }
 
@@ -472,6 +464,8 @@ export class Store {
       this.transactionList.push(transId);
     }
     this.transactions[transId] = transaction;
+
+    // itt send
 
     affectedItems.forEach((itemId: ItemId) => this.updateItem(itemId));
     affectedChanges.forEach((changeId: ChangeId) =>
