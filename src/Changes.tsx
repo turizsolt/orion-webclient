@@ -1,17 +1,28 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { ChangeId } from './model/Change/ChangeId';
-import { ItemChange } from './model/Change/Change';
+import { Change } from './model/Change/Change';
 
-export const Change: React.FC<{ changeId: ChangeId }> = props => {
+export const OneChange: React.FC<{ changeId: ChangeId }> = props => {
   const { changes } = useSelector((state: any) => state.appReducer);
-  const change: ItemChange = changes[props.changeId];
+  const change: Change = changes[props.changeId];
   return (
     <div>
       {change.changeId.substr(0, 6)}
       {change.response.substr(0, 1).toUpperCase()}
-      {change.itemId.substr(0, 6)}#{change.field}:{change.oldValue} >>{' '}
-      {change.newValue}
+      {change.type === 'ItemChange' && (
+        <>
+          {change.itemId.substr(0, 6)}#{change.field}:{change.oldValue} >>{' '}
+          {change.newValue}
+        </>
+      )}
+      {change.type !== 'ItemChange' && (
+        <>
+          {change.type === 'AddRelation' ? '+' : '-'}{' '}
+          {change.oneSideId.substr(0, 6)} {change.relation}{' '}
+          {change.otherSideId.substr(0, 6)}
+        </>
+      )}
     </div>
   );
 };
@@ -23,7 +34,7 @@ export const Changes: React.FC = () => {
     <div>
       <div>Changes:</div>
       {changeList.map((changeId: ChangeId) => (
-        <Change changeId={changeId} />
+        <OneChange changeId={changeId} />
       ))}
     </div>
   );

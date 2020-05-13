@@ -17,7 +17,6 @@ import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 import { FieldTypeOf } from '../model/Item/FieldTypeOf';
 import { Updateness } from '../model/Updateness';
 import { Transaction } from '../model/Transaction/Transaction';
-import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Dispatcher } from './Dispatcher';
 import { LocalStorage } from './LocalStorage';
 import { ServerCommunication } from './ServerCommunication';
@@ -26,8 +25,6 @@ import { TransactionId } from '../model/Transaction/TransactionId';
 import { THEIRS } from '../model/OursTheirs';
 import { AffectedChanges } from '../model/AffectedChanges';
 import { ViewChange } from '../model/Change/ViewChange';
-
-const idGen = new ActualIdGenerator();
 
 export class Store {
   private items: Record<ItemId, StoredItem> = {};

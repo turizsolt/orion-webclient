@@ -1,5 +1,9 @@
 import { Store } from './Store';
-import { Change, ChangeResponse } from '../model/Change/Change';
+import {
+  ChangeResponse,
+  RelationChange,
+  ItemChange
+} from '../model/Change/Change';
 import { ItemId } from '../model/Item/ItemId';
 import { RelationType } from '../model/Relation/RelationType';
 import { Dispatcher } from './Dispatcher';
@@ -33,7 +37,7 @@ export class Actions {
     oldValue: any,
     newValue: any
   ): void {
-    const change: Change = {
+    const change: ItemChange = {
       type: 'ItemChange',
       itemId,
       changeId: idGen.generate(),
@@ -48,7 +52,7 @@ export class Actions {
   }
 
   createItem(field: FieldName, newValue: any): ItemId {
-    const change: Change = {
+    const change: ItemChange = {
       type: 'ItemChange',
       itemId: idGen.generate(),
       changeId: idGen.generate(),
@@ -69,7 +73,17 @@ export class Actions {
     relationType: RelationType,
     otherId: ItemId
   ): void {
-    this.store.addRelation(oneId, relationType, otherId);
+    const change: RelationChange = {
+      type: 'AddRelation',
+      oneSideId: oneId,
+      relation: relationType,
+      otherSideId: otherId,
+      changeId: idGen.generate(),
+      response: ChangeResponse.Pending
+    };
+    const transaction = new Transaction();
+    transaction.add(change);
+    this.store.commit(transaction);
   }
 
   removeRelation(
@@ -77,6 +91,16 @@ export class Actions {
     relationType: RelationType,
     otherId: ItemId
   ): void {
-    this.store.removeRelation(oneId, relationType, otherId);
+    const change: RelationChange = {
+      type: 'RemoveRelation',
+      oneSideId: oneId,
+      relation: relationType,
+      otherSideId: otherId,
+      changeId: idGen.generate(),
+      response: ChangeResponse.Pending
+    };
+    const transaction = new Transaction();
+    transaction.add(change);
+    this.store.commit(transaction);
   }
 }
