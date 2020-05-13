@@ -7,8 +7,8 @@ const idGen = new ActualIdGenerator();
 export class Transaction {
   private changes: Change[];
   private id: TransactionId;
-  constructor(id?: TransactionId) {
-    this.changes = [];
+  constructor(id?: TransactionId, changes?: Change[]) {
+    this.changes = changes || [];
     this.id = id || idGen.generate();
   }
 
@@ -22,5 +22,12 @@ export class Transaction {
 
   getId(): TransactionId {
     return this.id;
+  }
+
+  serialise(): Object {
+    return {
+      transactionId: this.id,
+      changes: this.changes
+    };
   }
 }

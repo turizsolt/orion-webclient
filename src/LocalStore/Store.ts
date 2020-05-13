@@ -411,7 +411,7 @@ export class Store {
     [ChangeResponse.Rejected]: this.removeRelationAccepted
   };
 
-  commit(transaction: Transaction) {
+  commit(transaction: Transaction, remote: boolean = false) {
     const affectedItems = new Set<ItemId>();
     const affectedChanges = new Set<ChangeId>();
 
@@ -462,7 +462,9 @@ export class Store {
     }
     this.transactions[transId] = transaction;
 
-    // itt send
+    if (!remote) {
+      this.serverCommunication.emit('transaction', transaction.serialise());
+    }
 
     affectedItems.forEach((itemId: ItemId) => this.updateItem(itemId));
     affectedChanges.forEach((changeId: ChangeId) =>

@@ -47,6 +47,8 @@ export const RootItemViewer: React.FC = () => {
   //   };
 
   const f = (x: ItemId) => {
+    if (!items[x]) return false;
+
     for (const filter of filters) {
       if (filter.on && !filter.f(items)(x)) {
         return false;
