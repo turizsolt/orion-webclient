@@ -35,7 +35,7 @@ export class Store {
     private serverCommunication: ServerCommunication
   ) {
     const listOfChanges =
-      JSON.parse(this.localStorage.getItem('list-change')) || [];
+      JSON.parse(this.localStorage.getItem('list-change') || '[]') || [];
     this.changeList = listOfChanges;
     const changesToSend: Change[] = [];
     for (const changeId of listOfChanges) {
@@ -48,7 +48,9 @@ export class Store {
         }
       }
     }
-    this.commit(new Transaction(undefined, changesToSend));
+    if (changesToSend.length) {
+      this.commit(new Transaction(undefined, changesToSend));
+    }
 
     for (let key of this.localStorage.getKeys()) {
       if (!key.startsWith('item-')) continue;
