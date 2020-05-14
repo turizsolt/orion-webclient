@@ -34,23 +34,31 @@ export class Store {
     private localStorage: LocalStorage,
     private serverCommunication: ServerCommunication
   ) {
+    const listOfChanges =
+      JSON.parse(this.localStorage.getItem('list-change')) || [];
+    this.changeList = listOfChanges;
+    const changesToSend: Change[] = [];
+    for (const changeId of listOfChanges) {
+      const value = this.localStorage.getItem(`change-${changeId}`);
+      if (value) {
+        this.changes[changeId] = JSON.parse(value);
+        this.updateChange(changeId);
+        if (this.changes[changeId].response === ChangeResponse.Pending) {
+          changesToSend.push(this.changes[changeId]);
+        }
+      }
+    }
+    this.commit(new Transaction(undefined, changesToSend));
+
     for (let key of this.localStorage.getKeys()) {
-      if (!key.startsWith('item-')) {
-        const value = this.localStorage.getItem(key);
-        const id = key.substr(7); // "change-${id}"
-        if (value) {
-          this.changes[id] = JSON.parse(value);
-          this.updateChange(id);
-          this.changeList.push(id);
-        }
-      } else {
-        const value = this.localStorage.getItem(key);
-        const id = key.substr(5); // "item-${id}"
-        if (value) {
-          this.items[id] = StoredItem.deserialise(value);
-          this.updateItem(id);
-          this.itemList.push(id);
-        }
+      if (!key.startsWith('item-')) continue;
+
+      const value = this.localStorage.getItem(key);
+      const id = key.substr(5); // "item-${id}"
+      if (value) {
+        this.items[id] = StoredItem.deserialise(value);
+        this.updateItem(id);
+        this.itemList.push(id);
       }
     }
     // todo ez itt csinál bármit is?
@@ -80,22 +88,8 @@ export class Store {
     this.itemList.push(id);
   }
 
-  sendRecentChanges() {
-    // todo bulk send
-    console.log('send recent', this.changes);
-    for (const key of Object.keys(this.changes)) {
-      this.serverCommunication.emit('changeItem', this.changes[key]);
-    }
-  }
-
   addRelation(oneSideId: ItemId, relation: RelationType, otherSideId: ItemId) {
     this.addRelationHandle(oneSideId, relation, otherSideId);
-    // this.serverCommunication.emit('addRelation', {
-    //   oneSideId,
-    //   relation,
-    //   otherSideId,
-    //   changeId: idGen.generate()
-    // });
   }
 
   addRelationHandle(
@@ -134,12 +128,6 @@ export class Store {
     otherSideId: ItemId
   ) {
     this.removeRelationHandle(oneSideId, relation, otherSideId);
-    // this.serverCommunication.emit('removeRelation', {
-    //   oneSideId,
-    //   relation,
-    //   otherSideId,
-    //   changeId: idGen.generate()
-    // });
   }
 
   removeRelationHandle(
@@ -448,5 +436,7 @@ export class Store {
     affectedChanges.forEach((changeId: ChangeId) =>
       this.updateChange(changeId)
     );
+
+    this.localStorage.setItem('list-change', JSON.stringify(this.changeList));
   }
 }
