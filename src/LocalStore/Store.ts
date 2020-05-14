@@ -1,11 +1,6 @@
 import { ItemId } from '../model/Item/ItemId';
 import { StoredItem } from '../model/Item/StoredItem';
-import {
-  ServerGetItem,
-  Change,
-  ChangeResponse,
-  ItemChange
-} from '../model/Change/Change';
+import { Change, ChangeResponse, ItemChange } from '../model/Change/Change';
 import { ViewItem } from '../model/Item/ViewItem';
 import {
   updateItem,

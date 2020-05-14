@@ -1,4 +1,3 @@
-import { Relation } from '../Relation/Relation';
 import { ItemId } from '../Item/ItemId';
 import { FieldName } from '../Item/FieldName';
 import { ChangeId } from './ChangeId';
@@ -32,16 +31,3 @@ export type RelationChange = {
   changeId: ChangeId;
   response: ChangeResponse;
 };
-
-/* OBSOLETE below */
-
-export interface ServerGetItem {
-  id: string;
-  changes: ServerGet[];
-  relations: Relation[];
-}
-
-export interface ServerGet {
-  field: string;
-  serverValue: any;
-}
