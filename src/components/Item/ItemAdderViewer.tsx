@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useState, FormEvent } from 'react';
-import { LocalStoreContext, idGen } from '../../App';
-import { LocalStore } from '../../LocalStore/LocalStore';
+import { ActionsContext } from '../../App';
+import { Actions } from '../../LocalStore/Actions';
 import { ItemId } from '../../model/Item/ItemId';
 import { RelationType } from '../../model/Relation/RelationType';
 import { style } from 'typestyle';
@@ -50,29 +50,18 @@ const fieldStyle = style({
 
 export const ItemAdderViewer: React.FC<Props> = props => {
   const { onClose, parentId } = props;
-  const local: LocalStore = useContext(LocalStoreContext);
+  const actions: Actions = useContext(ActionsContext);
 
   const [editValue, setEditValue] = useState('');
 
   const save = useCallback(
     (value: string) => {
-      const childrenId = local.createItem();
-      local.changeItem({
-        id: childrenId,
-        changes: [
-          {
-            changeId: idGen.generate(),
-            field: 'title',
-            oldValue: '',
-            newValue: value
-          }
-        ]
-      });
+      const childrenId = actions.createItem('title', value);
       if (parentId) {
-        local.addRelation(parentId, RelationType.Child, childrenId);
+        actions.addRelation(parentId, RelationType.Child, childrenId);
       }
     },
-    [local, parentId]
+    [actions, parentId]
   );
 
   const handleKeyDown = useCallback(
