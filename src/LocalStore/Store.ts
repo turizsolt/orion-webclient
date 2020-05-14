@@ -85,62 +85,6 @@ export class Store {
     this.itemList.push(id);
   }
 
-  allItem(getItems: ServerGetItem[]): void {
-    for (const item of getItems) {
-      const { id, changes, relations } = item;
-      this.loadItemIfNotPresent(id);
-      const storedItem = this.items[id];
-
-      for (let ch of changes) {
-        const { field, serverValue } = ch;
-
-        if (!storedItem.hasField(field)) {
-          storedItem.setField(field, serverValue);
-          storedItem.setFieldUpdateness(field, Updateness.UpToDate);
-        } else if (storedItem.hasConflict(field)) {
-          storedItem.setAuxilaryField(THEIRS, field, serverValue);
-        } else {
-          const chg = storedItem.getFieldChange(field);
-
-          if (!chg || (chg && chg.oldValue === serverValue)) {
-            storedItem.setField(field, serverValue);
-            storedItem.setFieldUpdateness(field, Updateness.UpToDate);
-          } else {
-            storedItem.setConflict(
-              field,
-              storedItem.getField(field),
-              serverValue
-            );
-          }
-        }
-      }
-
-      for (const rel of relations) {
-        if (storedItem.hasRelation(rel.type, rel.otherSideId)) {
-          storedItem.addRelationAccepted(rel.type, rel.otherSideId);
-        } else {
-          storedItem.addRelation(rel.type, rel.otherSideId);
-          storedItem.addRelationAccepted(rel.type, rel.otherSideId);
-        }
-      }
-
-      for (const rel of storedItem.getRelations()) {
-        const index = relations.findIndex(
-          x => x.type === rel.type && x.otherSideId === rel.otherSideId
-        );
-        if (index === -1) {
-          if (rel.updateness === Updateness.UpToDate) {
-            storedItem.removeRelationAccepted(rel.type, rel.otherSideId);
-          }
-        }
-      }
-      // todo update ItemSSSSS, one block outer
-      this.updateItem(id);
-    }
-
-    this.sendRecentChanges();
-  }
-
   sendRecentChanges() {
     // todo bulk send
     console.log('send recent', this.changes);
@@ -331,9 +275,30 @@ export class Store {
     const storedItem = this.items[change.itemId];
     let modifiedChange = change;
     const affectedItems = [change.itemId];
-    const affectedChanges = [change.changeId];
+    const affectedChanges = change.changeId ? [change.changeId] : [];
 
-    if (change.response === ChangeResponse.Rejected) {
+    if (change.response === ChangeResponse.ServerUpdate) {
+      // todo understand this chunk
+      if (!storedItem.hasField(change.field)) {
+        storedItem.setField(change.field, change.oldValue);
+        storedItem.setFieldUpdateness(change.field, Updateness.UpToDate);
+      } else if (storedItem.hasConflict(change.field)) {
+        storedItem.setAuxilaryField(THEIRS, change.field, change.oldValue);
+      } else {
+        const chg = storedItem.getFieldChange(change.field);
+
+        if (!chg || (chg && chg.oldValue === change.oldValue)) {
+          storedItem.setField(change.field, change.oldValue);
+          storedItem.setFieldUpdateness(change.field, Updateness.UpToDate);
+        } else {
+          storedItem.setConflict(
+            change.field,
+            storedItem.getField(change.field),
+            change.oldValue
+          );
+        }
+      }
+    } else if (change.response === ChangeResponse.Rejected) {
       storedItem.setConflict(change.field, change.newValue, change.oldValue);
       storedItem.setFieldUpdateness(
         change.field,
@@ -403,6 +368,9 @@ export class Store {
 
       case ChangeResponse.Happened:
         return Updateness.JustUpdated;
+
+      case ChangeResponse.ServerUpdate:
+        return Updateness.JustUpdated;
     }
   }
 
@@ -410,14 +378,16 @@ export class Store {
     [ChangeResponse.Pending]: this.addRelation,
     [ChangeResponse.Accepted]: this.addRelationAccepted,
     [ChangeResponse.Happened]: this.addRelationHappened,
-    [ChangeResponse.Rejected]: this.addRelationAccepted
+    [ChangeResponse.Rejected]: this.addRelationAccepted,
+    [ChangeResponse.ServerUpdate]: this.addRelationHappened
   };
 
   private remFn: Record<ChangeResponse, Function> = {
     [ChangeResponse.Pending]: this.removeRelation,
     [ChangeResponse.Accepted]: this.removeRelationAccepted,
     [ChangeResponse.Happened]: this.removeRelationHappened,
-    [ChangeResponse.Rejected]: this.removeRelationAccepted
+    [ChangeResponse.Rejected]: this.removeRelationAccepted,
+    [ChangeResponse.ServerUpdate]: this.removeRelationHappened
   };
 
   commit(transaction: Transaction, remote: boolean = false) {
@@ -442,7 +412,9 @@ export class Store {
 
           affectedItems.add(change.oneSideId);
           affectedItems.add(change.otherSideId);
-          affectedChanges.add(change.changeId);
+          if (change.changeId) {
+            affectedChanges.add(change.changeId);
+          }
           break;
 
         case 'RemoveRelation':
@@ -454,7 +426,9 @@ export class Store {
           );
           affectedItems.add(change.oneSideId);
           affectedItems.add(change.otherSideId);
-          affectedChanges.add(change.changeId);
+          if (change.changeId) {
+            affectedChanges.add(change.changeId);
+          }
           break;
       }
 

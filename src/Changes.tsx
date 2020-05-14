@@ -7,23 +7,27 @@ export const OneChange: React.FC<{ changeId: ChangeId }> = props => {
   const { changes } = useSelector((state: any) => state.appReducer);
   const change: Change = changes[props.changeId];
   return (
-    <div>
-      {change.changeId.substr(0, 6)}
-      {change.response.substr(0, 1).toUpperCase()}
-      {change.type === 'ItemChange' && (
-        <>
-          {change.itemId.substr(0, 6)}#{change.field}:{change.oldValue} >>{' '}
-          {change.newValue}
-        </>
+    <>
+      {change && change.changeId && (
+        <div>
+          {change.changeId.substr(0, 6)}
+          {change.response.substr(0, 1).toUpperCase()}
+          {change.type === 'ItemChange' && (
+            <>
+              {change.itemId.substr(0, 6)}#{change.field}:{change.oldValue} >>{' '}
+              {change.newValue}
+            </>
+          )}
+          {change.type !== 'ItemChange' && (
+            <>
+              {change.type === 'AddRelation' ? '+' : '-'}{' '}
+              {change.oneSideId.substr(0, 6)} {change.relation}{' '}
+              {change.otherSideId.substr(0, 6)}
+            </>
+          )}
+        </div>
       )}
-      {change.type !== 'ItemChange' && (
-        <>
-          {change.type === 'AddRelation' ? '+' : '-'}{' '}
-          {change.oneSideId.substr(0, 6)} {change.relation}{' '}
-          {change.otherSideId.substr(0, 6)}
-        </>
-      )}
-    </div>
+    </>
   );
 };
 

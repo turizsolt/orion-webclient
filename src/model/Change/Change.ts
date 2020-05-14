@@ -8,7 +8,8 @@ export enum ChangeResponse {
   Pending = 'pending',
   Accepted = 'accepted',
   Rejected = 'rejected',
-  Happened = 'happened'
+  Happened = 'happened',
+  ServerUpdate = 'serverUpdate'
 }
 
 export type Change = ItemChange | RelationChange;
