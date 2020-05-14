@@ -37,6 +37,8 @@ export class Actions {
     oldValue: any,
     newValue: any
   ): void {
+    if (oldValue === newValue) return;
+
     const change: ItemChange = {
       type: 'ItemChange',
       itemId,
