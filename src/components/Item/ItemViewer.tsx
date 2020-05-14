@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useState, FormEvent } from 'react';
 import { ViewItem } from '../../model/Item/ViewItem';
-import { LocalStoreContext, idGen } from '../../App';
-import { LocalStore } from '../../LocalStore/LocalStore';
+import { ActionsContext } from '../../App';
+import { Actions } from '../../LocalStore/Actions';
 import { ItemId } from '../../model/Item/ItemId';
 import { RelationType } from '../../model/Relation/RelationType';
 import { useSelector } from 'react-redux';
@@ -48,7 +48,7 @@ const headerButtonStyle = style({
 export const ItemViewer: React.FC<Props> = props => {
   const { item } = props;
   const { items } = useSelector((state: any) => state.appReducer);
-  const local: LocalStore = useContext(LocalStoreContext);
+  const actions: Actions = useContext(ActionsContext);
 
   const [collapsed, setCollapsed] = useState(true);
   const [childrenCollapsed, setChildrenCollapsed] = useState(true);
@@ -57,9 +57,9 @@ export const ItemViewer: React.FC<Props> = props => {
     (id: ItemId) => (_: any) => {
       if (item.parents.length === 0) return;
       const parentId = item.parents[0];
-      local.removeRelation(id, RelationType.Parent, parentId);
+      actions.removeRelation(id, RelationType.Parent, parentId);
     },
-    [local, item]
+    [actions, item]
   );
 
   const handleCollapse = useCallback(() => {
@@ -73,20 +73,15 @@ export const ItemViewer: React.FC<Props> = props => {
   const handleAddField = useCallback(
     (event: FormEvent<HTMLSelectElement>) => {
       const field = event.currentTarget.value;
-      local.changeItem({
-        id: item.id,
-        changes: [
-          {
-            changeId: idGen.generate(),
-            field,
-            oldValue: undefined,
-            newValue: FieldTypeOf(field).getDefaultValue()
-          }
-        ]
-      });
+      actions.changeItem(
+        item.id,
+        field,
+        undefined,
+        FieldTypeOf(field).getDefaultValue()
+      );
       event.currentTarget.value = '';
     },
-    [item, local]
+    [item, actions]
   );
 
   const [showChildrenAdder, setShowChildrenAdder] = useState(false);

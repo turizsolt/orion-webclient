@@ -2,8 +2,8 @@ import React, { useContext, useCallback } from 'react';
 import { ItemId } from '../../model/Item/ItemId';
 import { StringFieldViewer } from './EditableFieldViewer/StringFieldViewer';
 import { TextFieldViewer } from './EditableFieldViewer/TextFieldViewer';
-import { LocalStore } from '../../LocalStore/LocalStore';
-import { LocalStoreContext, idGen } from '../../App';
+import { Actions } from '../../LocalStore/Actions';
+import { ActionsContext } from '../../App';
 import { BooleanFieldViewer } from './BooleanFieldViewer';
 import { EnumFieldViewer } from './EnumFieldViewer';
 import { NumberFieldViewer } from './EditableFieldViewer/NumberFieldViewer';
@@ -54,33 +54,18 @@ const labelStyle = style({
 export const FieldViewer: React.FC<Props> = props => {
   const { type, id, name, params, value: oldValue, updateness } = props;
 
-  const local: LocalStore = useContext(LocalStoreContext);
+  const actions: Actions = useContext(ActionsContext);
 
   const handleChange = useCallback(
     (newValue: any) => {
-      local.changeItem({
-        id: id,
-        changes: [
-          { field: name, oldValue, newValue, changeId: idGen.generate() }
-        ]
-      });
+      actions.changeItem(id, name, oldValue, newValue);
     },
-    [local, id, name, oldValue]
+    [actions, id, name, oldValue]
   );
 
   const handleRemoveField = useCallback(() => {
-    local.changeItem({
-      id: id,
-      changes: [
-        {
-          field: name,
-          oldValue,
-          newValue: undefined,
-          changeId: idGen.generate()
-        }
-      ]
-    });
-  }, [local, id, name, oldValue]);
+    actions.changeItem(id, name, oldValue, undefined);
+  }, [actions, id, name, oldValue]);
 
   const fieldProps = { ...props, onChange: handleChange };
   const noLabel = params && params.noLabel;

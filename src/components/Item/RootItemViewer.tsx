@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux';
 import { ItemAdderViewer } from './ItemAdderViewer';
 
 export const RootItemViewer: React.FC = () => {
-  const { items, list, filters } = useSelector(
+  const { items, itemList, filters } = useSelector(
     (state: any) => state.appReducer
   );
 
@@ -47,6 +47,8 @@ export const RootItemViewer: React.FC = () => {
   //   };
 
   const f = (x: ItemId) => {
+    if (!items[x]) return false;
+
     for (const filter of filters) {
       if (filter.on && !filter.f(items)(x)) {
         return false;
@@ -57,7 +59,7 @@ export const RootItemViewer: React.FC = () => {
 
   return (
     <div>
-      {list.filter(f).map((id: ItemId) => (
+      {itemList.filter(f).map((id: ItemId) => (
         <ItemViewer key={id} item={items[id]} />
       ))}
       {showChildrenAdder && (
