@@ -30,4 +30,8 @@ export class Transaction {
       changes: this.changes
     };
   }
+
+  modifyChange(index: number, change: Change) {
+    this.changes[index] = change;
+  }
 }

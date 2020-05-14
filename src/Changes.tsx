@@ -38,7 +38,7 @@ export const Changes: React.FC = () => {
     <div>
       <div>Changes:</div>
       {changeList.map((changeId: ChangeId) => (
-        <OneChange changeId={changeId} />
+        <OneChange key={changeId} changeId={changeId} />
       ))}
     </div>
   );

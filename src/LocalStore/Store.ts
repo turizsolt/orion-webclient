@@ -379,12 +379,15 @@ export class Store {
     const affectedItems = new Set<ItemId>();
     const affectedChanges = new Set<ChangeId>();
 
-    for (const change of transaction.getChanges()) {
+    const changes = transaction.getChanges();
+    for (let key in changes) {
+      const change = changes[key];
       switch (change.type) {
         case 'ItemChange':
           const proced = this.changeItem(change);
           proced.affectedItems.map(itemId => affectedItems.add(itemId));
           proced.affectedChanges.map(changeId => affectedChanges.add(changeId));
+          transaction.modifyChange(parseInt(key, 10), proced.changes[0]);
           break;
 
         case 'AddRelation':

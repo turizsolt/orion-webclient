@@ -13,7 +13,7 @@ import { ViewItem } from '../model/Item/ViewItem';
 
 const initialState = {
   items: {},
-  itemsList: [],
+  itemList: [],
   changes: {},
   changeList: [],
   filters: [
