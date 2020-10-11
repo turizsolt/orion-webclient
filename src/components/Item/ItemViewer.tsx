@@ -26,6 +26,7 @@ import {
 } from 'react-dnd';
 interface Props {
   item: ViewItem;
+  parentId: ItemId | null;
 }
 
 const itemStyle = style({
@@ -59,7 +60,7 @@ const headerButtonStyle = style({
 });
 
 export const ItemViewer: React.FC<Props> = props => {
-  const { item } = props;
+  const { item, parentId } = props;
   const { items } = useSelector((state: any) => state.appReducer);
   const actions: Actions = useContext(ActionsContext);
 
@@ -114,6 +115,28 @@ export const ItemViewer: React.FC<Props> = props => {
     //);
   };
 
+  const x = (c: string) => {
+    if (!items[c]) {
+      return 0;
+    }
+    if (!items[c].originalFields) {
+      return 0;
+    }
+    if (!items[c].originalFields.priority) {
+      return 0;
+    }
+    return parseInt(items[c].originalFields.priority.value, 10);
+  };
+
+  const order = (arr: ItemId[]): ItemId[] => {
+    arr.sort((a, b) => {
+      if (x(a) < x(b)) return -1;
+      if (x(a) > x(b)) return 1;
+      return 0;
+    });
+    return arr;
+  };
+
   const [{ isDragging }, drag] = useDrag({
     item: { type: ItemTypes.ITEM, id: item.id },
     collect: (monitor: DragSourceMonitor) => ({
@@ -125,12 +148,34 @@ export const ItemViewer: React.FC<Props> = props => {
     accept: ItemTypes.ITEM,
     drop: (dragged: any, monitor: DropTargetMonitor) => {
       console.log('dropped', dragged.id, '>', item.id);
+      console.log('parent', parentId);
+
+      let max = 0;
+      if (parentId) {
+        console.log('children', items[parentId].children);
+
+        for (let i = 0; i < items[parentId].children.length; i++) {
+          const id = items[parentId].children[i];
+          if (x(id) >= x(item.id)) {
+            continue;
+          }
+          if (x(id) > max) {
+            max = x(id);
+          }
+        }
+        console.log('max', max);
+      }
+
+      const newPrio = Math.round(
+        (item.originalFields.priority.value + max) / 2
+      );
+
       actions.changeItem(
         dragged.id,
         'priority',
         items[dragged.id].originalFields.priority &&
           items[dragged.id].originalFields.priority.value,
-        item.originalFields.priority.value - 50
+        newPrio
       );
     },
     hover: (dragged: any, monitor: DropTargetMonitor) =>
@@ -216,9 +261,15 @@ export const ItemViewer: React.FC<Props> = props => {
           </div>
           <div className={childrenStyle}>
             {!childrenCollapsed &&
-              item.children
+              order(item.children)
                 .filter(f)
-                .map(child => <ItemViewer key={child} item={items[child]} />)}
+                .map(child => (
+                  <ItemViewer
+                    key={child}
+                    item={items[child]}
+                    parentId={item.id}
+                  />
+                ))}
             {showChildrenAdder && (
               <ItemAdderViewer parentId={item.id} onClose={handleNewClose} />
             )}
