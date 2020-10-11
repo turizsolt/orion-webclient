@@ -12,6 +12,8 @@ import { DefaultLocalStorage } from './LocalStore/DefaultLocalStorage';
 import { SocketServerCommunication } from './LocalStore/SocketServerCommunication';
 import { socket } from './socket';
 import { Changes } from './Changes';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const dispatcher = new ReduxDispatcher(twoStore);
 const actions = new Actions(
@@ -30,22 +32,28 @@ const App: React.FC = () => {
     <div className={appStyle}>
       <button onClick={() => localStorage.clear()}>Clear localstorage</button>
       <Provider store={twoStore}>
-        <ActionsContext.Provider value={actions}>
-          <BrowserRouter>
-            <Switch>
-              <Route path="/:id">
-                <OneItemViewer />
-              </Route>
-              <Route exact path="/">
-                <RootItemViewer />
-              </Route>
-            </Switch>
-          </BrowserRouter>
-        </ActionsContext.Provider>
-        <Changes />
+        <DndProvider backend={HTML5Backend}>
+          <ActionsContext.Provider value={actions}>
+            <BrowserRouter>
+              <Switch>
+                <Route path="/:id">
+                  <OneItemViewer />
+                </Route>
+                <Route exact path="/">
+                  <RootItemViewer />
+                </Route>
+              </Switch>
+            </BrowserRouter>
+          </ActionsContext.Provider>
+          <Changes />
+        </DndProvider>
       </Provider>
     </div>
   );
 };
 
 export default App;
+
+export const ItemTypes = {
+  ITEM: 'item'
+};

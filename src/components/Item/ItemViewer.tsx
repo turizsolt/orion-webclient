@@ -1,6 +1,13 @@
-import React, { useCallback, useContext, useState, FormEvent } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useState,
+  FormEvent,
+  useRef,
+  RefObject
+} from 'react';
 import { ViewItem } from '../../model/Item/ViewItem';
-import { ActionsContext } from '../../App';
+import { ActionsContext, ItemTypes } from '../../App';
 import { Actions } from '../../LocalStore/Actions';
 import { ItemId } from '../../model/Item/ItemId';
 import { RelationType } from '../../model/Relation/RelationType';
@@ -11,6 +18,12 @@ import { StateDot } from './StateDot';
 import { Link } from 'react-router-dom';
 import { ItemAdderViewer } from './ItemAdderViewer';
 import { FieldTypeOf, fieldTypeList } from '../../model/Item/FieldTypeOf';
+import {
+  useDrag,
+  DragSourceMonitor,
+  useDrop,
+  DropTargetMonitor
+} from 'react-dnd';
 interface Props {
   item: ViewItem;
 }
@@ -101,13 +114,41 @@ export const ItemViewer: React.FC<Props> = props => {
     //);
   };
 
+  const [{ isDragging }, drag] = useDrag({
+    item: { type: ItemTypes.ITEM, id: item.id },
+    collect: (monitor: DragSourceMonitor) => ({
+      isDragging: !!monitor.isDragging()
+    })
+  });
+
+  const [{ isOver }, drop] = useDrop({
+    accept: ItemTypes.ITEM,
+    drop: (dragged: any, monitor: DropTargetMonitor) =>
+      console.log('dropped', dragged.id, '>', item.id),
+    hover: (dragged: any, monitor: DropTargetMonitor) =>
+      console.log('hover', dragged.id, '>', item.id),
+    collect: (monitor: DropTargetMonitor) => ({
+      isOver: !!monitor.isOver()
+    })
+  });
+
+  const ref: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  drag(drop(ref));
+
   return (
     <>
       {item && (
         <>
           {false && <div>[{item.auxilaryColumns.join(', ')}]</div>}
           <div className={itemStyle}>
-            <div className={headerStyle}>
+            <div
+              className={headerStyle}
+              ref={ref}
+              style={{
+                opacity: isDragging ? 0.5 : 1,
+                color: isOver ? 'red' : 'inherit'
+              }}
+            >
               <StateDot symbol={item.updateness} />
               <FieldViewer
                 id={item.id}
