@@ -12,8 +12,8 @@ import { DefaultLocalStorage } from './LocalStore/DefaultLocalStorage';
 import { SocketServerCommunication } from './LocalStore/SocketServerCommunication';
 import { socket } from './socket';
 import { Changes } from './Changes';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { DndProvider } from 'react-dnd-multi-backend';
+import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
 
 const dispatcher = new ReduxDispatcher(twoStore);
 const actions = new Actions(
@@ -32,7 +32,7 @@ const App: React.FC = () => {
     <div className={appStyle}>
       <button onClick={() => localStorage.clear()}>Clear localstorage</button>
       <Provider store={twoStore}>
-        <DndProvider backend={HTML5Backend}>
+        <DndProvider options={HTML5toTouch}>
           <ActionsContext.Provider value={actions}>
             <BrowserRouter>
               <Switch>
