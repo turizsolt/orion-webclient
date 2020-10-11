@@ -123,8 +123,16 @@ export const ItemViewer: React.FC<Props> = props => {
 
   const [{ isOver }, drop] = useDrop({
     accept: ItemTypes.ITEM,
-    drop: (dragged: any, monitor: DropTargetMonitor) =>
-      console.log('dropped', dragged.id, '>', item.id),
+    drop: (dragged: any, monitor: DropTargetMonitor) => {
+      console.log('dropped', dragged.id, '>', item.id);
+      actions.changeItem(
+        dragged.id,
+        'priority',
+        items[dragged.id].originalFields.priority &&
+          items[dragged.id].originalFields.priority.value,
+        item.originalFields.priority.value - 50
+      );
+    },
     hover: (dragged: any, monitor: DropTargetMonitor) =>
       console.log('hover', dragged.id, '>', item.id),
     collect: (monitor: DropTargetMonitor) => ({
@@ -155,6 +163,12 @@ export const ItemViewer: React.FC<Props> = props => {
                 {...item.fields[0]}
                 params={{ noLabel: true }}
               />
+              <div>
+                [
+                {item.originalFields.priority &&
+                  item.originalFields.priority.value}
+                ] &nbsp;
+              </div>
               <div>
                 <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
               </div>

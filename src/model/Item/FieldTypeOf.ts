@@ -10,6 +10,7 @@ interface NamedFieldType extends FieldType {
 
 const types: Record<string, FieldType> = {
   title: { type: 'String', getDefaultValue: () => '' },
+  priority: { type: 'Number', getDefaultValue: () => 0 },
   description: { type: 'Text', getDefaultValue: () => '' },
   isIt: { type: 'Boolean', getDefaultValue: () => false },
   deleted: { type: 'Boolean', getDefaultValue: () => false },
