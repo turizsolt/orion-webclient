@@ -22,7 +22,8 @@ import {
   useDrag,
   DragSourceMonitor,
   useDrop,
-  DropTargetMonitor
+  DropTargetMonitor,
+  XYCoord
 } from 'react-dnd';
 interface Props {
   item: ViewItem;
@@ -60,8 +61,10 @@ const headerButtonStyle = style({
 });
 
 export const ItemViewer: React.FC<Props> = props => {
+  const ref: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+
   const { item, parentId } = props;
-  const { items } = useSelector((state: any) => state.appReducer);
+  const { items, itemList } = useSelector((state: any) => state.appReducer);
   const actions: Actions = useContext(ActionsContext);
 
   const [collapsed, setCollapsed] = useState(true);
@@ -125,13 +128,16 @@ export const ItemViewer: React.FC<Props> = props => {
     if (!items[c].originalFields.priority) {
       return 0;
     }
+    if (!items[c].originalFields.priority.value) {
+      return 0;
+    }
     return parseInt(items[c].originalFields.priority.value, 10);
   };
 
   const order = (arr: ItemId[]): ItemId[] => {
     arr.sort((a, b) => {
-      if (x(a) < x(b)) return -1;
-      if (x(a) > x(b)) return 1;
+      if (x(a) < x(b)) return 1;
+      if (x(a) > x(b)) return -1;
       return 0;
     });
     return arr;
@@ -144,18 +150,36 @@ export const ItemViewer: React.FC<Props> = props => {
     })
   });
 
-  const [{ isOver }, drop] = useDrop({
+  const [{ isOver, isUpper }, drop] = useDrop({
     accept: ItemTypes.ITEM,
     drop: (dragged: any, monitor: DropTargetMonitor) => {
-      console.log('dropped', dragged.id, '>', item.id);
-      console.log('parent', parentId);
+      if (dragged.id === item.id) return;
 
-      let max = 0;
-      if (parentId) {
-        console.log('children', items[parentId].children);
+      const hoverBoundingRect =
+        ref.current && ref.current.getBoundingClientRect();
 
-        for (let i = 0; i < items[parentId].children.length; i++) {
-          const id = items[parentId].children[i];
+      const hoverMiddleY = hoverBoundingRect
+        ? (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+        : 0;
+
+      // Determine mouse position
+      const clientOffset = monitor.getClientOffset();
+
+      // Get pixels to the top
+      const hoverClientY =
+        (clientOffset as XYCoord).y -
+        (hoverBoundingRect ? hoverBoundingRect.top : 0);
+
+      let newPrio = 0;
+
+      if (hoverClientY >= hoverMiddleY) {
+        let max = 0;
+        const children = parentId
+          ? items[parentId].children
+          : itemList.filter((id: string) => items[id].parents.length === 0);
+
+        for (let i = 0; i < children.length; i++) {
+          const id = children[i];
           if (x(id) >= x(item.id)) {
             continue;
           }
@@ -163,12 +187,25 @@ export const ItemViewer: React.FC<Props> = props => {
             max = x(id);
           }
         }
-        console.log('max', max);
-      }
+        newPrio = Math.round((x(item.id) + max) / 2);
+      } else {
+        let min = Math.pow(2, 31) - 1;
 
-      const newPrio = Math.round(
-        (item.originalFields.priority.value + max) / 2
-      );
+        const children = parentId
+          ? items[parentId].children
+          : itemList.filter((id: string) => items[id].parents.length === 0);
+
+        for (let i = 0; i < children.length; i++) {
+          const id = children[i];
+          if (x(id) <= x(item.id)) {
+            continue;
+          }
+          if (x(id) < min) {
+            min = x(id);
+          }
+        }
+        newPrio = Math.round((x(item.id) + min) / 2);
+      }
 
       actions.changeItem(
         dragged.id,
@@ -178,14 +215,39 @@ export const ItemViewer: React.FC<Props> = props => {
         newPrio
       );
     },
-    hover: (dragged: any, monitor: DropTargetMonitor) =>
-      console.log('hover', dragged.id, '>', item.id),
-    collect: (monitor: DropTargetMonitor) => ({
-      isOver: !!monitor.isOver()
-    })
+    hover: (dragged: any, monitor: DropTargetMonitor) => {
+      // console.log('hover', dragged.id, '>', item.id);
+    },
+    collect: (monitor: DropTargetMonitor) => {
+      if (ref) {
+        const hoverBoundingRect =
+          ref.current && ref.current.getBoundingClientRect();
+
+        const hoverMiddleY = hoverBoundingRect
+          ? (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+          : 0;
+
+        const clientOffset = monitor.getClientOffset() || { y: 0 };
+
+        const hoverClientY =
+          (clientOffset as XYCoord).y -
+          (hoverBoundingRect ? hoverBoundingRect.top : 0);
+
+        return {
+          isOver: !!monitor.isOver(),
+          isUpper: hoverClientY < hoverMiddleY,
+          isLower: hoverClientY >= hoverMiddleY
+        };
+      } else {
+        return {
+          isOver: !!monitor.isOver(),
+          isUpper: false,
+          isLower: false
+        };
+      }
+    }
   });
 
-  const ref: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
   drag(drop(ref));
 
   return (
@@ -199,7 +261,11 @@ export const ItemViewer: React.FC<Props> = props => {
               ref={ref}
               style={{
                 opacity: isDragging ? 0.5 : 1,
-                color: isOver ? 'red' : 'inherit'
+                background: !isOver
+                  ? 'inherit'
+                  : isUpper
+                  ? 'linear-gradient(0deg, rgba(135,182,184,1) 50%, rgba(10,80,145,1) 100%)'
+                  : 'linear-gradient(180deg, rgba(135,182,184,1) 50%, rgba(10,80,145,1) 100%)'
               }}
             >
               <StateDot symbol={item.updateness} />
@@ -261,15 +327,13 @@ export const ItemViewer: React.FC<Props> = props => {
           </div>
           <div className={childrenStyle}>
             {!childrenCollapsed &&
-              order(item.children)
-                .filter(f)
-                .map(child => (
-                  <ItemViewer
-                    key={child}
-                    item={items[child]}
-                    parentId={item.id}
-                  />
-                ))}
+              order(item.children.filter(f)).map(child => (
+                <ItemViewer
+                  key={child}
+                  item={items[child]}
+                  parentId={item.id}
+                />
+              ))}
             {showChildrenAdder && (
               <ItemAdderViewer parentId={item.id} onClose={handleNewClose} />
             )}

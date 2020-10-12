@@ -20,7 +20,12 @@ export const RootItemViewer: React.FC = () => {
   }, []);
 
   const x = (c: string) => {
-    if (!items[c].originalFields.priority) {
+    if (
+      !items[c] ||
+      !items[c].originalFields ||
+      !items[c].originalFields.priority ||
+      !items[c].originalFields.priority.value
+    ) {
       return 0;
     }
     return parseInt(items[c].originalFields.priority.value, 10);
@@ -28,8 +33,8 @@ export const RootItemViewer: React.FC = () => {
 
   const order = (arr: ItemId[]): ItemId[] => {
     arr.sort((a, b) => {
-      if (x(a) < x(b)) return -1;
-      if (x(a) > x(b)) return 1;
+      if (x(a) < x(b)) return 1;
+      if (x(a) > x(b)) return -1;
       return 0;
     });
     return arr;
@@ -48,11 +53,9 @@ export const RootItemViewer: React.FC = () => {
 
   return (
     <div>
-      {order(itemList)
-        .filter(f)
-        .map((id: ItemId) => (
-          <ItemViewer key={id} item={items[id]} parentId={null} />
-        ))}
+      {order(itemList.filter(f)).map((id: ItemId) => (
+        <ItemViewer key={id} item={items[id]} parentId={null} />
+      ))}
       {showChildrenAdder && (
         <ItemAdderViewer parentId={undefined} onClose={handleNewClose} />
       )}
