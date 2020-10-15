@@ -30,6 +30,7 @@ interface Props {
   item: ViewItem;
   parentId: ItemId | null;
   path: string;
+  ghost?: boolean;
 }
 
 const itemStyle = style({
@@ -65,7 +66,7 @@ const headerButtonStyle = style({
 export const ItemViewer: React.FC<Props> = props => {
   const ref: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
 
-  const { item, parentId, path } = props;
+  const { item, parentId, path, ghost } = props;
   const myPath = path + (path ? '_' : '') + item.id;
   const { items, itemList, hover, draggedId } = useSelector(
     (state: any) => state.appReducer
@@ -229,6 +230,7 @@ export const ItemViewer: React.FC<Props> = props => {
     },
     hover: (dragged: any, monitor: DropTargetMonitor) => {
       if (!monitor.isOver()) return;
+      if (item.id === dragged.id) return;
 
       if (ref) {
         const hoverBoundingRect =
@@ -295,20 +297,20 @@ export const ItemViewer: React.FC<Props> = props => {
       {item && (
         <>
           {hover && hover.path === myPath && hover.place === 'before' && (
-            <div>Ide j0n</div>
+            <ItemViewer
+              item={items[draggedId]}
+              parentId={null}
+              path={''}
+              ghost
+            />
           )}
           <div className={itemStyle}>
             <div
               className={headerStyle}
               ref={ref}
               style={{
+                opacity: ghost ? 0.5 : 1,
                 display: isDragging ? 'none' : 'flex'
-                //opacity: isDragging ? 0 : 1,
-                // background: !isOver
-                //   ? 'inherit'
-                //   : hover && hover.place === 'before'
-                //   ? 'linear-gradient(0deg, rgba(135,182,184,1) 50%, rgba(10,80,145,1) 100%)'
-                //   : 'linear-gradient(180deg, rgba(135,182,184,1) 50%, rgba(10,80,145,1) 100%)'
               }}
             >
               <StateDot symbol={item.updateness} />
@@ -382,6 +384,7 @@ export const ItemViewer: React.FC<Props> = props => {
                   item={items[child]}
                   parentId={item.id}
                   path={myPath}
+                  ghost={ghost}
                 />
               ))}
             {showChildrenAdder && (
@@ -389,7 +392,12 @@ export const ItemViewer: React.FC<Props> = props => {
             )}
           </div>
           {hover && hover.path === myPath && hover.place === 'after' && (
-            <div>Ide j0n</div>
+            <ItemViewer
+              item={items[draggedId]}
+              parentId={null}
+              path={''}
+              ghost
+            />
           )}
         </>
       )}
