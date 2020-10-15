@@ -54,7 +54,7 @@ export const RootItemViewer: React.FC = () => {
   return (
     <div>
       {order(itemList.filter(f)).map((id: ItemId) => (
-        <ItemViewer key={id} item={items[id]} parentId={null} />
+        <ItemViewer key={id} item={items[id]} parentId={null} path={''} />
       ))}
       {showChildrenAdder && (
         <ItemAdderViewer parentId={undefined} onClose={handleNewClose} />

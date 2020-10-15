@@ -25,9 +25,11 @@ import {
   DropTargetMonitor,
   XYCoord
 } from 'react-dnd';
+
 interface Props {
   item: ViewItem;
   parentId: ItemId | null;
+  path: string;
 }
 
 const itemStyle = style({
@@ -63,8 +65,11 @@ const headerButtonStyle = style({
 export const ItemViewer: React.FC<Props> = props => {
   const ref: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
 
-  const { item, parentId } = props;
-  const { items, itemList } = useSelector((state: any) => state.appReducer);
+  const { item, parentId, path } = props;
+  const myPath = path + (path ? '_' : '') + item.id;
+  const { items, itemList, hover, draggedId } = useSelector(
+    (state: any) => state.appReducer
+  );
   const actions: Actions = useContext(ActionsContext);
 
   const [collapsed, setCollapsed] = useState(true);
@@ -147,7 +152,14 @@ export const ItemViewer: React.FC<Props> = props => {
     item: { type: ItemTypes.ITEM, id: item.id },
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: !!monitor.isDragging()
-    })
+    }),
+    begin: () => {
+      actions.dragged(item.id);
+    },
+    end: () => {
+      actions.hover(null);
+      actions.dragged(null);
+    }
   });
 
   const [{ isOver, isUpper }, drop] = useDrop({
@@ -216,7 +228,35 @@ export const ItemViewer: React.FC<Props> = props => {
       );
     },
     hover: (dragged: any, monitor: DropTargetMonitor) => {
-      // console.log('hover', dragged.id, '>', item.id);
+      if (!monitor.isOver()) return;
+
+      if (ref) {
+        const hoverBoundingRect =
+          ref.current && ref.current.getBoundingClientRect();
+
+        const hoverMiddleY = hoverBoundingRect
+          ? (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
+          : 0;
+
+        const clientOffset = monitor.getClientOffset() || { y: 0 };
+
+        const hoverClientY =
+          (clientOffset as XYCoord).y -
+          (hoverBoundingRect ? hoverBoundingRect.top : 0);
+
+        const newHover = {
+          path: myPath,
+          place: hoverClientY < hoverMiddleY ? 'before' : 'after'
+        };
+
+        if (
+          !hover ||
+          hover.path !== newHover.path ||
+          hover.place !== newHover.place
+        ) {
+          actions.hover(newHover);
+        }
+      }
     },
     collect: (monitor: DropTargetMonitor) => {
       if (ref) {
@@ -254,18 +294,21 @@ export const ItemViewer: React.FC<Props> = props => {
     <>
       {item && (
         <>
-          {false && <div>[{item.auxilaryColumns.join(', ')}]</div>}
+          {hover && hover.path === myPath && hover.place === 'before' && (
+            <div>Ide j0n</div>
+          )}
           <div className={itemStyle}>
             <div
               className={headerStyle}
               ref={ref}
               style={{
-                opacity: isDragging ? 0.5 : 1,
-                background: !isOver
-                  ? 'inherit'
-                  : isUpper
-                  ? 'linear-gradient(0deg, rgba(135,182,184,1) 50%, rgba(10,80,145,1) 100%)'
-                  : 'linear-gradient(180deg, rgba(135,182,184,1) 50%, rgba(10,80,145,1) 100%)'
+                display: isDragging ? 'none' : 'flex'
+                //opacity: isDragging ? 0 : 1,
+                // background: !isOver
+                //   ? 'inherit'
+                //   : hover && hover.place === 'before'
+                //   ? 'linear-gradient(0deg, rgba(135,182,184,1) 50%, rgba(10,80,145,1) 100%)'
+                //   : 'linear-gradient(180deg, rgba(135,182,184,1) 50%, rgba(10,80,145,1) 100%)'
               }}
             >
               <StateDot symbol={item.updateness} />
@@ -274,6 +317,7 @@ export const ItemViewer: React.FC<Props> = props => {
                 {...item.fields[0]}
                 params={{ noLabel: true }}
               />
+              <div>{myPath}</div>
               <div>
                 [
                 {item.originalFields.priority &&
@@ -325,19 +369,28 @@ export const ItemViewer: React.FC<Props> = props => {
               </div>
             )}
           </div>
-          <div className={childrenStyle}>
+          <div
+            className={childrenStyle}
+            style={{
+              display: isDragging ? 'none' : 'block'
+            }}
+          >
             {!childrenCollapsed &&
-              order(item.children.filter(f)).map(child => (
+              order(item.children.filter(f)).map((child, index) => (
                 <ItemViewer
                   key={child}
                   item={items[child]}
                   parentId={item.id}
+                  path={myPath}
                 />
               ))}
             {showChildrenAdder && (
               <ItemAdderViewer parentId={item.id} onClose={handleNewClose} />
             )}
           </div>
+          {hover && hover.path === myPath && hover.place === 'after' && (
+            <div>Ide j0n</div>
+          )}
         </>
       )}
     </>

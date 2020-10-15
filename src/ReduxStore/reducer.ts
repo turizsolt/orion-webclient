@@ -6,12 +6,16 @@ import {
   createItemList,
   setFilters,
   updateChange,
-  addToChanges
+  addToChanges,
+  hoverItem,
+  draggedItem
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem } from '../model/Item/ViewItem';
 
 const initialState = {
+  hover: null,
+  draggedId: null,
   items: {},
   itemList: [],
   changes: {},
@@ -47,6 +51,20 @@ const initialState = {
 type X = any;
 
 export const appReducer = (state: X = initialState, action: AnyAction): X => {
+  if (isType(action, hoverItem)) {
+    return {
+      ...state,
+      hover: action.payload
+    };
+  }
+
+  if (isType(action, draggedItem)) {
+    return {
+      ...state,
+      draggedId: action.payload
+    };
+  }
+
   if (isType(action, updateItem)) {
     return {
       ...state,
