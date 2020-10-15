@@ -54,7 +54,14 @@ export class Actions {
     this.store.commit(transaction);
   }
 
-  hover(newHover: { path: string; place: string } | null) {
+  hover(
+    newHover: {
+      path: string;
+      place: string;
+      id: ItemId;
+      parentId: ItemId | null;
+    } | null
+  ) {
     this.dispatcher.dispatch(hoverItem(newHover));
   }
 

@@ -150,7 +150,7 @@ export const ItemViewer: React.FC<Props> = props => {
   };
 
   const [{ isDragging }, drag] = useDrag({
-    item: { type: ItemTypes.ITEM, id: item.id },
+    item: { type: ItemTypes.ITEM, id: item.id, parentId },
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: !!monitor.isDragging()
     }),
@@ -166,29 +166,15 @@ export const ItemViewer: React.FC<Props> = props => {
   const drop = useDrop({
     accept: ItemTypes.ITEM,
     drop: (dragged: any, monitor: DropTargetMonitor) => {
-      if (dragged.id === item.id) return;
-
-      const hoverBoundingRect =
-        ref.current && ref.current.getBoundingClientRect();
-
-      const hoverMiddleY = hoverBoundingRect
-        ? (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
-        : 0;
-
-      // Determine mouse position
-      const clientOffset = monitor.getClientOffset();
-
-      // Get pixels to the top
-      const hoverClientY =
-        (clientOffset as XYCoord).y -
-        (hoverBoundingRect ? hoverBoundingRect.top : 0);
+      if (dragged.id === hover.id) return;
 
       let newPrio = 0;
 
-      if (hoverClientY >= hoverMiddleY) {
+      // todo majd modositani
+      if (hover.place === 'after') {
         let max = 0;
-        const children = parentId
-          ? items[parentId].children
+        const children = hover.parentId
+          ? items[hover.parentId].children
           : itemList.filter((id: string) => items[id].parents.length === 0);
 
         for (let i = 0; i < children.length; i++) {
@@ -204,8 +190,8 @@ export const ItemViewer: React.FC<Props> = props => {
       } else {
         let min = Math.pow(2, 31) - 1;
 
-        const children = parentId
-          ? items[parentId].children
+        const children = hover.parentId
+          ? items[hover.parentId].children
           : itemList.filter((id: string) => items[id].parents.length === 0);
 
         for (let i = 0; i < children.length; i++) {
@@ -227,6 +213,19 @@ export const ItemViewer: React.FC<Props> = props => {
           items[dragged.id].originalFields.priority.value,
         newPrio
       );
+
+      if (dragged.parentId !== hover.parentId) {
+        if (dragged.parentId) {
+          actions.removeRelation(
+            dragged.id,
+            RelationType.Parent,
+            dragged.parentId
+          );
+        }
+        if (hover.parentId) {
+          actions.addRelation(dragged.id, RelationType.Parent, hover.parentId);
+        }
+      }
     },
     hover: (dragged: any, monitor: DropTargetMonitor) => {
       if (!monitor.isOver()) return;
@@ -248,7 +247,9 @@ export const ItemViewer: React.FC<Props> = props => {
 
         const newHover = {
           path: myPath,
-          place: hoverClientY < hoverMiddleY ? 'before' : 'after'
+          place: hoverClientY < hoverMiddleY ? 'before' : 'after',
+          id: item.id,
+          parentId
         };
 
         if (
