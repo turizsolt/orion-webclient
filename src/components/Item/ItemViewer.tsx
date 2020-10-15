@@ -163,7 +163,7 @@ export const ItemViewer: React.FC<Props> = props => {
     }
   });
 
-  const [{ isOver, isUpper }, drop] = useDrop({
+  const drop = useDrop({
     accept: ItemTypes.ITEM,
     drop: (dragged: any, monitor: DropTargetMonitor) => {
       if (dragged.id === item.id) return;
@@ -259,36 +259,8 @@ export const ItemViewer: React.FC<Props> = props => {
           actions.hover(newHover);
         }
       }
-    },
-    collect: (monitor: DropTargetMonitor) => {
-      if (ref) {
-        const hoverBoundingRect =
-          ref.current && ref.current.getBoundingClientRect();
-
-        const hoverMiddleY = hoverBoundingRect
-          ? (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
-          : 0;
-
-        const clientOffset = monitor.getClientOffset() || { y: 0 };
-
-        const hoverClientY =
-          (clientOffset as XYCoord).y -
-          (hoverBoundingRect ? hoverBoundingRect.top : 0);
-
-        return {
-          isOver: !!monitor.isOver(),
-          isUpper: hoverClientY < hoverMiddleY,
-          isLower: hoverClientY >= hoverMiddleY
-        };
-      } else {
-        return {
-          isOver: !!monitor.isOver(),
-          isUpper: false,
-          isLower: false
-        };
-      }
     }
-  });
+  })[1];
 
   drag(drop(ref));
 
