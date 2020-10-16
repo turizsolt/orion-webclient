@@ -150,12 +150,25 @@ export const ItemViewer: React.FC<Props> = props => {
   };
 
   const [{ isDragging }, drag] = useDrag({
-    item: { type: ItemTypes.ITEM, id: item.id, parentId },
+    item: { type: ItemTypes.ITEM, id: item.id, parentId, x: 0 },
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: !!monitor.isDragging()
     }),
-    begin: () => {
+    begin: (monitor: DragSourceMonitor) => {
       actions.dragged(item.id);
+
+      if (ref) {
+        const hoverBoundingRect =
+          ref.current && ref.current.getBoundingClientRect();
+
+        const clientOffset = monitor.getClientOffset() || { y: 0, x: 0 };
+
+        const hoverClientX =
+          (clientOffset as XYCoord).x -
+          (hoverBoundingRect ? hoverBoundingRect.left : 0);
+
+        return { type: ItemTypes.ITEM, id: item.id, parentId, x: hoverClientX };
+      }
     },
     end: () => {
       actions.hover(null);
@@ -229,7 +242,6 @@ export const ItemViewer: React.FC<Props> = props => {
     },
     hover: (dragged: any, monitor: DropTargetMonitor) => {
       if (!monitor.isOver()) return;
-      if (item.id === dragged.id) return;
 
       if (ref) {
         const hoverBoundingRect =
@@ -245,9 +257,18 @@ export const ItemViewer: React.FC<Props> = props => {
           (clientOffset as XYCoord).y -
           (hoverBoundingRect ? hoverBoundingRect.top : 0);
 
+        const hoverClientX =
+          (clientOffset as XYCoord).x -
+          (hoverBoundingRect ? hoverBoundingRect.left : 0);
+
+        const sameId = item.id === dragged.id;
+        const isUpper = hoverClientY < hoverMiddleY;
+        const isChild = hoverClientX - dragged.x > 20;
+        const isOpen = !childrenCollapsed && item.children.filter(f).length > 0;
+
         const newHover = {
-          path: myPath,
-          place: hoverClientY < hoverMiddleY ? 'before' : 'after',
+          path: sameId ? hover.path : myPath,
+          place: isUpper ? 'before' : isOpen || isChild ? 'child' : 'after',
           id: item.id,
           parentId
         };
@@ -350,6 +371,14 @@ export const ItemViewer: React.FC<Props> = props => {
               display: isDragging ? 'none' : 'block'
             }}
           >
+            {hover && hover.path === myPath && hover.place === 'child' && (
+              <ItemViewer
+                item={items[draggedId]}
+                parentId={null}
+                path={''}
+                ghost
+              />
+            )}
             {!childrenCollapsed &&
               order(item.children.filter(f)).map((child, index) => (
                 <ItemViewer
