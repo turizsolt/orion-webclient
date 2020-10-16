@@ -68,7 +68,7 @@ export const ItemViewer: React.FC<Props> = props => {
 
   const { item, parentId, path, ghost } = props;
   const myPath = path + (path ? '_' : '') + item.id;
-  const { items, itemList, hover, draggedId } = useSelector(
+  const { items, itemsMeta, itemList, hover, draggedId } = useSelector(
     (state: any) => state.appReducer
   );
   const actions: Actions = useContext(ActionsContext);
@@ -117,38 +117,6 @@ export const ItemViewer: React.FC<Props> = props => {
     setShowChildrenAdder(false);
   }, []);
 
-  const f = (x: ItemId) => {
-    return true;
-    //  !items[x].originalFields.deleted ||
-    //  items[x].originalFields.deleted.value !== true
-    //);
-  };
-
-  const x = (c: string) => {
-    if (!items[c]) {
-      return 0;
-    }
-    if (!items[c].originalFields) {
-      return 0;
-    }
-    if (!items[c].originalFields.priority) {
-      return 0;
-    }
-    if (!items[c].originalFields.priority.value) {
-      return 0;
-    }
-    return parseInt(items[c].originalFields.priority.value, 10);
-  };
-
-  const order = (arr: ItemId[]): ItemId[] => {
-    arr.sort((a, b) => {
-      if (x(a) < x(b)) return 1;
-      if (x(a) > x(b)) return -1;
-      return 0;
-    });
-    return arr;
-  };
-
   const [{ isDragging }, drag] = useDrag({
     item: { type: ItemTypes.ITEM, id: item.id, parentId, x: 0 },
     collect: (monitor: DragSourceMonitor) => ({
@@ -175,6 +143,22 @@ export const ItemViewer: React.FC<Props> = props => {
       actions.dragged(null);
     }
   });
+
+  const x = (c: string) => {
+    if (!items[c]) {
+      return 0;
+    }
+    if (!items[c].originalFields) {
+      return 0;
+    }
+    if (!items[c].originalFields.priority) {
+      return 0;
+    }
+    if (!items[c].originalFields.priority.value) {
+      return 0;
+    }
+    return parseInt(items[c].originalFields.priority.value, 10);
+  };
 
   const drop = useDrop({
     accept: ItemTypes.ITEM,
@@ -264,7 +248,7 @@ export const ItemViewer: React.FC<Props> = props => {
         const sameId = item.id === dragged.id;
         const isUpper = hoverClientY < hoverMiddleY;
         const isChild = hoverClientX - dragged.x > 20;
-        const isOpen = !childrenCollapsed && item.children.filter(f).length > 0;
+        const isOpen = !childrenCollapsed && item.children.length > 0;
 
         const newHover = {
           path: sameId ? hover.path : myPath,
@@ -380,15 +364,17 @@ export const ItemViewer: React.FC<Props> = props => {
               />
             )}
             {!childrenCollapsed &&
-              order(item.children.filter(f)).map((child, index) => (
-                <ItemViewer
-                  key={child}
-                  item={items[child]}
-                  parentId={item.id}
-                  path={myPath}
-                  ghost={ghost}
-                />
-              ))}
+              itemsMeta[item.id].viewedChildren.map(
+                (child: ItemId, index: number) => (
+                  <ItemViewer
+                    key={child}
+                    item={items[child]}
+                    parentId={item.id}
+                    path={myPath}
+                    ghost={ghost}
+                  />
+                )
+              )}
             {showChildrenAdder && (
               <ItemAdderViewer parentId={item.id} onClose={handleNewClose} />
             )}
