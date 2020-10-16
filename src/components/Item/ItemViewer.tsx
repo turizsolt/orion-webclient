@@ -248,7 +248,8 @@ export const ItemViewer: React.FC<Props> = props => {
         const sameId = item.id === dragged.id;
         const isUpper = hoverClientY < hoverMiddleY;
         const isChild = hoverClientX - dragged.x > 20;
-        const isOpen = !childrenCollapsed && item.children.length > 0;
+        const isOpen =
+          !childrenCollapsed && itemsMeta[item.id].viewedChildren.length > 0;
 
         const newHover = {
           path: sameId ? hover.path : myPath,
@@ -297,7 +298,6 @@ export const ItemViewer: React.FC<Props> = props => {
                 {...item.fields[0]}
                 params={{ noLabel: true }}
               />
-              <div>{myPath}</div>
               <div>
                 [
                 {item.originalFields.priority &&
@@ -317,7 +317,9 @@ export const ItemViewer: React.FC<Props> = props => {
                 className={headerButtonStyle}
                 onClick={handleChildrenCollapse}
               >
-                {childrenCollapsed ? item.children.length : '-'}
+                {childrenCollapsed
+                  ? itemsMeta[item.id].viewedChildren.length
+                  : '-'}
               </button>
             </div>
             {!collapsed && (

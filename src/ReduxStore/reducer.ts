@@ -19,6 +19,7 @@ const initialState = {
   itemsMeta: {},
   items: {},
   itemList: [],
+  viewedItemList: [],
   changes: {},
   changeList: [],
   filters: [
@@ -68,11 +69,11 @@ export const appReducer = (state: X = initialState, action: AnyAction): X => {
 
   if (isType(action, updateItem)) {
     let itemsMeta = state.itemsMeta;
-    let itemList = state.itemList;
+    let viewedItemList = state.viewedItemList;
     itemsMeta = {
       ...itemsMeta,
       [action.payload.id]: {
-        viewedChildren: filterAndOrder(action.payload.children)
+        viewedChildren: filterAndOrder(action.payload.children, state)
       }
     };
     for (let parent of action.payload.parents) {
@@ -80,13 +81,14 @@ export const appReducer = (state: X = initialState, action: AnyAction): X => {
         ...itemsMeta,
         [parent]: {
           viewedChildren: filterAndOrder(
-            itemsMeta[parent] ? itemsMeta[parent].viewedChildren : []
+            itemsMeta[parent] ? itemsMeta[parent].viewedChildren : [],
+            state
           )
         }
       };
     }
     if (action.payload.parents.length === 0) {
-      itemList = filterAndOrder(itemList);
+      viewedItemList = filterAndOrderRoot(state.itemList, state);
     }
 
     return {
@@ -95,8 +97,8 @@ export const appReducer = (state: X = initialState, action: AnyAction): X => {
         ...state.items,
         [action.payload.id]: action.payload
       },
-      itemList,
       itemsMeta,
+      viewedItemList,
       version: state.version + 1
     };
   }
@@ -114,9 +116,11 @@ export const appReducer = (state: X = initialState, action: AnyAction): X => {
   }
 
   if (isType(action, addToItems)) {
+    const itemList = pushIfUnique(state.itemList, action.payload);
     return {
       ...state,
-      itemList: pushIfUnique(state.itemList, action.payload),
+      itemList,
+      viewedItemList: filterAndOrderRoot(itemList, state),
       version: state.version + 1
     };
   }
@@ -133,6 +137,7 @@ export const appReducer = (state: X = initialState, action: AnyAction): X => {
     return {
       ...state,
       itemList: action.payload,
+      viewedItemList: filterAndOrderRoot(action.payload, state),
       version: state.version + 1
     };
   }
@@ -156,73 +161,46 @@ function pushIfUnique(list: any[], elem: any) {
   }
 }
 
-function filterAndOrder(list: any[]): any[] {
-  return [...list];
+const f = (state: any, skipRootRule: boolean) => (x: ItemId) => {
+  if (!state.items[x]) return false;
+
+  for (const filter of state.filters) {
+    if (
+      filter.on &&
+      (!skipRootRule || filter.id !== 'roots') &&
+      !filter.f(state.items)(x)
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+function filterAndOrder(list: any[], state: any): any[] {
+  return [...order(list.filter(f(state, true)), state)];
 }
 
-/*
+function filterAndOrderRoot(list: any[], state: any): any[] {
+  return [...order(list.filter(f(state, false)), state)];
+}
 
-const f = (x: ItemId) => {
-  return true;
-  //  !items[x].originalFields.deleted ||
-  //  items[x].originalFields.deleted.value !== true
-  //);
-};
-
-const x = (c: string) => {
-  if (!items[c]) {
-    return 0;
-  }
-  if (!items[c].originalFields) {
-    return 0;
-  }
-  if (!items[c].originalFields.priority) {
-    return 0;
-  }
-  if (!items[c].originalFields.priority.value) {
-    return 0;
-  }
-  return parseInt(items[c].originalFields.priority.value, 10);
-};
-
-const order = (arr: ItemId[]): ItemId[] => {
+function order(arr: ItemId[], state: any): ItemId[] {
   arr.sort((a, b) => {
-    if (x(a) < x(b)) return 1;
-    if (x(a) > x(b)) return -1;
+    if (x(a, state.items) < x(b, state.items)) return 1;
+    if (x(a, state.items) > x(b, state.items)) return -1;
     return 0;
   });
   return arr;
-};
+}
 
-const x = (c: string) => {
-    if (
-      !items[c] ||
-      !items[c].originalFields ||
-      !items[c].originalFields.priority ||
-      !items[c].originalFields.priority.value
-    ) {
-      return 0;
-    }
-    return parseInt(items[c].originalFields.priority.value, 10);
-  };
-
-  const order = (arr: ItemId[]): ItemId[] => {
-    arr.sort((a, b) => {
-      if (x(a) < x(b)) return 1;
-      if (x(a) > x(b)) return -1;
-      return 0;
-    });
-    return arr;
-  };
-
-  const f = (x: ItemId) => {
-    if (!items[x]) return false;
-
-    for (const filter of filters) {
-      if (filter.on && !filter.f(items)(x)) {
-        return false;
-      }
-    }
-    return true;
-  };
-  */
+function x(c: string, items: any) {
+  if (
+    !items[c] ||
+    !items[c].originalFields ||
+    !items[c].originalFields.priority ||
+    !items[c].originalFields.priority.value
+  ) {
+    return 0;
+  }
+  return parseInt(items[c].originalFields.priority.value, 10);
+}
