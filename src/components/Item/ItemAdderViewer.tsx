@@ -6,6 +6,8 @@ import { RelationType } from '../../model/Relation/RelationType';
 import { style } from 'typestyle';
 import { StateDot } from './StateDot';
 import { Updateness } from '../../model/Updateness';
+import { useSelector } from 'react-redux';
+import { fillInPrioritiesOfAParent } from '../../ReduxStore/commons';
 interface Props {
   parentId: ItemId | undefined;
   onClose: () => void;
@@ -52,23 +54,35 @@ export const ItemAdderViewer: React.FC<Props> = props => {
   const { onClose, parentId } = props;
   const actions: Actions = useContext(ActionsContext);
 
+  const { items, itemsMeta, viewedItemList } = useSelector(
+    (state: any) => state.appReducer
+  );
+
   const [editValue, setEditValue] = useState('');
 
   const save = useCallback(
     (value: string) => {
       const childrenId = actions.createItem('title', value);
+      const highest = fillInPrioritiesOfAParent(
+        parentId,
+        itemsMeta,
+        viewedItemList,
+        items,
+        actions
+      );
+      const priority = highest + Math.pow(2, 20);
+      actions.changeItem(childrenId, 'priority', undefined, priority);
       if (parentId) {
         actions.addRelation(parentId, RelationType.Child, childrenId);
       }
     },
-    [actions, parentId]
+    [actions, parentId, items, itemsMeta, viewedItemList]
   );
 
   const handleKeyDown = useCallback(
     (event: any) => {
       if (event.which === 13 && !event.shiftKey) {
         if (editValue.trim() !== '') {
-          console.log('enter');
           save(editValue);
           setEditValue('');
         } else {

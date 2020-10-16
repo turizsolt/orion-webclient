@@ -12,6 +12,7 @@ import {
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem } from '../model/Item/ViewItem';
+import { getPriority } from './commons';
 
 const initialState = {
   hover: null,
@@ -186,21 +187,9 @@ function filterAndOrderRoot(list: any[], state: any): any[] {
 
 function order(arr: ItemId[], state: any): ItemId[] {
   arr.sort((a, b) => {
-    if (x(a, state.items) < x(b, state.items)) return 1;
-    if (x(a, state.items) > x(b, state.items)) return -1;
+    if (getPriority(a, state.items) < getPriority(b, state.items)) return -1;
+    if (getPriority(a, state.items) > getPriority(b, state.items)) return 1;
     return 0;
   });
   return arr;
-}
-
-function x(c: string, items: any) {
-  if (
-    !items[c] ||
-    !items[c].originalFields ||
-    !items[c].originalFields.priority ||
-    !items[c].originalFields.priority.value
-  ) {
-    return 0;
-  }
-  return parseInt(items[c].originalFields.priority.value, 10);
 }

@@ -22,10 +22,13 @@ import {
   useDrag,
   DragSourceMonitor,
   useDrop,
-  DropTargetMonitor,
-  XYCoord
+  DropTargetMonitor
 } from 'react-dnd';
-import { lemonchiffon } from 'color-name';
+import {
+  common,
+  getPriority,
+  fillInPrioritiesOfAParent
+} from '../../ReduxStore/commons';
 
 interface Props {
   item: ViewItem;
@@ -69,14 +72,9 @@ export const ItemViewer: React.FC<Props> = props => {
 
   const { item, parentId, path, ghost } = props;
   const myPath = path + (path ? '_' : '') + item.id;
-  const {
-    items,
-    itemsMeta,
-    itemList,
-    viewedItemList,
-    hover,
-    draggedId
-  } = useSelector((state: any) => state.appReducer);
+  const { items, itemsMeta, viewedItemList, hover, draggedId } = useSelector(
+    (state: any) => state.appReducer
+  );
   const actions: Actions = useContext(ActionsContext);
 
   const [collapsed, setCollapsed] = useState(true);
@@ -162,20 +160,16 @@ export const ItemViewer: React.FC<Props> = props => {
             parentId
           });
         }
-        // console.log({ type: ItemTypes.ITEM, id: item.id, parentId });
-        // return { type: ItemTypes.ITEM, id: item.id, parentId };
       }, 0);
     },
     canDrag: () => {
       const family: ItemId[] = parentId ? [] : viewedItemList;
-      // console.log('canDrag', !parentId && family.length < 2);
       if (!parentId && family.length < 2) {
         return false;
       }
       return true;
     },
     end: () => {
-      // console.log('end');
       actions.hover(null);
       actions.dragged(null);
     }
@@ -184,13 +178,78 @@ export const ItemViewer: React.FC<Props> = props => {
   const drop = useDrop({
     accept: ItemTypes.ITEM,
     drop: (dragged: any, monitor: DropTargetMonitor) => {
-      console.log('drop');
+      if (hover.id === draggedId) return;
+
+      const parent = hover.place === 'child' ? hover.id : hover.parentId;
+
+      fillInPrioritiesOfAParent(
+        parent,
+        itemsMeta,
+        viewedItemList,
+        items,
+        actions
+      );
+
+      if (parent !== dragged.parentId) {
+        if (dragged.parentId) {
+          actions.removeRelation(
+            dragged.id,
+            RelationType.Parent,
+            dragged.parentId
+          );
+        }
+        if (parent) {
+          actions.addRelation(dragged.id, RelationType.Parent, parent);
+        }
+      }
+      const family: ItemId[] = parent
+        ? itemsMeta[parent].viewedChildren
+        : viewedItemList;
+
+      const hoverPos = family.findIndex(x => x === hover.id);
+
+      let newPriority = 0;
+      if (hover.place === 'child') {
+        newPriority = Math.round(getPriority(family[0], items) / 2);
+      }
+
+      if (hover.place === 'before') {
+        if (hoverPos === 0) {
+          newPriority = Math.round(getPriority(family[0], items) / 2);
+        } else {
+          newPriority = Math.round(
+            (getPriority(family[hoverPos - 1], items) +
+              getPriority(family[hoverPos], items)) /
+              2
+          );
+        }
+      }
+
+      if (hover.place === 'after') {
+        if (hoverPos === family.length - 1) {
+          newPriority = Math.round(
+            getPriority(family[family.length - 1], items) + Math.pow(2, 20)
+          );
+        } else {
+          newPriority = Math.round(
+            (getPriority(family[hoverPos + 1], items) +
+              getPriority(family[hoverPos], items)) /
+              2
+          );
+        }
+      }
+
+      actions.changeItem(
+        dragged.id,
+        'priority',
+        getPriority(dragged.id, items),
+        newPriority
+      );
     },
     hover: (dragged: any, monitor: DropTargetMonitor) => {
       if (ghost) return;
 
       if (parentId === hover.parentId) {
-        console.log('tesok');
         const family: ItemId[] = parentId
           ? itemsMeta[parentId].viewedChildren
           : viewedItemList;
@@ -251,18 +310,12 @@ export const ItemViewer: React.FC<Props> = props => {
           }
         }
       } else {
-        console.log('mas', parentId, hover.parentId);
-
-        // const family: ItemId[] = parentId
-        //   ? itemsMeta[parentId].viewedChildren
-        //   : viewedItemList;
         let felfele: boolean = false;
 
         const [commonPath, lastCommon, hoverNext, myNext] = common(
           hover.path,
           myPath
         );
-        // console.log('common', commonPath, lastCommon, hoverNext, myNext);
         if (!hoverNext && !myNext) {
           // todo meg nem ertem
           felfele = true;
@@ -270,15 +323,12 @@ export const ItemViewer: React.FC<Props> = props => {
         if (!hoverNext) {
           // hover van feljebb
           if (hover.place === 'after') {
-            // console.log('innen felfele van');
             felfele = true;
           } else {
-            // console.log('lefele 2');
             felfele = false;
           }
         } else if (!myNext) {
           // en vagyok feljebb - ez az eset nem fordulhat elo
-          // console.log('hibbaaaaaa');
           felfele = true;
         } else {
           const family: ItemId[] = commonPath
@@ -289,10 +339,8 @@ export const ItemViewer: React.FC<Props> = props => {
           const myPos = family.findIndex(x => x === myNext);
 
           if (hoverPos > myPos) {
-            // console.log('felfele');
             felfele = true;
           } else {
-            // console.log('lefele');
             felfele = false;
           }
         }
@@ -304,7 +352,6 @@ export const ItemViewer: React.FC<Props> = props => {
           : viewedItemList;
 
         const myPos = family.findIndex(x => x === item.id);
-        console.log('felfele', felfele);
         if (felfele) {
           // felfele
           // legelso eset
@@ -355,62 +402,6 @@ export const ItemViewer: React.FC<Props> = props => {
             });
           }
         }
-
-        // const hoverPos =
-        //   family.findIndex(x => x === hover.id) -
-        //   (hover.place === 'before' ? 1 : 0);
-        // const myPos = family.findIndex(x => x === item.id);
-
-        // if (hoverPos >= myPos) {
-        //   // felfele
-        //   // legelso eset
-        //   if (myPos === 0) {
-        //     if (parentId) {
-        //       actions.hover({
-        //         path: path,
-        //         place: 'child',
-        //         id: parentId,
-        //         parentId
-        //       });
-        //     } else {
-        //       actions.hover({
-        //         path: family[0],
-        //         place: 'before',
-        //         id: family[0],
-        //         parentId
-        //       });
-        //     }
-        //   } else {
-        //     // felfele altalanos
-        //     const prevPath = path + (path ? '_' : '') + family[myPos - 1];
-        //     actions.hover({
-        //       path: prevPath,
-        //       place: 'after',
-        //       id: family[myPos - 1],
-        //       parentId
-        //     });
-        //   }
-        // } else {
-        //   // lefele
-        //   if (!childrenCollapsed && itemsMeta[item.id].viewedChildren.length) {
-        //     // gyereknek
-        //     actions.hover({
-        //       path: myPath,
-        //       place: 'child',
-        //       id: item.id,
-        //       parentId
-        //     });
-        //   } else {
-        //     // moge
-        //     // [todo itt el lehetne donteni, hogy melyik lesz]
-        //     actions.hover({
-        //       path: myPath,
-        //       place: 'after',
-        //       id: item.id,
-        //       parentId
-        //     });
-        //   }
-        // }
       }
     }
   })[1];
@@ -547,19 +538,3 @@ export const ItemViewer: React.FC<Props> = props => {
     </>
   );
 };
-
-function common(a: string, b: string): string[] {
-  const aa = a.split('_');
-  const ba = b.split('_');
-  let com = [];
-  const len = Math.min(aa.length, ba.length);
-  let i = 0;
-  for (; i < len; i++) {
-    if (aa[i] === ba[i]) {
-      com.push(aa[i]);
-    } else {
-      break;
-    }
-  }
-  return [com.join('_'), i === 0 ? '' : aa[i - 1], aa[i], ba[i]];
-}
