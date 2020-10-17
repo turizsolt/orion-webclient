@@ -6,14 +6,21 @@ import {
   createItemList,
   setFilters,
   updateChange,
-  addToChanges
+  addToChanges,
+  hoverItem,
+  draggedItem
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem } from '../model/Item/ViewItem';
+import { getPriority } from './commons';
 
 const initialState = {
+  hover: null,
+  draggedId: null,
+  itemsMeta: {},
   items: {},
   itemList: [],
+  viewedItemList: [],
   changes: {},
   changeList: [],
   filters: [
@@ -47,13 +54,52 @@ const initialState = {
 type X = any;
 
 export const appReducer = (state: X = initialState, action: AnyAction): X => {
+  if (isType(action, hoverItem)) {
+    return {
+      ...state,
+      hover: action.payload
+    };
+  }
+
+  if (isType(action, draggedItem)) {
+    return {
+      ...state,
+      draggedId: action.payload
+    };
+  }
+
   if (isType(action, updateItem)) {
+    let itemsMeta = state.itemsMeta;
+    let viewedItemList = state.viewedItemList;
+    itemsMeta = {
+      ...itemsMeta,
+      [action.payload.id]: {
+        viewedChildren: filterAndOrder(action.payload.children, state)
+      }
+    };
+    for (let parent of action.payload.parents) {
+      itemsMeta = {
+        ...itemsMeta,
+        [parent]: {
+          viewedChildren: filterAndOrder(
+            itemsMeta[parent] ? itemsMeta[parent].viewedChildren : [],
+            state
+          )
+        }
+      };
+    }
+    if (action.payload.parents.length === 0) {
+      viewedItemList = filterAndOrderRoot(state.itemList, state);
+    }
+
     return {
       ...state,
       items: {
         ...state.items,
         [action.payload.id]: action.payload
       },
+      itemsMeta,
+      viewedItemList,
       version: state.version + 1
     };
   }
@@ -71,9 +117,11 @@ export const appReducer = (state: X = initialState, action: AnyAction): X => {
   }
 
   if (isType(action, addToItems)) {
+    const itemList = pushIfUnique(state.itemList, action.payload);
     return {
       ...state,
-      itemList: pushIfUnique(state.itemList, action.payload),
+      itemList,
+      viewedItemList: filterAndOrderRoot(itemList, state),
       version: state.version + 1
     };
   }
@@ -90,6 +138,7 @@ export const appReducer = (state: X = initialState, action: AnyAction): X => {
     return {
       ...state,
       itemList: action.payload,
+      viewedItemList: filterAndOrderRoot(action.payload, state),
       version: state.version + 1
     };
   }
@@ -111,4 +160,36 @@ function pushIfUnique(list: any[], elem: any) {
   } else {
     return [...list, elem];
   }
+}
+
+const f = (state: any, skipRootRule: boolean) => (x: ItemId) => {
+  if (!state.items[x]) return false;
+
+  for (const filter of state.filters) {
+    if (
+      filter.on &&
+      (!skipRootRule || filter.id !== 'roots') &&
+      !filter.f(state.items)(x)
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+function filterAndOrder(list: any[], state: any): any[] {
+  return [...order(list.filter(f(state, true)), state)];
+}
+
+function filterAndOrderRoot(list: any[], state: any): any[] {
+  return [...order(list.filter(f(state, false)), state)];
+}
+
+function order(arr: ItemId[], state: any): ItemId[] {
+  arr.sort((a, b) => {
+    if (getPriority(a, state.items) < getPriority(b, state.items)) return -1;
+    if (getPriority(a, state.items) > getPriority(b, state.items)) return 1;
+    return 0;
+  });
+  return arr;
 }

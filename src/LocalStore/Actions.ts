@@ -13,13 +13,14 @@ import { ServerCommunication } from './ServerCommunication';
 import { FieldName } from '../model/Item/FieldName';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Transaction } from '../model/Transaction/Transaction';
+import { hoverItem, draggedItem } from '../ReduxStore/actions';
 
 const idGen = new ActualIdGenerator();
 
 export class Actions {
   private store: Store;
   constructor(
-    dispatcher: Dispatcher,
+    private dispatcher: Dispatcher,
     localStorage: LocalStorage,
     serverCommunication: ServerCommunication
   ) {
@@ -51,6 +52,21 @@ export class Actions {
     const transaction = new Transaction();
     transaction.add(change);
     this.store.commit(transaction);
+  }
+
+  hover(
+    newHover: {
+      path: string;
+      place: string;
+      id: ItemId;
+      parentId: ItemId | null;
+    } | null
+  ) {
+    this.dispatcher.dispatch(hoverItem(newHover));
+  }
+
+  dragged(itemId: ItemId | null) {
+    this.dispatcher.dispatch(draggedItem(itemId));
   }
 
   createItem(field: FieldName, newValue: any): ItemId {
