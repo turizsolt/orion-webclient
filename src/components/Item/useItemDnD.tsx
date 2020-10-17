@@ -16,7 +16,7 @@ import {
 } from '../../ReduxStore/commons';
 import { RelationType } from '../../model/Relation/RelationType';
 import { Actions } from '../../LocalStore/Actions';
-import { ItemViewerProps } from './ItemViewer';
+import { ItemViewerProps } from './ItemViewer/ItemViewer';
 
 export function useItemDnD(
   props: ItemViewerProps,
@@ -24,8 +24,7 @@ export function useItemDnD(
   childrenCollapsed: boolean
 ): [
   DragElementWrapper<DragSourceOptions>,
-  DragElementWrapper<DragSourceOptions>,
-  boolean
+  DragElementWrapper<DragSourceOptions>
 ] {
   const { item, parentId, path, ghost } = props;
   const myPath = path + (path ? '_' : '') + item.id;
@@ -34,7 +33,7 @@ export function useItemDnD(
     (state: any) => state.appReducer
   );
 
-  const [{ isDragging }, drag] = useDrag({
+  const drag = useDrag({
     item: { type: ItemTypes.ITEM, id: item.id, parentId },
     collect: (monitor: DragSourceMonitor) => ({
       isDragging: !!monitor.isDragging()
@@ -86,7 +85,7 @@ export function useItemDnD(
       actions.hover(null);
       actions.dragged(null);
     }
-  });
+  })[1];
 
   const drop = useDrop({
     accept: ItemTypes.ITEM,
@@ -319,5 +318,5 @@ export function useItemDnD(
     }
   })[1];
 
-  return [drag, drop, isDragging];
+  return [drag, drop];
 }

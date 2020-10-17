@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { ItemViewer } from './ItemViewer';
+import { ItemViewer } from './ItemViewer/ItemViewer';
 import { ItemId } from '../../model/Item/ItemId';
 import { useSelector } from 'react-redux';
 import { ItemAdderViewer } from './ItemAdderViewer';

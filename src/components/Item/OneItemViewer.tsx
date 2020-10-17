@@ -1,5 +1,5 @@
 import React from 'react';
-import { ItemViewer } from './ItemViewer';
+import { ItemViewer } from './ItemViewer/ItemViewer';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
