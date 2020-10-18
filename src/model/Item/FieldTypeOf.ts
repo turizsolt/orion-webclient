@@ -17,6 +17,12 @@ const types: Record<string, FieldType> = {
   count: { type: 'Number', getDefaultValue: () => 0 },
   due: { type: 'Date', getDefaultValue: () => new Date().toISOString() },
   color: { type: 'Color', getDefaultValue: () => '#000000' },
+  hashtag: { type: 'String', getDefaultValue: () => '' },
+  responsible: {
+    type: 'Enum',
+    params: { values: ['', 'A', 'Z', '2'] },
+    getDefaultValue: () => ''
+  },
   state: {
     type: 'Enum',
     params: { values: ['todo', 'doing', 'done'] },
