@@ -13,6 +13,18 @@ export function getPriority(c: string, items: any) {
   return parseInt(items[c].originalFields.priority.value, 10);
 }
 
+export function getField(id: string, field: string, items: any) {
+  if (
+    !items[id] ||
+    !items[id].originalFields ||
+    !items[id].originalFields[field] ||
+    !items[id].originalFields[field].value
+  ) {
+    return undefined;
+  }
+  return items[id].originalFields[field].value;
+}
+
 export function common(a: string, b: string): string[] {
   const aa = a.split('_');
   const ba = b.split('_');

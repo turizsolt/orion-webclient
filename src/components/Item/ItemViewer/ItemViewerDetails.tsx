@@ -1,4 +1,9 @@
-import React, { useCallback, useContext, FormEvent } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  FormEvent,
+  KeyboardEvent
+} from 'react';
 import { ViewItem } from '../../../model/Item/ViewItem';
 import { ActionsContext } from '../../../App';
 import { Actions } from '../../../LocalStore/Actions';
@@ -7,6 +12,8 @@ import { RelationType } from '../../../model/Relation/RelationType';
 import { FieldViewer } from '../FieldViewer';
 import { FieldTypeOf, fieldTypeList } from '../../../model/Item/FieldTypeOf';
 import { propsStyle } from './ItemViewer.style';
+import { useSelector } from 'react-redux';
+import { getField } from '../../../ReduxStore/commons';
 
 export interface Props {
   item: ViewItem;
@@ -15,6 +22,8 @@ export interface Props {
 
 export const ItemViewerDetails: React.FC<Props> = props => {
   const { item, handleNewOpen } = props;
+
+  const { items, itemList } = useSelector((state: any) => state.appReducer);
 
   const actions: Actions = useContext(ActionsContext);
 
@@ -41,6 +50,34 @@ export const ItemViewerDetails: React.FC<Props> = props => {
     [item, actions]
   );
 
+  const handleAddHashtag = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.which === 13) {
+        const tag = event.currentTarget.value;
+        console.log(tag);
+        event.currentTarget.value = '';
+
+        const hashId = itemList.find(
+          (id: ItemId) => getField(id, 'hashtag', items) === tag
+        );
+
+        let newHashId: ItemId = hashId
+          ? hashId
+          : actions.createItem('hashtag', tag);
+
+        actions.addRelation(item.id, RelationType.Hash, newHashId);
+      }
+    },
+    [item, actions, itemList, items]
+  );
+
+  const handleRemoveHashtag = useCallback(
+    (id: ItemId) => () => {
+      actions.removeRelation(item.id, RelationType.Hash, id);
+    },
+    [item, actions]
+  );
+
   return (
     <div className={propsStyle}>
       {item.fields.map(field => (
@@ -53,6 +90,18 @@ export const ItemViewerDetails: React.FC<Props> = props => {
           ))}
         </div>
       ))}
+      <div>
+        Hashtags:
+        {item.hashtags.map(x => (
+          <span style={{ color: x.color }} key={x.hashtag}>
+            #{x.hashtag}
+            <span onClick={handleRemoveHashtag(x.id)}>[x]</span>
+          </span>
+        ))}
+        <span>
+          #<input type="text" onKeyDown={handleAddHashtag} />
+        </span>
+      </div>
       <select onChange={handleAddField}>
         <option value="">Add field</option>
         {fieldTypeList.map(fieldType => (

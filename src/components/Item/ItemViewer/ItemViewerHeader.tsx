@@ -59,8 +59,11 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         params={{ noLabel: true }}
       />
       <div>
-        [{item.originalFields.priority && item.originalFields.priority.value}]
-        &nbsp;
+        {item.hashtags.map(x => (
+          <span style={{ color: x.color }} key={x.hashtag}>
+            #{x.hashtag}
+          </span>
+        ))}
       </div>
       <div>
         <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
