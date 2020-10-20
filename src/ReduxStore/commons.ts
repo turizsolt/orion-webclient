@@ -62,3 +62,22 @@ export function fillInPrioritiesOfAParent(
   }
   return highest;
 }
+
+export function getContrastColor(hexcolor: string) {
+  if (!hexcolor || hexcolor.length < 7) return '#ffffff';
+
+  var r = parseInt(hexcolor.substr(1, 2), 16);
+  var g = parseInt(hexcolor.substr(3, 2), 16);
+  var b = parseInt(hexcolor.substr(5, 2), 16);
+  var yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 128 ? '#000000' : '#ffffff';
+}
+
+export function getRandomColor() {
+  return (
+    '#' +
+    Math.random()
+      .toString(16)
+      .substr(2, 6)
+  );
+}

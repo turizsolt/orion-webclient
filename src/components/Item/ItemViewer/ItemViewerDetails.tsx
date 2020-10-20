@@ -11,9 +11,21 @@ import { ItemId } from '../../../model/Item/ItemId';
 import { RelationType } from '../../../model/Relation/RelationType';
 import { FieldViewer } from '../FieldViewer';
 import { FieldTypeOf, fieldTypeList } from '../../../model/Item/FieldTypeOf';
-import { propsStyle } from './ItemViewer.style';
+import {
+  propsStyle,
+  hashtagStyle,
+  hashtagContainerStyle,
+  hashtagLabelStyle,
+  hashtagRowStyle,
+  hashtagListStyle,
+  hashtagWidthStyle
+} from './ItemViewer.style';
 import { useSelector } from 'react-redux';
-import { getField } from '../../../ReduxStore/commons';
+import {
+  getField,
+  getContrastColor,
+  getRandomColor
+} from '../../../ReduxStore/commons';
 
 export interface Props {
   item: ViewItem;
@@ -65,6 +77,10 @@ export const ItemViewerDetails: React.FC<Props> = props => {
           ? hashId
           : actions.createItem('hashtag', tag);
 
+        if (!hashId) {
+          actions.changeItem(newHashId, 'color', undefined, getRandomColor());
+        }
+
         actions.addRelation(item.id, RelationType.Hash, newHashId);
       }
     },
@@ -90,17 +106,40 @@ export const ItemViewerDetails: React.FC<Props> = props => {
           ))}
         </div>
       ))}
-      <div>
-        Hashtags:
-        {item.hashtags.map(x => (
-          <span style={{ color: x.color }} key={x.hashtag}>
-            #{x.hashtag}
-            <span onClick={handleRemoveHashtag(x.id)}>[x]</span>
-          </span>
-        ))}
-        <span>
-          #<input type="text" onKeyDown={handleAddHashtag} />
-        </span>
+      <div className={hashtagContainerStyle}>
+        <div className={hashtagRowStyle}>
+          <div className={hashtagLabelStyle}>hashtags:</div>
+          <div className={hashtagListStyle}>
+            {item.hashtags.map(x => (
+              <span
+                className={hashtagStyle}
+                style={{
+                  color: getContrastColor(x.color),
+                  backgroundColor: x.color
+                }}
+                key={x.hashtag}
+              >
+                <span className={hashtagWidthStyle}>#{x.hashtag}</span>
+                &nbsp;
+                <span
+                  onClick={handleRemoveHashtag(x.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  (x)
+                </span>
+              </span>
+            ))}
+            <span
+              className={hashtagStyle}
+              style={{
+                color: 'black',
+                backgroundColor: 'white'
+              }}
+            >
+              #<input type="text" onKeyDown={handleAddHashtag} />
+            </span>
+          </div>
+        </div>
       </div>
       <select onChange={handleAddField}>
         <option value="">Add field</option>
