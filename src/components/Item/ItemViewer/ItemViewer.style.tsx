@@ -74,3 +74,5 @@ export const hashtagListStyle = style({
   display: 'flex',
   flexWrap: 'wrap'
 });
+
+export const linkStyle = style({ textDecoration: 'none', color: 'inherit' });

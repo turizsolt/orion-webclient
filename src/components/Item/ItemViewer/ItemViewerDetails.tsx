@@ -18,7 +18,8 @@ import {
   hashtagLabelStyle,
   hashtagRowStyle,
   hashtagListStyle,
-  hashtagWidthStyle
+  hashtagWidthStyle,
+  linkStyle
 } from './ItemViewer.style';
 import { useSelector } from 'react-redux';
 import {
@@ -26,6 +27,7 @@ import {
   getContrastColor,
   getRandomColor
 } from '../../../ReduxStore/commons';
+import { Link } from 'react-router-dom';
 
 export interface Props {
   item: ViewItem;
@@ -119,7 +121,9 @@ export const ItemViewerDetails: React.FC<Props> = props => {
                 }}
                 key={x.hashtag}
               >
-                <span className={hashtagWidthStyle}>#{x.hashtag}</span>
+                <Link to={`/${x.id}`} className={linkStyle}>
+                  <span className={hashtagWidthStyle}>#{x.hashtag}</span>
+                </Link>
                 &nbsp;
                 <span
                   onClick={handleRemoveHashtag(x.id)}

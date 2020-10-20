@@ -13,7 +13,8 @@ import {
   headerButtonStyle,
   hashtagStyle,
   hashtagWidthStyle,
-  hashtagListStyle
+  hashtagListStyle,
+  linkStyle
 } from './ItemViewer.style';
 import { getContrastColor } from '../../../ReduxStore/commons';
 
@@ -75,7 +76,9 @@ export const ItemViewerHeader: React.FC<Props> = props => {
             }}
             key={x.hashtag}
           >
-            <span className={hashtagWidthStyle}>#{x.hashtag}</span>
+            <Link to={`/${x.id}`} className={linkStyle}>
+              <span className={hashtagWidthStyle}>#{x.hashtag}</span>
+            </Link>
           </span>
         ))}
       </div>
