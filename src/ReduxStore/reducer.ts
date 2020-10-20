@@ -32,6 +32,14 @@ const initialState = {
       on: true
     },
     {
+      id: 'skip-hashtags',
+      name: 'skip hashtags',
+      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
+        !items[x].originalFields.hashtag ||
+        !items[x].originalFields.hashtag.value,
+      on: true
+    },
+    {
       id: 'not-deleted',
       name: 'only not deleted',
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
