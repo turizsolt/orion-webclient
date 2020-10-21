@@ -1,4 +1,9 @@
-import React, { useCallback, useContext, FormEvent } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  FormEvent,
+  KeyboardEvent
+} from 'react';
 import { ViewItem } from '../../../model/Item/ViewItem';
 import { ActionsContext } from '../../../App';
 import { Actions } from '../../../LocalStore/Actions';
@@ -6,7 +11,23 @@ import { ItemId } from '../../../model/Item/ItemId';
 import { RelationType } from '../../../model/Relation/RelationType';
 import { FieldViewer } from '../FieldViewer';
 import { FieldTypeOf, fieldTypeList } from '../../../model/Item/FieldTypeOf';
-import { propsStyle } from './ItemViewer.style';
+import {
+  propsStyle,
+  hashtagStyle,
+  hashtagContainerStyle,
+  hashtagLabelStyle,
+  hashtagRowStyle,
+  hashtagListStyle,
+  hashtagWidthStyle,
+  linkStyle
+} from './ItemViewer.style';
+import { useSelector } from 'react-redux';
+import {
+  getField,
+  getContrastColor,
+  getRandomColor
+} from '../../../ReduxStore/commons';
+import { Link } from 'react-router-dom';
 
 export interface Props {
   item: ViewItem;
@@ -15,6 +36,8 @@ export interface Props {
 
 export const ItemViewerDetails: React.FC<Props> = props => {
   const { item, handleNewOpen } = props;
+
+  const { items, itemList } = useSelector((state: any) => state.appReducer);
 
   const actions: Actions = useContext(ActionsContext);
 
@@ -41,6 +64,38 @@ export const ItemViewerDetails: React.FC<Props> = props => {
     [item, actions]
   );
 
+  const handleAddHashtag = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      if (event.which === 13) {
+        const tag = event.currentTarget.value;
+        console.log(tag);
+        event.currentTarget.value = '';
+
+        const hashId = itemList.find(
+          (id: ItemId) => getField(id, 'hashtag', items) === tag
+        );
+
+        let newHashId: ItemId = hashId
+          ? hashId
+          : actions.createItem('hashtag', tag);
+
+        if (!hashId) {
+          actions.changeItem(newHashId, 'color', undefined, getRandomColor());
+        }
+
+        actions.addRelation(item.id, RelationType.Hash, newHashId);
+      }
+    },
+    [item, actions, itemList, items]
+  );
+
+  const handleRemoveHashtag = useCallback(
+    (id: ItemId) => () => {
+      actions.removeRelation(item.id, RelationType.Hash, id);
+    },
+    [item, actions]
+  );
+
   return (
     <div className={propsStyle}>
       {item.fields.map(field => (
@@ -53,6 +108,43 @@ export const ItemViewerDetails: React.FC<Props> = props => {
           ))}
         </div>
       ))}
+      <div className={hashtagContainerStyle}>
+        <div className={hashtagRowStyle}>
+          <div className={hashtagLabelStyle}>hashtags:</div>
+          <div className={hashtagListStyle}>
+            {item.hashtags.map(x => (
+              <span
+                className={hashtagStyle}
+                style={{
+                  color: getContrastColor(x.color),
+                  backgroundColor: x.color
+                }}
+                key={x.hashtag}
+              >
+                <Link to={`/${x.id}`} className={linkStyle}>
+                  <span className={hashtagWidthStyle}>#{x.hashtag}</span>
+                </Link>
+                &nbsp;
+                <span
+                  onClick={handleRemoveHashtag(x.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  (x)
+                </span>
+              </span>
+            ))}
+            <span
+              className={hashtagStyle}
+              style={{
+                color: 'black',
+                backgroundColor: 'white'
+              }}
+            >
+              #<input type="text" onKeyDown={handleAddHashtag} />
+            </span>
+          </div>
+        </div>
+      </div>
       <select onChange={handleAddField}>
         <option value="">Add field</option>
         {fieldTypeList.map(fieldType => (

@@ -8,7 +8,15 @@ import { FieldViewer } from '../FieldViewer';
 import { StateDot } from '../StateDot';
 import { Link } from 'react-router-dom';
 import { useItemDnD } from '../useItemDnD';
-import { headerStyle, headerButtonStyle } from './ItemViewer.style';
+import {
+  headerStyle,
+  headerButtonStyle,
+  hashtagStyle,
+  hashtagWidthStyle,
+  hashtagListStyle,
+  linkStyle
+} from './ItemViewer.style';
+import { getContrastColor } from '../../../ReduxStore/commons';
 
 export interface Props {
   item: ViewItem;
@@ -58,9 +66,21 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         {...item.fields[0]}
         params={{ noLabel: true }}
       />
-      <div>
-        [{item.originalFields.priority && item.originalFields.priority.value}]
-        &nbsp;
+      <div className={hashtagListStyle}>
+        {item.hashtags.map(x => (
+          <span
+            className={hashtagStyle}
+            style={{
+              color: getContrastColor(x.color),
+              backgroundColor: x.color
+            }}
+            key={x.hashtag}
+          >
+            <Link to={`/${x.id}`} className={linkStyle}>
+              <span className={hashtagWidthStyle}>#{x.hashtag}</span>
+            </Link>
+          </span>
+        ))}
       </div>
       <div>
         <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>

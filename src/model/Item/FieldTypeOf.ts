@@ -1,3 +1,5 @@
+import { getRandomColor } from '../../ReduxStore/commons';
+
 interface FieldType {
   type: string;
   params?: any;
@@ -16,7 +18,13 @@ const types: Record<string, FieldType> = {
   deleted: { type: 'Boolean', getDefaultValue: () => false },
   count: { type: 'Number', getDefaultValue: () => 0 },
   due: { type: 'Date', getDefaultValue: () => new Date().toISOString() },
-  color: { type: 'Color', getDefaultValue: () => '#000000' },
+  color: { type: 'Color', getDefaultValue: () => getRandomColor() },
+  hashtag: { type: 'String', getDefaultValue: () => '' },
+  responsible: {
+    type: 'Enum',
+    params: { values: ['', 'A', 'Z', '2'] },
+    getDefaultValue: () => ''
+  },
   state: {
     type: 'Enum',
     params: { values: ['todo', 'doing', 'done'] },
