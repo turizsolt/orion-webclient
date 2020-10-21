@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, KeyboardEvent } from 'react';
 import { useSelector } from 'react-redux';
 import { style } from 'typestyle';
 import { RootState } from '../../ReduxStore';
@@ -14,7 +14,9 @@ const sideStyle = style({
 });
 
 export const OptionsViewer: React.FC = () => {
-  const { filters } = useSelector((state: RootState) => state.appReducer);
+  const { filters, search } = useSelector(
+    (state: RootState) => state.appReducer
+  );
 
   const actions: Actions = useContext(ActionsContext);
 
@@ -25,9 +27,20 @@ export const OptionsViewer: React.FC = () => {
     [actions]
   );
 
+  const handleSearch = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+      const searchString = event.currentTarget.value;
+      actions.search(searchString);
+    },
+    [actions]
+  );
+
   return (
     <div className={sideStyle}>
       <div>Search</div>
+      <div>
+        <input type="text" defaultValue={search} onKeyUp={handleSearch} />
+      </div>
       <div>Order</div>
       <div>Filters</div>
       <div>

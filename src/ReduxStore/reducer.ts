@@ -9,11 +9,12 @@ import {
   addToChanges,
   hoverItem,
   draggedItem,
-  toggleFilter
+  toggleFilter,
+  search
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
-import { getPriority } from './commons';
+import { getPriority, getTitle } from './commons';
 import { ChangeId } from '../model/Change/ChangeId';
 import { Change } from '../model/Change/Change';
 
@@ -34,6 +35,7 @@ export interface State {
   changes: Record<ChangeId, Change>;
   changeList: ChangeId[];
   filters: Filter[];
+  search: string;
   version: number;
 }
 
@@ -79,6 +81,7 @@ const initialState = {
       on: true
     }
   ],
+  search: '',
   version: 0
 };
 
@@ -86,6 +89,18 @@ export const appReducer = (
   state: State = initialState,
   action: AnyAction
 ): State => {
+  if (isType(action, search)) {
+    return {
+      ...state,
+      search: action.payload,
+      viewedItemList: filterAndOrderRoot(state.itemList, {
+        ...state,
+        search: action.payload
+      }),
+      version: state.version + 1
+    };
+  }
+
   if (isType(action, toggleFilter)) {
     const filters = [...state.filters];
     const num = state.filters.findIndex(x => x.id === action.payload);
@@ -216,6 +231,15 @@ const f = (state: any, skipRootRule: boolean) => (x: ItemId) => {
       filter.on &&
       (!skipRootRule || filter.id !== 'roots') &&
       !filter.f(state.items)(x)
+    ) {
+      return false;
+    }
+  }
+  if (state.search) {
+    if (
+      !getTitle(x, state.items)
+        .toLocaleLowerCase()
+        .includes(state.search.toLocaleLowerCase())
     ) {
       return false;
     }
