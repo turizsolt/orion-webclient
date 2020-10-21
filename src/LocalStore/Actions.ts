@@ -13,7 +13,7 @@ import { ServerCommunication } from './ServerCommunication';
 import { FieldName } from '../model/Item/FieldName';
 import { ActualIdGenerator } from '../idGenerator/ActualIdGenerator';
 import { Transaction } from '../model/Transaction/Transaction';
-import { hoverItem, draggedItem } from '../ReduxStore/actions';
+import { hoverItem, draggedItem, toggleFilter } from '../ReduxStore/actions';
 
 const idGen = new ActualIdGenerator();
 
@@ -67,6 +67,10 @@ export class Actions {
 
   dragged(itemId: ItemId | null) {
     this.dispatcher.dispatch(draggedItem(itemId));
+  }
+
+  toggleFilter(filterId: string) {
+    this.dispatcher.dispatch(toggleFilter(filterId));
   }
 
   createItem(field: FieldName, newValue: any): ItemId {

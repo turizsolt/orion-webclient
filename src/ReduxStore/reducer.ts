@@ -8,7 +8,8 @@ import {
   updateChange,
   addToChanges,
   hoverItem,
-  draggedItem
+  draggedItem,
+  toggleFilter
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
@@ -48,14 +49,14 @@ const initialState = {
   filters: [
     {
       id: 'roots',
-      name: 'only roots',
+      name: 'Hide non-root items',
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
         items[x].parents.length === 0,
       on: true
     },
     {
       id: 'skip-hashtags',
-      name: 'skip hashtags',
+      name: 'Hide hashtags at root',
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
         !items[x].originalFields.hashtag ||
         !items[x].originalFields.hashtag.value,
@@ -63,7 +64,7 @@ const initialState = {
     },
     {
       id: 'not-deleted',
-      name: 'only not deleted',
+      name: 'Hide deleted items',
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
         !items[x].originalFields.deleted ||
         items[x].originalFields.deleted.value !== true,
@@ -71,7 +72,7 @@ const initialState = {
     },
     {
       id: 'not-done',
-      name: 'only not done',
+      name: 'Hide done items',
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
         !items[x].originalFields.state ||
         items[x].originalFields.state.value !== 'done',
@@ -85,6 +86,20 @@ export const appReducer = (
   state: State = initialState,
   action: AnyAction
 ): State => {
+  if (isType(action, toggleFilter)) {
+    const filters = [...state.filters];
+    const num = state.filters.findIndex(x => x.id === action.payload);
+    if (num === -1) return state;
+    filters[num].on = !filters[num].on;
+
+    return {
+      ...state,
+      filters,
+      viewedItemList: filterAndOrderRoot(state.itemList, state),
+      version: state.version + 1
+    };
+  }
+
   if (isType(action, hoverItem)) {
     return {
       ...state,
