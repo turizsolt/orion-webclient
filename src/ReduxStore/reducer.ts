@@ -11,8 +11,30 @@ import {
   draggedItem
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
-import { ViewItem } from '../model/Item/ViewItem';
+import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
 import { getPriority } from './commons';
+import { ChangeId } from '../model/Change/ChangeId';
+import { Change } from '../model/Change/Change';
+
+export interface Filter {
+  id: string;
+  name: string;
+  f: (items: Record<ItemId, ViewItem>) => (x: ItemId) => boolean;
+  on: boolean;
+}
+
+export interface State {
+  hover: any;
+  draggedId: ItemId | null;
+  itemsMeta: Record<ItemId, ViewItemMeta>;
+  items: Record<ItemId, ViewItem>;
+  itemList: ItemId[];
+  viewedItemList: ItemId[];
+  changes: Record<ChangeId, Change>;
+  changeList: ChangeId[];
+  filters: Filter[];
+  version: number;
+}
 
 const initialState = {
   hover: null,
@@ -59,9 +81,10 @@ const initialState = {
   version: 0
 };
 
-type X = any;
-
-export const appReducer = (state: X = initialState, action: AnyAction): X => {
+export const appReducer = (
+  state: State = initialState,
+  action: AnyAction
+): State => {
   if (isType(action, hoverItem)) {
     return {
       ...state,
