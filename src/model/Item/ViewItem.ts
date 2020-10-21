@@ -21,6 +21,10 @@ export interface ViewField {
   auxilaryValues: any[];
 }
 
+export interface ViewItemMeta {
+  viewedChildren: ItemId[];
+}
+
 export interface HashtagInfo {
   color: string;
   hashtag: string;
