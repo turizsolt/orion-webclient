@@ -25,6 +25,10 @@ export function getField(id: string, field: string, items: any) {
   return items[id].originalFields[field].value;
 }
 
+export function getState(id: string, items: any) {
+  return getField(id, 'state', items) || 'todo';
+}
+
 export function common(a: string, b: string): string[] {
   const aa = a.split('_');
   const ba = b.split('_');
