@@ -2,7 +2,8 @@ import React, {
   useCallback,
   useContext,
   FormEvent,
-  KeyboardEvent
+  KeyboardEvent,
+  ChangeEvent
 } from 'react';
 import { ViewItem } from '../../../model/Item/ViewItem';
 import { ActionsContext } from '../../../App';
@@ -28,6 +29,7 @@ import {
   getRandomColor
 } from '../../../ReduxStore/commons';
 import { Link } from 'react-router-dom';
+import { RootState } from '../../../ReduxStore';
 
 export interface Props {
   item: ViewItem;
@@ -37,7 +39,9 @@ export interface Props {
 export const ItemViewerDetails: React.FC<Props> = props => {
   const { item, handleNewOpen } = props;
 
-  const { items, itemList } = useSelector((state: any) => state.appReducer);
+  const { items, itemList } = useSelector(
+    (state: RootState) => state.appReducer
+  );
 
   const actions: Actions = useContext(ActionsContext);
 
@@ -96,6 +100,23 @@ export const ItemViewerDetails: React.FC<Props> = props => {
     [item, actions]
   );
 
+  const handleSelectUser = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      const resp = event.currentTarget.value;
+      if (resp) {
+        actions.addRelation(item.id, RelationType.Responsible, resp);
+      }
+    },
+    [item, actions]
+  );
+
+  const handleRemoveUser = useCallback(
+    (id: ItemId) => () => {
+      actions.removeRelation(item.id, RelationType.Responsible, id);
+    },
+    [item, actions]
+  );
+
   return (
     <div className={propsStyle}>
       {item.fields.map(field => (
@@ -144,6 +165,25 @@ export const ItemViewerDetails: React.FC<Props> = props => {
             </span>
           </div>
         </div>
+      </div>
+      <div>
+        Responsibles:{' '}
+        {item.responsibles.map(responsible => (
+          <span key={responsible.id}>
+            {responsible.username}&nbsp;
+            <span onClick={handleRemoveUser(responsible.id)}>(x)</span>
+          </span>
+        ))}
+        <select onChange={handleSelectUser}>
+          <option value={''}>Add responsible</option>
+          {itemList
+            .filter(x => getField(x, 'username', items))
+            .map((userId: ItemId) => (
+              <option key={userId} value={userId}>
+                {getField(userId, 'username', items)}
+              </option>
+            ))}
+        </select>
       </div>
       <select onChange={handleAddField}>
         <option value="">Add field</option>

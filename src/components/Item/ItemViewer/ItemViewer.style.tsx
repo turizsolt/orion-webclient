@@ -75,4 +75,16 @@ export const hashtagListStyle = style({
   flexWrap: 'wrap'
 });
 
+export const responsibleCircleStyle = style({
+  width: '32px',
+  height: '32px',
+  border: '1px solid #86b6b8',
+  borderRadius: '16px',
+  fontSize: '28px',
+  textAlign: 'center',
+  backgroundColor: '#8c44b3',
+  color: 'cornsilk',
+  marginRight: '5px'
+});
+
 export const linkStyle = style({ textDecoration: 'none', color: 'inherit' });

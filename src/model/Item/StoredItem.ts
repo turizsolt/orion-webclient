@@ -4,7 +4,7 @@ import { RelationType } from '../Relation/RelationType';
 import { Updateness, updatenessToNumber } from '../Updateness';
 import { ItemChange } from '../Change/Change';
 import { OURS, THEIRS } from '../OursTheirs';
-import { HashtagInfo } from './ViewItem';
+import { HashtagInfo, ResponsibleInfo } from './ViewItem';
 
 export interface StoredField {
   updateness: Updateness;
@@ -194,6 +194,19 @@ export class StoredItem {
     return {
       hashtag: this.getField('hashtag'),
       color: this.getField('color'),
+      id: this.id
+    };
+  }
+
+  getResponsibles(): ItemId[] {
+    return this.relations
+      .filter(x => x.type === RelationType.Responsible)
+      .map(x => x.otherSideId);
+  }
+
+  getResponsibleInfo(): ResponsibleInfo {
+    return {
+      username: this.getField('username'),
       id: this.id
     };
   }
