@@ -4,7 +4,6 @@ import { RelationType } from '../Relation/RelationType';
 import { Updateness, updatenessToNumber } from '../Updateness';
 import { ItemChange } from '../Change/Change';
 import { OURS, THEIRS } from '../OursTheirs';
-import { HashtagInfo, ResponsibleInfo } from './ViewItem';
 
 export interface StoredField {
   updateness: Updateness;
@@ -139,7 +138,7 @@ export class StoredItem {
   }
 
   getField(fieldName: string) {
-    return this.fields[fieldName] && this.fields[fieldName].value;
+    return this.fields[fieldName].value;
   }
 
   hasField(fieldName: string): boolean {
@@ -182,33 +181,6 @@ export class StoredItem {
     return this.relations
       .filter(x => x.type === RelationType.Parent)
       .map(x => x.otherSideId);
-  }
-
-  getHashtags(): ItemId[] {
-    return this.relations
-      .filter(x => x.type === RelationType.Hash)
-      .map(x => x.otherSideId);
-  }
-
-  getHashtagInfo(): HashtagInfo {
-    return {
-      hashtag: this.getField('hashtag'),
-      color: this.getField('color'),
-      id: this.id
-    };
-  }
-
-  getResponsibles(): ItemId[] {
-    return this.relations
-      .filter(x => x.type === RelationType.Responsible)
-      .map(x => x.otherSideId);
-  }
-
-  getResponsibleInfo(): ResponsibleInfo {
-    return {
-      username: this.getField('username'),
-      id: this.id
-    };
   }
 
   private computeUpdateness(): void {
