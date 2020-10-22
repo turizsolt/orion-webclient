@@ -14,7 +14,8 @@ import {
   hashtagStyle,
   hashtagWidthStyle,
   hashtagListStyle,
-  linkStyle
+  linkStyle,
+  responsibleCircleStyle
 } from './ItemViewer.style';
 import { getContrastColor } from '../../../ReduxStore/commons';
 
@@ -80,6 +81,13 @@ export const ItemViewerHeader: React.FC<Props> = props => {
               <span className={hashtagWidthStyle}>#{x.hashtag}</span>
             </Link>
           </span>
+        ))}
+      </div>
+      <div style={{ display: 'flex' }}>
+        {item.responsibles.map(responsible => (
+          <div key={responsible.id} className={responsibleCircleStyle}>
+            {responsible.username[0].toUpperCase()}
+          </div>
         ))}
       </div>
       <div>

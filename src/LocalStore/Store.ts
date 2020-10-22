@@ -1,7 +1,7 @@
 import { ItemId } from '../model/Item/ItemId';
 import { StoredItem } from '../model/Item/StoredItem';
 import { Change, ChangeResponse, ItemChange } from '../model/Change/Change';
-import { ViewItem, HashtagInfo } from '../model/Item/ViewItem';
+import { ViewItem, HashtagInfo, ResponsibleInfo } from '../model/Item/ViewItem';
 import {
   updateItem,
   createItemList,
@@ -201,6 +201,10 @@ export class Store {
         .getHashtags()
         .map(x => (this.items[x] ? this.items[x].getHashtagInfo() : null))
         .filter(x => !!x) as HashtagInfo[],
+      responsibles: this.items[id]
+        .getResponsibles()
+        .map(x => (this.items[x] ? this.items[x].getResponsibleInfo() : null))
+        .filter(x => !!x) as ResponsibleInfo[],
       updateness: this.items[id].getUpdateness()
     };
   }

@@ -2,7 +2,9 @@ export enum RelationType {
   Child = 'child',
   Parent = 'parent',
   Hash = 'hash',
-  HashOf = 'hashof'
+  HashOf = 'hashof',
+  Responsible = 'responsible',
+  ResponsibleOf = 'responsibleof'
 }
 
 export const oppositeOf = (rel: RelationType): RelationType => {
@@ -15,5 +17,9 @@ export const oppositeOf = (rel: RelationType): RelationType => {
       return RelationType.HashOf;
     case RelationType.HashOf:
       return RelationType.Hash;
+    case RelationType.Responsible:
+      return RelationType.ResponsibleOf;
+    case RelationType.ResponsibleOf:
+      return RelationType.Responsible;
   }
 };

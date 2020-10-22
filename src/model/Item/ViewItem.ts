@@ -8,6 +8,7 @@ export interface ViewItem {
   auxilaryColumns: string[];
   children: ItemId[];
   hashtags: HashtagInfo[];
+  responsibles: ResponsibleInfo[];
   parents: ItemId[];
   updateness: Updateness;
 }
@@ -28,5 +29,10 @@ export interface ViewItemMeta {
 export interface HashtagInfo {
   color: string;
   hashtag: string;
+  id: ItemId;
+}
+
+export interface ResponsibleInfo {
+  username: string;
   id: ItemId;
 }

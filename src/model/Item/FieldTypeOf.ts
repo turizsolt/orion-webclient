@@ -20,6 +20,7 @@ const types: Record<string, FieldType> = {
   due: { type: 'Date', getDefaultValue: () => new Date().toISOString() },
   color: { type: 'Color', getDefaultValue: () => getRandomColor() },
   hashtag: { type: 'String', getDefaultValue: () => '' },
+  username: { type: 'String', getDefaultValue: () => '' },
   responsible: {
     type: 'Enum',
     params: { values: ['', 'A', 'Z', '2'] },
