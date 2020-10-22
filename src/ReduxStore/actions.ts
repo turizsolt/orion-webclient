@@ -19,3 +19,8 @@ export const hoverItem = actionCreator<{
   parentId: ItemId | null;
 } | null>('HOVER_ITEM');
 export const draggedItem = actionCreator<ItemId | null>('DRAGGED_ITEM');
+export const toggleFilter = actionCreator<string>('TOGGLE_FILTER');
+export const search = actionCreator<string>('SEARCH');
+export const order = actionCreator<{ attribute?: string; asc?: boolean }>(
+  'ORDER'
+);

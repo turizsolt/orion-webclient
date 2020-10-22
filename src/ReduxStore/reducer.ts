@@ -8,11 +8,14 @@ import {
   updateChange,
   addToChanges,
   hoverItem,
-  draggedItem
+  draggedItem,
+  toggleFilter,
+  search,
+  order
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
-import { getPriority } from './commons';
+import { getTitle, getField } from './commons';
 import { ChangeId } from '../model/Change/ChangeId';
 import { Change } from '../model/Change/Change';
 
@@ -33,6 +36,8 @@ export interface State {
   changes: Record<ChangeId, Change>;
   changeList: ChangeId[];
   filters: Filter[];
+  search: string;
+  order: { attribute?: string; asc?: boolean };
   version: number;
 }
 
@@ -48,14 +53,14 @@ const initialState = {
   filters: [
     {
       id: 'roots',
-      name: 'only roots',
+      name: 'Hide non-root items',
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
         items[x].parents.length === 0,
       on: true
     },
     {
       id: 'skip-hashtags',
-      name: 'skip hashtags',
+      name: 'Hide hashtags at root',
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
         !items[x].originalFields.hashtag ||
         !items[x].originalFields.hashtag.value,
@@ -63,7 +68,7 @@ const initialState = {
     },
     {
       id: 'not-deleted',
-      name: 'only not deleted',
+      name: 'Hide deleted items',
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
         !items[x].originalFields.deleted ||
         items[x].originalFields.deleted.value !== true,
@@ -71,13 +76,15 @@ const initialState = {
     },
     {
       id: 'not-done',
-      name: 'only not done',
+      name: 'Hide done items',
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
         !items[x].originalFields.state ||
         items[x].originalFields.state.value !== 'done',
       on: true
     }
   ],
+  search: '',
+  order: { attribute: 'priority', asc: true },
   version: 0
 };
 
@@ -85,6 +92,49 @@ export const appReducer = (
   state: State = initialState,
   action: AnyAction
 ): State => {
+  if (isType(action, order)) {
+    return {
+      ...state,
+      order: { ...state.order, ...action.payload },
+      itemsMeta: filteAndOrderEveryMeta(state.itemList, {
+        ...state,
+        order: { ...state.order, ...action.payload }
+      }),
+      viewedItemList: filterAndOrderRoot(state.itemList, {
+        ...state,
+        order: { ...state.order, ...action.payload }
+      }),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, search)) {
+    return {
+      ...state,
+      search: action.payload,
+      viewedItemList: filterAndOrderRoot(state.itemList, {
+        ...state,
+        search: action.payload
+      }),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, toggleFilter)) {
+    const filters = [...state.filters];
+    const num = state.filters.findIndex(x => x.id === action.payload);
+    if (num === -1) return state;
+    filters[num].on = !filters[num].on;
+
+    return {
+      ...state,
+      filters,
+      itemsMeta: filteAndOrderEveryMeta(state.itemList, { ...state, filters }),
+      viewedItemList: filterAndOrderRoot(state.itemList, { ...state, filters }),
+      version: state.version + 1
+    };
+  }
+
   if (isType(action, hoverItem)) {
     return {
       ...state,
@@ -205,21 +255,51 @@ const f = (state: any, skipRootRule: boolean) => (x: ItemId) => {
       return false;
     }
   }
+  if (state.search) {
+    if (
+      !getTitle(x, state.items)
+        .toLocaleLowerCase()
+        .includes(state.search.toLocaleLowerCase())
+    ) {
+      return false;
+    }
+  }
   return true;
 };
 
+function filteAndOrderEveryMeta(
+  list: ItemId[],
+  state: State
+): Record<string, ViewItemMeta> {
+  const newMeta: Record<string, ViewItemMeta> = {};
+  for (let elem of list) {
+    newMeta[elem] = {
+      viewedChildren: filterAndOrder(
+        state.itemsMeta[elem].viewedChildren,
+        state
+      )
+    };
+  }
+  return newMeta;
+}
+
 function filterAndOrder(list: any[], state: any): any[] {
-  return [...order(list.filter(f(state, true)), state)];
+  return [...orderx(list.filter(f(state, true)), state)];
 }
 
 function filterAndOrderRoot(list: any[], state: any): any[] {
-  return [...order(list.filter(f(state, false)), state)];
+  return [...orderx(list.filter(f(state, false)), state)];
 }
 
-function order(arr: ItemId[], state: any): ItemId[] {
+function orderx(arr: ItemId[], state: State): ItemId[] {
+  const field = state.order.attribute || 'priority';
+  const asc = state.order.asc ? 1 : -1;
+
   arr.sort((a, b) => {
-    if (getPriority(a, state.items) < getPriority(b, state.items)) return -1;
-    if (getPriority(a, state.items) > getPriority(b, state.items)) return 1;
+    if (getField(a, field, state.items) < getField(b, field, state.items))
+      return -asc;
+    if (getField(a, field, state.items) > getField(b, field, state.items))
+      return asc;
     return 0;
   });
   return arr;
