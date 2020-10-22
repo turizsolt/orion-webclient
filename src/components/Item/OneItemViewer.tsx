@@ -1,5 +1,5 @@
 import React from 'react';
-import { ItemViewer } from './ItemViewer/ItemViewer';
+import { ItemViewer } from './ItemViewer';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
@@ -16,7 +16,7 @@ export const OneItemViewer: React.FC = () => {
           {items[id].parents.length > 0 && (
             <Link to={`/${items[id].parents[0]}`}>to Parent</Link>
           )}
-          <ItemViewer item={items[id]} parentId={null} path={''} />
+          <ItemViewer item={items[id]} />
         </>
       )}
     </div>
