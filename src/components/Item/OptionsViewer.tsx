@@ -1,9 +1,15 @@
-import React, { useCallback, useContext, KeyboardEvent } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  KeyboardEvent,
+  ChangeEvent
+} from 'react';
 import { useSelector } from 'react-redux';
 import { style } from 'typestyle';
 import { RootState } from '../../ReduxStore';
 import { Actions } from '../../LocalStore/Actions';
 import { ActionsContext } from '../../App';
+import { fieldTypeList } from '../../model/Item/FieldTypeOf';
 
 const sideStyle = style({
   minWidth: '160px',
@@ -14,7 +20,7 @@ const sideStyle = style({
 });
 
 export const OptionsViewer: React.FC = () => {
-  const { filters, search } = useSelector(
+  const { filters, search, order } = useSelector(
     (state: RootState) => state.appReducer
   );
 
@@ -35,6 +41,20 @@ export const OptionsViewer: React.FC = () => {
     [actions]
   );
 
+  const handleOrder = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      actions.order({ attribute: event.currentTarget.value });
+    },
+    [actions]
+  );
+
+  const handleOrderAsc = useCallback(
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      actions.order({ asc: event.currentTarget.value === 'asc' });
+    },
+    [actions]
+  );
+
   return (
     <div className={sideStyle}>
       <div>Search</div>
@@ -42,6 +62,20 @@ export const OptionsViewer: React.FC = () => {
         <input type="text" defaultValue={search} onKeyUp={handleSearch} />
       </div>
       <div>Order</div>
+      <div>
+        {/* duplicate code - field selector */}
+        <select value={order.attribute} onChange={handleOrder}>
+          {fieldTypeList.map(fieldType => (
+            <option value={fieldType.name} key={fieldType.name}>
+              {fieldType.name} ({fieldType.type})
+            </option>
+          ))}
+        </select>
+        <select value={order.asc ? 'asc' : 'desc'} onChange={handleOrderAsc}>
+          <option value="asc">ASC</option>
+          <option value="desc">DESC</option>
+        </select>
+      </div>
       <div>Filters</div>
       <div>
         {filters.map(filter => (

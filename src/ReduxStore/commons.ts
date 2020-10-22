@@ -2,16 +2,14 @@ import { ItemId } from '../model/Item/ItemId';
 import { Actions } from '../LocalStore/Actions';
 
 export function getPriority(c: string, items: any) {
-  if (
-    !items[c] ||
-    !items[c].originalFields ||
-    !items[c].originalFields.priority ||
-    !items[c].originalFields.priority.value
-  ) {
-    return Number.MAX_VALUE;
-  }
-  return parseInt(items[c].originalFields.priority.value, 10);
+  return getField(c, 'priority', items);
 }
+
+const fieldDefault: any = {
+  priority: Number.MAX_VALUE,
+  state: 'todo',
+  title: ''
+};
 
 export function getField(id: string, field: string, items: any) {
   if (
@@ -20,17 +18,17 @@ export function getField(id: string, field: string, items: any) {
     !items[id].originalFields[field] ||
     !items[id].originalFields[field].value
   ) {
-    return undefined;
+    return fieldDefault[field] || undefined;
   }
   return items[id].originalFields[field].value;
 }
 
 export function getState(id: string, items: any) {
-  return getField(id, 'state', items) || 'todo';
+  return getField(id, 'state', items);
 }
 
 export function getTitle(id: string, items: any): string {
-  return getField(id, 'title', items) || '';
+  return getField(id, 'title', items);
 }
 
 export function common(a: string, b: string): string[] {

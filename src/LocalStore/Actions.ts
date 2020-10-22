@@ -17,7 +17,8 @@ import {
   hoverItem,
   draggedItem,
   toggleFilter,
-  search
+  search,
+  order
 } from '../ReduxStore/actions';
 
 const idGen = new ActualIdGenerator();
@@ -80,6 +81,10 @@ export class Actions {
 
   search(searchString: string) {
     this.dispatcher.dispatch(search(searchString));
+  }
+
+  order(props: { attribute?: string; asc?: boolean }) {
+    this.dispatcher.dispatch(order(props));
   }
 
   createItem(field: FieldName, newValue: any): ItemId {

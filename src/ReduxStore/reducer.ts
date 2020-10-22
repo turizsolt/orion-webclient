@@ -10,11 +10,12 @@ import {
   hoverItem,
   draggedItem,
   toggleFilter,
-  search
+  search,
+  order
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
-import { getPriority, getTitle } from './commons';
+import { getTitle, getField } from './commons';
 import { ChangeId } from '../model/Change/ChangeId';
 import { Change } from '../model/Change/Change';
 
@@ -36,6 +37,7 @@ export interface State {
   changeList: ChangeId[];
   filters: Filter[];
   search: string;
+  order: { attribute?: string; asc?: boolean };
   version: number;
 }
 
@@ -82,6 +84,7 @@ const initialState = {
     }
   ],
   search: '',
+  order: { attribute: 'priority', asc: true },
   version: 0
 };
 
@@ -89,6 +92,22 @@ export const appReducer = (
   state: State = initialState,
   action: AnyAction
 ): State => {
+  if (isType(action, order)) {
+    return {
+      ...state,
+      order: { ...state.order, ...action.payload },
+      itemsMeta: filteAndOrderEveryMeta(state.itemList, {
+        ...state,
+        order: { ...state.order, ...action.payload }
+      }),
+      viewedItemList: filterAndOrderRoot(state.itemList, {
+        ...state,
+        order: { ...state.order, ...action.payload }
+      }),
+      version: state.version + 1
+    };
+  }
+
   if (isType(action, search)) {
     return {
       ...state,
@@ -110,7 +129,8 @@ export const appReducer = (
     return {
       ...state,
       filters,
-      viewedItemList: filterAndOrderRoot(state.itemList, state),
+      itemsMeta: filteAndOrderEveryMeta(state.itemList, { ...state, filters }),
+      viewedItemList: filterAndOrderRoot(state.itemList, { ...state, filters }),
       version: state.version + 1
     };
   }
@@ -247,18 +267,39 @@ const f = (state: any, skipRootRule: boolean) => (x: ItemId) => {
   return true;
 };
 
+function filteAndOrderEveryMeta(
+  list: ItemId[],
+  state: State
+): Record<string, ViewItemMeta> {
+  const newMeta: Record<string, ViewItemMeta> = {};
+  for (let elem of list) {
+    newMeta[elem] = {
+      viewedChildren: filterAndOrder(
+        state.itemsMeta[elem].viewedChildren,
+        state
+      )
+    };
+  }
+  return newMeta;
+}
+
 function filterAndOrder(list: any[], state: any): any[] {
-  return [...order(list.filter(f(state, true)), state)];
+  return [...orderx(list.filter(f(state, true)), state)];
 }
 
 function filterAndOrderRoot(list: any[], state: any): any[] {
-  return [...order(list.filter(f(state, false)), state)];
+  return [...orderx(list.filter(f(state, false)), state)];
 }
 
-function order(arr: ItemId[], state: any): ItemId[] {
+function orderx(arr: ItemId[], state: State): ItemId[] {
+  const field = state.order.attribute || 'priority';
+  const asc = state.order.asc ? 1 : -1;
+
   arr.sort((a, b) => {
-    if (getPriority(a, state.items) < getPriority(b, state.items)) return -1;
-    if (getPriority(a, state.items) > getPriority(b, state.items)) return 1;
+    if (getField(a, field, state.items) < getField(b, field, state.items))
+      return -asc;
+    if (getField(a, field, state.items) > getField(b, field, state.items))
+      return asc;
     return 0;
   });
   return arr;
