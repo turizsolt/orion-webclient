@@ -1,11 +1,30 @@
 import React, { useCallback, useState } from 'react';
-import { ItemViewer } from './ItemViewer';
+import { ItemViewer } from './ItemViewer/ItemViewer';
 import { ItemId } from '../../model/Item/ItemId';
 import { useSelector } from 'react-redux';
 import { ItemAdderViewer } from './ItemAdderViewer';
+import { style, media } from 'typestyle';
+import { OptionsViewer } from './OptionsViewer';
+
+const containerStyle = style(
+  media(
+    { minWidth: 0, maxWidth: 899 },
+    {
+      display: 'flex',
+      flexDirection: 'column',
+      width: '100%'
+    }
+  ),
+  media(
+    { minWidth: 900 },
+    { display: 'flex', flexDirection: 'row-reverse', width: '100%' }
+  )
+);
+
+const mainStyle = style({ flexGrow: 1 });
 
 export const RootItemViewer: React.FC = () => {
-  const { items, itemList, filters } = useSelector(
+  const { items, viewedItemList } = useSelector(
     (state: any) => state.appReducer
   );
 
@@ -19,53 +38,18 @@ export const RootItemViewer: React.FC = () => {
     setShowChildrenAdder(false);
   }, []);
 
-  //   const order = (arr: ItemId[]): ItemId[] => {
-  //     arr.sort((a, b) => {
-  //       if (
-  //         items[a].originalFields.title.value <
-  //         items[b].originalFields.title.value
-  //       )
-  //         return -1;
-  //       if (
-  //         items[a].originalFields.title.value >
-  //         items[b].originalFields.title.value
-  //       )
-  //         return 1;
-  //       return 0;
-  //     });
-  //     return arr;
-  //   };
-
-  //   const f = (x: ItemId) => {
-  //     return (
-  //       items[x].parents.length === 0 && true
-  //       //(items[x].originalFields.title &&
-  //       //  items[x].originalFields.title.value.includes('alma')) &&
-  //       //(!items[x].originalFields.deleted ||
-  //       //  items[x].originalFields.deleted.value !== true)
-  //     );
-  //   };
-
-  const f = (x: ItemId) => {
-    if (!items[x]) return false;
-
-    for (const filter of filters) {
-      if (filter.on && !filter.f(items)(x)) {
-        return false;
-      }
-    }
-    return true;
-  };
-
   return (
-    <div>
-      {itemList.filter(f).map((id: ItemId) => (
-        <ItemViewer key={id} item={items[id]} />
-      ))}
-      {showChildrenAdder && (
-        <ItemAdderViewer parentId={undefined} onClose={handleNewClose} />
-      )}
-      <button onClick={handleNew}>Add</button>
+    <div className={containerStyle}>
+      <OptionsViewer />
+      <div className={mainStyle}>
+        {viewedItemList.map((id: ItemId) => (
+          <ItemViewer key={id} item={items[id]} parentId={null} path={''} />
+        ))}
+        {showChildrenAdder && (
+          <ItemAdderViewer parentId={undefined} onClose={handleNewClose} />
+        )}
+        <button onClick={handleNew}>Add</button>
+      </div>
     </div>
   );
 };

@@ -7,6 +7,8 @@ export interface ViewItem {
   originalFields: Record<string, any>;
   auxilaryColumns: string[];
   children: ItemId[];
+  hashtags: HashtagInfo[];
+  responsibles: ResponsibleInfo[];
   parents: ItemId[];
   updateness: Updateness;
 }
@@ -18,4 +20,19 @@ export interface ViewField {
   params?: any;
   updateness: Updateness;
   auxilaryValues: any[];
+}
+
+export interface ViewItemMeta {
+  viewedChildren: ItemId[];
+}
+
+export interface HashtagInfo {
+  color: string;
+  hashtag: string;
+  id: ItemId;
+}
+
+export interface ResponsibleInfo {
+  username: string;
+  id: ItemId;
 }

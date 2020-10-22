@@ -12,6 +12,9 @@ import { DefaultLocalStorage } from './LocalStore/DefaultLocalStorage';
 import { SocketServerCommunication } from './LocalStore/SocketServerCommunication';
 import { socket } from './socket';
 import { Changes } from './Changes';
+import { DndProvider } from 'react-dnd-multi-backend';
+import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
+import { SprintViewer } from './components/Item/SprintViewer';
 
 const dispatcher = new ReduxDispatcher(twoStore);
 const actions = new Actions(
@@ -29,23 +32,33 @@ const App: React.FC = () => {
   return (
     <div className={appStyle}>
       <button onClick={() => localStorage.clear()}>Clear localstorage</button>
+      <hr />
       <Provider store={twoStore}>
-        <ActionsContext.Provider value={actions}>
-          <BrowserRouter>
-            <Switch>
-              <Route path="/:id">
-                <OneItemViewer />
-              </Route>
-              <Route exact path="/">
-                <RootItemViewer />
-              </Route>
-            </Switch>
-          </BrowserRouter>
-        </ActionsContext.Provider>
-        <Changes />
+        <DndProvider options={HTML5toTouch}>
+          <ActionsContext.Provider value={actions}>
+            <BrowserRouter>
+              <Switch>
+                <Route path="/sprint/:id">
+                  <SprintViewer />
+                </Route>
+                <Route path="/:id">
+                  <OneItemViewer />
+                </Route>
+                <Route exact path="/">
+                  <RootItemViewer />
+                  <Changes />
+                </Route>
+              </Switch>
+            </BrowserRouter>
+          </ActionsContext.Provider>
+        </DndProvider>
       </Provider>
     </div>
   );
 };
 
 export default App;
+
+export const ItemTypes = {
+  ITEM: 'item'
+};
