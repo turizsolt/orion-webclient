@@ -33,6 +33,7 @@ export interface Props {
 
 export const ItemViewerHeader: React.FC<Props> = props => {
   const ref: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
+  const dragRef: RefObject<HTMLDivElement> = useRef<HTMLDivElement>(null);
 
   const {
     item,
@@ -50,7 +51,8 @@ export const ItemViewerHeader: React.FC<Props> = props => {
 
   const [drag, drop] = useItemDnD(props, actions, childrenCollapsed);
 
-  drag(drop(ref));
+  drop(ref);
+  drag(dragRef);
 
   return (
     <div
@@ -62,6 +64,11 @@ export const ItemViewerHeader: React.FC<Props> = props => {
       }}
     >
       <StateDot symbol={item.updateness} />
+
+      <div ref={dragRef} style={{ marginLeft: '5px', marginRight: '5px' }}>
+        ☰
+      </div>
+
       <FieldViewer
         id={item.id}
         {...item.fields[0]}
