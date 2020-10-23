@@ -30,15 +30,14 @@ import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
     const inputStyle = style({
       border: 'none',
-      borderBottom: '2px solid #bee3db',
+      borderBottom: '2px solid var(--main-color)',
       padding: '10px',
-      backgroundColor: '#555b6e',
-      //color: '#faf9f9'
+      backgroundColor: 'var(--dark-color)'
     });
 
     return (<>
-        <div className={inputStyle}><FontAwesomeIcon icon={faSearch} /></div>
-        <div>          
+        <div>
+          <FontAwesomeIcon icon={faSearch} />         
           <input className={inputStyle} type="text" defaultValue={search} onKeyUp={handleSearch} placeholder="Search..." />
         </div>
         </>

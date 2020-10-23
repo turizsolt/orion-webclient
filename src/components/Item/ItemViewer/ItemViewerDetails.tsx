@@ -20,7 +20,8 @@ import {
   hashtagRowStyle,
   hashtagListStyle,
   hashtagWidthStyle,
-  linkStyle
+  linkStyle,
+  buttonStyle
 } from './ItemViewer.style';
 import { useSelector } from 'react-redux';
 import {
@@ -193,8 +194,8 @@ export const ItemViewerDetails: React.FC<Props> = props => {
           </option>
         ))}
       </select>
-      <button onClick={handleNewOpen}>+ Add child</button>
-      <button onClick={handleDetachFromParent(item.id)}>
+      <button onClick={handleNewOpen} className={buttonStyle}>+ Add child</button>
+      <button onClick={handleDetachFromParent(item.id)} className={buttonStyle}>
         - Detach first parent
       </button>
     </div>

@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 import { ItemAdderViewer } from './ItemAdderViewer';
 import { style, media } from 'typestyle';
 import { OptionsViewer } from './OptionsViewer';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 const containerStyle = style(
   media(
@@ -23,6 +25,14 @@ const containerStyle = style(
 
 const mainStyle = style({ flexGrow: 1 });
 
+const buttonStyle = style({
+  backgroundColor: 'var(--accent-color)',
+  border: 'none',
+  color: 'var(--dark-color)',
+  padding: '15px',
+  borderRadius: '20px',
+});
+
 export const RootItemViewer: React.FC = () => {
   const { items, viewedItemList } = useSelector(
     (state: any) => state.appReducer
@@ -38,6 +48,7 @@ export const RootItemViewer: React.FC = () => {
     setShowChildrenAdder(false);
   }, []);
 
+
   return (
     <div className={containerStyle}>
       <OptionsViewer />
@@ -48,7 +59,7 @@ export const RootItemViewer: React.FC = () => {
         {showChildrenAdder && (
           <ItemAdderViewer parentId={undefined} onClose={handleNewClose} />
         )}
-        <button onClick={handleNew}>Add</button>
+        <button onClick={handleNew} className={buttonStyle}><FontAwesomeIcon icon={faPlus} /></button>
       </div>
     </div>
   );

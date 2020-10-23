@@ -29,16 +29,18 @@ export const ActionsContext = React.createContext(actions);
 
 const appStyle = style({ 
   //margin: '10px',
-
+  fontSize: '12px',
   fontFamily: 'sans-serif',
-  //color: '#555B6E',
+  color: 'var(--dark-color)',
 });
 
 const headerStyle = style({
   paddingLeft: '10px',
-  backgroundColor: '#555B6E',
+  backgroundColor: 'var(--dark-color)',
   display: 'flex',
-  alignItems: 'flex-end'
+  alignItems: 'flex-end',
+  justifyContent: 'space-between',
+  color: 'var(--main-color)'
 });
 
 const bodyStyle = style({
@@ -46,9 +48,9 @@ const bodyStyle = style({
 });
 
 const buttonStyle = style({
-  backgroundColor: '#bee3db',
+  backgroundColor: 'var(--main-color)',
   border: 'none',
-  color: '#555B6E',
+  color: 'var(--dark-color)',
   padding: '15px',
   borderRadius: '20px'
 });

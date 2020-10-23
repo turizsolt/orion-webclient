@@ -1,15 +1,19 @@
 import { style } from 'typestyle';
 
 export const itemStyle = style({
-  borderRadius: '20px',
-  backgroundColor: '#87b6b8',
+  //borderRadius: '20px',
+  borderTopLeftRadius: '20px',
+  borderBottomLeftRadius: '20px',
+  backgroundColor: 'var(--main-color)',
   marginBottom: '5px'
 });
 
 export const headerStyle = style({
   padding: '5px',
-  borderRadius: '20px',
-  backgroundColor: '#bcd2d3',
+  //borderRadius: '20px',
+  borderTopLeftRadius: '20px',
+  borderBottomLeftRadius: '20px',
+  backgroundColor: 'var(--light-color)',
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
@@ -78,7 +82,7 @@ export const hashtagListStyle = style({
 export const responsibleCircleStyle = style({
   width: '32px',
   height: '32px',
-  border: '1px solid #86b6b8',
+  //border: '1px solid #86b6b8',
   borderRadius: '16px',
   fontSize: '28px',
   textAlign: 'center',
@@ -88,3 +92,12 @@ export const responsibleCircleStyle = style({
 });
 
 export const linkStyle = style({ textDecoration: 'none', color: 'inherit' });
+
+export const buttonStyle = style({
+  //backgroundColor: '#ffd6ba',
+  border: 'none',
+  //color: '#555B6E',
+  padding: '15px',
+  borderTopLeftRadius: '20px',
+  borderBottomLeftRadius: '20px',
+})
