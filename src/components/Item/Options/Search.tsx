@@ -7,6 +7,9 @@ import React, {
   import { RootState } from '../../../ReduxStore';
   import { Actions } from '../../../LocalStore/Actions';
   import { ActionsContext } from '../../../App';
+import { style } from 'typestyle';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
 
   export const Search: React.FC = () => {
@@ -24,12 +27,19 @@ import React, {
       },
       [actions]
     );
-  
+
+    const inputStyle = style({
+      border: 'none',
+      borderBottom: '2px solid #bee3db',
+      padding: '10px',
+      backgroundColor: '#555b6e',
+      //color: '#faf9f9'
+    });
 
     return (<>
-        <div>Search</div>
-        <div>
-          <input type="text" defaultValue={search} onKeyUp={handleSearch} />
+        <div className={inputStyle}><FontAwesomeIcon icon={faSearch} /></div>
+        <div>          
+          <input className={inputStyle} type="text" defaultValue={search} onKeyUp={handleSearch} placeholder="Search..." />
         </div>
         </>
     );
