@@ -20,7 +20,6 @@ const actions = new Actions(
   new SocketServerCommunication(socket)
 );
 export const idGen = new ActualIdGenerator();
-
 export const ActionsContext = React.createContext(actions);
 
 const appStyle = style({ margin: '10px' });
