@@ -15,6 +15,7 @@ import { Changes } from './Changes';
 import { DndProvider } from 'react-dnd-multi-backend';
 import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
 import { SprintViewer } from './components/Item/SprintViewer';
+import { CategoryViewer } from './components/Item/CategoryViewer';
 
 const dispatcher = new ReduxDispatcher(twoStore);
 const actions = new Actions(
@@ -40,6 +41,9 @@ const App: React.FC = () => {
               <Switch>
                 <Route path="/sprint/:id">
                   <SprintViewer />
+                </Route>
+                <Route path="/category/:id">
+                  <CategoryViewer />
                 </Route>
                 <Route path="/:id">
                   <OneItemViewer />
