@@ -64,7 +64,7 @@ const initialState = {
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
         !items[x].originalFields.hashtag ||
         !items[x].originalFields.hashtag.value,
-      on: true
+      on: false
     },
     {
       id: 'not-deleted',
@@ -81,6 +81,14 @@ const initialState = {
         !items[x].originalFields.state ||
         items[x].originalFields.state.value !== 'done',
       on: true
+    },
+    {
+      id: 'hashtags-mode',
+      name: 'change to hashtag mode',
+      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
+        items[x].originalFields.hashtag &&
+        items[x].originalFields.hashtag.value,
+      on: false
     }
   ],
   search: '',
