@@ -15,7 +15,7 @@ import { Changes } from './Changes';
 import { DndProvider } from 'react-dnd-multi-backend';
 import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
 import { SprintViewer } from './components/Item/SprintViewer';
-import { CategoryViewer } from './components/Item/CategoryViewer';
+import { HashViewer } from './components/Item/HashViewer';
 
 const dispatcher = new ReduxDispatcher(twoStore);
 const actions = new Actions(
@@ -33,6 +33,7 @@ const App: React.FC = () => {
   return (
     <div className={appStyle}>
       <button onClick={() => localStorage.clear()}>Clear localstorage</button>
+      <a href="/hash/">Hash View</a>
       <hr />
       <Provider store={twoStore}>
         <DndProvider options={HTML5toTouch}>
@@ -42,8 +43,8 @@ const App: React.FC = () => {
                 <Route path="/sprint/:id">
                   <SprintViewer />
                 </Route>
-                <Route path="/category/:id">
-                  <CategoryViewer />
+                <Route path="/hash/">
+                  <HashViewer />
                 </Route>
                 <Route path="/:id">
                   <OneItemViewer />
