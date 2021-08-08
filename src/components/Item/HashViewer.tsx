@@ -24,7 +24,7 @@ const containerStyle = style(
 const mainStyle = style({ flexGrow: 1 });
 
 export const HashViewer: React.FC = () => {
-  const { items, viewedItemList } = useSelector(
+  const { items, viewedItemList, filters } = useSelector(
     (state: any) => state.appReducer
   );
 
@@ -37,10 +37,10 @@ export const HashViewer: React.FC = () => {
   const handleNewClose = useCallback(() => {
     setShowChildrenAdder(false);
   }, []);
-  
+  filters[4].on = true; //show hashtags only at root
+
     return (
       <div className={containerStyle}>
-
         <div className={mainStyle}>
           {viewedItemList.map((id: ItemId) => (
             <ItemViewer key={id} item={items[id]} parentId={null} path={''} />
@@ -50,6 +50,7 @@ export const HashViewer: React.FC = () => {
           )}
           <button onClick={handleNew}>Add</button>
         </div>
+        
       </div>
     );
 
