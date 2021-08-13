@@ -5,6 +5,7 @@ import { useParams } from 'react-router';
 import { ItemId } from '../../model/Item/ItemId';
 import { RootState } from '../../ReduxStore';
 import { HashtagInfo } from '../../model/Item/ViewItem';
+import { Hashtag } from '../Hashtag';
 
 export const OneHashtagViewer: React.FC = () => {
   const { id: hashtagId } = useParams<{id:ItemId}>();
@@ -20,9 +21,17 @@ export const OneHashtagViewer: React.FC = () => {
       ) !== -1
   );
 
+  const idToHashtagInfo = (id:ItemId):HashtagInfo => {
+    return {
+      id, 
+      color: items[id].originalFields.color && items[id].originalFields.color.value,
+      hashtag: items[id].originalFields.hashtag && items[id].originalFields.hashtag.value
+    };
+  };
+
   return (
     <div>
-      <div>Hashtag {hashtagId}</div>
+      <Hashtag hashtag={idToHashtagInfo(hashtagId)}/>
       <div>
         {hashtagItemIds
           .map(id => (
