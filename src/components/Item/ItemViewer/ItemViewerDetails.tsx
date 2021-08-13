@@ -131,7 +131,7 @@ export const ItemViewerDetails: React.FC<Props> = props => {
           <div className={hashtagLabelStyle}>hashtags:</div>
           <div className={hashtagListStyle}>
             {item.hashtags.map(x => (
-              <Hashtag hashtag={x} removeHashtag={handleRemoveHashtag(x.id)} />
+              <Hashtag hashtag={x} removeHashtag={handleRemoveHashtag(x.id)} key={x.id} />
             ))}
             <span
               className={hashtagStyle}

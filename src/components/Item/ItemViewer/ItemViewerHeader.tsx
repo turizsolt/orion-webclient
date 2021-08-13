@@ -73,7 +73,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
       />
       <div className={hashtagListStyle}>
         {item.hashtags.map(x => (
-          <Hashtag hashtag={x} />
+          <Hashtag hashtag={x} key={x.id} />
         ))}
       </div>
       <div style={{ display: 'flex' }}>
