@@ -4,7 +4,6 @@ import { style, media } from 'typestyle';
 import { ItemId } from '../../model/Item/ItemId';
 import { ItemAdderViewer } from './ItemAdderViewer';
 import { ItemViewer } from './ItemViewer/ItemViewer';
-import { OptionsViewer } from './OptionsViewer';
 
 const containerStyle = style(
   media(
