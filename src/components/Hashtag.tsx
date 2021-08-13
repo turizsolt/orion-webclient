@@ -25,7 +25,7 @@ export const Hashtag: React.FC<Props> = (props) => {
       }}
       key={hashtag.hashtag}
     >
-      <Link to={`/${hashtag.id}`} className={linkStyle}>
+      <Link to={`/hashtag/${hashtag.id}`} className={linkStyle}>
         <span className={hashtagWidthStyle}>#{hashtag.hashtag}</span>
       </Link>
       {removeHashtag && <>

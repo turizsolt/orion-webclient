@@ -16,6 +16,7 @@ import { DndProvider } from 'react-dnd-multi-backend';
 import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
 import { SprintViewer } from './components/Item/SprintViewer';
 import { HashtagViewer } from './components/Item/HashtagViewer';
+import { OneHashtagViewer } from './components/Item/OneHashtagViewer';
 
 const dispatcher = new ReduxDispatcher(twoStore);
 const actions = new Actions(
@@ -45,6 +46,9 @@ const App: React.FC = () => {
               <Switch>
                 <Route path="/sprint/:id">
                   <SprintViewer />
+                </Route>
+                <Route path="/hashtag/:id">
+                  <OneHashtagViewer />
                 </Route>
                 <Route path="/hashtag/">
                   <HashtagViewer />
