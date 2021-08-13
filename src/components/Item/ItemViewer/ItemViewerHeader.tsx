@@ -1,4 +1,4 @@
-import React, { useContext, useRef, RefObject } from 'react';
+import React, { useContext, useRef, RefObject, useCallback } from 'react';
 import { ViewItem } from '../../../model/Item/ViewItem';
 import { ActionsContext } from '../../../App';
 import { Actions } from '../../../LocalStore/Actions';
@@ -47,6 +47,13 @@ export const ItemViewerHeader: React.FC<Props> = props => {
   const actions: Actions = useContext(ActionsContext);
 
   const [drag, drop] = useItemDnD(props, actions, childrenCollapsed);
+  
+  const handleMakeDone = useCallback(
+    () =>  {
+      actions.changeItem(item.id, 'state', item.originalFields.state && item.originalFields.state.value, 'done');
+    },
+    [item, actions]
+  );
 
   drop(ref);
   drag(dragRef);
@@ -94,6 +101,9 @@ export const ItemViewerHeader: React.FC<Props> = props => {
       </button>
       <button className={headerButtonStyle} onClick={handleChildrenCollapse}>
         {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
+      </button>
+      <button className={headerButtonStyle} onClick={handleMakeDone}>
+        Done
       </button>
     </div>
   );
