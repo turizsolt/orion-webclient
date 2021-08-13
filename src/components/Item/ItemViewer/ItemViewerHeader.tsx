@@ -11,13 +11,10 @@ import { useItemDnD } from '../useItemDnD';
 import {
   headerStyle,
   headerButtonStyle,
-  hashtagStyle,
-  hashtagWidthStyle,
   hashtagListStyle,
-  linkStyle,
   responsibleCircleStyle
 } from './ItemViewer.style';
-import { getContrastColor } from '../../../ReduxStore/commons';
+import { Hashtag } from '../../Hashtag';
 
 export interface Props {
   item: ViewItem;
@@ -76,18 +73,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
       />
       <div className={hashtagListStyle}>
         {item.hashtags.map(x => (
-          <span
-            className={hashtagStyle}
-            style={{
-              color: getContrastColor(x.color),
-              backgroundColor: x.color
-            }}
-            key={x.hashtag}
-          >
-            <Link to={`/${x.id}`} className={linkStyle}>
-              <span className={hashtagWidthStyle}>#{x.hashtag}</span>
-            </Link>
-          </span>
+          <Hashtag hashtag={x} />
         ))}
       </div>
       <div style={{ display: 'flex' }}>
