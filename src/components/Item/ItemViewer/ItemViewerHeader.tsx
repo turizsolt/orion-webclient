@@ -1,4 +1,4 @@
-import React, { useContext, useRef, RefObject } from 'react';
+import React, { useContext, useRef, RefObject, useCallback } from 'react';
 import { ViewItem } from '../../../model/Item/ViewItem';
 import { ActionsContext } from '../../../App';
 import { Actions } from '../../../LocalStore/Actions';
@@ -11,13 +11,13 @@ import { useItemDnD } from '../useItemDnD';
 import {
   headerStyle,
   headerButtonStyle,
-  hashtagStyle,
-  hashtagWidthStyle,
   hashtagListStyle,
-  linkStyle,
-  responsibleCircleStyle
+  responsibleCircleStyle,
+  headerFirstRowStyle,
+  headerSecondRowStyle,
+  hashtagListSecondRowStyle
 } from './ItemViewer.style';
-import { getContrastColor } from '../../../ReduxStore/commons';
+import { Hashtag } from '../../Hashtag';
 
 export interface Props {
   item: ViewItem;
@@ -50,6 +50,13 @@ export const ItemViewerHeader: React.FC<Props> = props => {
   const actions: Actions = useContext(ActionsContext);
 
   const [drag, drop] = useItemDnD(props, actions, childrenCollapsed);
+  
+  const handleMakeDone = useCallback(
+    () =>  {
+      actions.changeItem(item.id, 'state', item.originalFields.state && item.originalFields.state.value, 'done');
+    },
+    [item, actions]
+  );
 
   drop(ref);
   drag(dragRef);
@@ -63,52 +70,53 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         display: !ghost && hover && draggedId === item.id ? 'none' : 'flex'
       }}
     >
-      <StateDot symbol={item.updateness} />
+      <div className={headerFirstRowStyle}>
+        <StateDot symbol={item.updateness} />
 
-      <div ref={dragRef} style={{ marginLeft: '5px', marginRight: '5px' }}>
-        ☰
-      </div>
+        <div ref={dragRef} style={{ marginLeft: '5px', marginRight: '5px' }}>
+          ☰
+        </div>
 
-      <FieldViewer
-        id={item.id}
-        {...item.fields[0]}
-        params={{ noLabel: true }}
-      />
-      <div className={hashtagListStyle}>
-        {item.hashtags.map(x => (
-          <span
-            className={hashtagStyle}
-            style={{
-              color: getContrastColor(x.color),
-              backgroundColor: x.color
-            }}
-            key={x.hashtag}
-          >
-            <Link to={`/${x.id}`} className={linkStyle}>
-              <span className={hashtagWidthStyle}>#{x.hashtag}</span>
-            </Link>
-          </span>
-        ))}
-      </div>
-      <div style={{ display: 'flex' }}>
-        {item.responsibles.map(responsible => (
-          <div key={responsible.id} className={responsibleCircleStyle}>
-            {responsible.username[0].toUpperCase()}
+        <FieldViewer
+          id={item.id}
+          {...item.fields[0]}
+          params={{ noLabel: true }}
+        />
+        <div className={hashtagListStyle}>
+          {item.hashtags.map(x => (
+            <Hashtag hashtag={x} key={x.id} />
+          ))}
+        </div>
+        <div style={{ display: 'flex' }}>
+          {item.responsibles.map(responsible => (
+            <div key={responsible.id} className={responsibleCircleStyle}>
+              {responsible.username[0].toUpperCase()}
+            </div>
+          ))}
+        </div>
+        <div>
+          <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
+        </div>
+        <button className={headerButtonStyle} onClick={handleNewOpen}>
+          {'+'}
+        </button>
+        <button className={headerButtonStyle} onClick={handleCollapse}>
+          {collapsed ? 'V' : 'A'}
+        </button>
+        <button className={headerButtonStyle} onClick={handleChildrenCollapse}>
+          {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
+        </button>
+        <button className={headerButtonStyle} onClick={handleMakeDone}>
+          Done
+        </button>
+        </div>
+        <div className={headerSecondRowStyle}>
+          <div className={hashtagListSecondRowStyle}>
+            {item.hashtags.map(x => (
+              <Hashtag hashtag={x} key={x.id} />
+            ))}
           </div>
-        ))}
-      </div>
-      <div>
-        <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
-      </div>
-      <button className={headerButtonStyle} onClick={handleNewOpen}>
-        {'+'}
-      </button>
-      <button className={headerButtonStyle} onClick={handleCollapse}>
-        {collapsed ? 'V' : 'A'}
-      </button>
-      <button className={headerButtonStyle} onClick={handleChildrenCollapse}>
-        {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
-      </button>
+        </div>
     </div>
   );
 };
