@@ -80,7 +80,7 @@ export const ItemAdderViewer: React.FC<Props> = props => {
         actions.addRelation(hashtagId, RelationType.HashOf, childrenId);
       }
     },
-    [actions, parentId, items, itemsMeta, viewedItemList]
+    [actions, parentId, items, itemsMeta, viewedItemList, hashtagId]
   );
 
   const handleKeyDown = useCallback(

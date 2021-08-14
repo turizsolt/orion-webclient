@@ -4,6 +4,7 @@ import { ItemId } from '../../model/Item/ItemId';
 import { RootState } from '../../ReduxStore';
 import { HashtagInfo } from '../../model/Item/ViewItem';
 import { Hashtag } from '../Hashtag';
+import { hashtagRibbonStyle } from './ItemViewer/ItemViewer.style';
 
 export const HashtagViewer: React.FC = () => {
   const { items, itemList } = useSelector(
@@ -26,7 +27,7 @@ export const HashtagViewer: React.FC = () => {
 
   return (
     <div>
-      <div>
+      <div className={hashtagRibbonStyle}>
         {sprintItemIds
           .map(id => 
             <Hashtag hashtag={idToHashtagInfo(id)} key={id} />

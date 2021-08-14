@@ -88,3 +88,5 @@ export const responsibleCircleStyle = style({
 });
 
 export const linkStyle = style({ textDecoration: 'none', color: 'inherit' });
+
+export const hashtagRibbonStyle = style({display:'flex', flexWrap: 'wrap'});

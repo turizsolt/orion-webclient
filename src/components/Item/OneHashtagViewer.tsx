@@ -7,6 +7,7 @@ import { RootState } from '../../ReduxStore';
 import { HashtagInfo } from '../../model/Item/ViewItem';
 import { Hashtag } from '../Hashtag';
 import { ItemAdderViewer } from './ItemAdderViewer';
+import { hashtagRibbonStyle } from './ItemViewer/ItemViewer.style';
 
 export const OneHashtagViewer: React.FC = () => {
   const { id: hashtagId } = useParams<{id:ItemId}>();
@@ -42,7 +43,9 @@ export const OneHashtagViewer: React.FC = () => {
 
   return (
     <div>
-      <Hashtag hashtag={idToHashtagInfo(hashtagId)}/>
+      <div className={hashtagRibbonStyle}>
+        <Hashtag hashtag={idToHashtagInfo(hashtagId)}/>
+      </div>
       <div>
         {hashtagItemIds
           .map(id => (
