@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import { fillInPrioritiesOfAParent } from '../../ReduxStore/commons';
 interface Props {
   parentId: ItemId | undefined;
+  hashtagId: ItemId | undefined;
   onClose: () => void;
 }
 
@@ -51,7 +52,7 @@ const fieldStyle = style({
 });
 
 export const ItemAdderViewer: React.FC<Props> = props => {
-  const { onClose, parentId } = props;
+  const { onClose, parentId, hashtagId } = props;
   const actions: Actions = useContext(ActionsContext);
 
   const { items, itemsMeta, viewedItemList } = useSelector(
@@ -74,6 +75,9 @@ export const ItemAdderViewer: React.FC<Props> = props => {
       actions.changeItem(childrenId, 'priority', undefined, priority);
       if (parentId) {
         actions.addRelation(parentId, RelationType.Child, childrenId);
+      }
+      if (hashtagId) {
+        actions.addRelation(hashtagId, RelationType.HashOf, childrenId);
       }
     },
     [actions, parentId, items, itemsMeta, viewedItemList]
