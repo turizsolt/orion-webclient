@@ -1,4 +1,4 @@
-import { style } from 'typestyle';
+import { media, style } from 'typestyle';
 
 export const itemStyle = style({
   borderRadius: '20px',
@@ -10,11 +10,30 @@ export const headerStyle = style({
   padding: '5px',
   borderRadius: '20px',
   backgroundColor: '#bcd2d3',
+  fontSize: '18px',
+  flexDirection: 'column'
+});
+
+export const headerFirstRowStyle = style({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  fontSize: '18px'
 });
+
+export const headerSecondRowStyle = style(
+  media(
+    { minWidth: 0, maxWidth: 899 },
+    {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    }
+  ),
+  media(
+    { minWidth: 900 },
+    { display: 'none' }
+  )
+);
 
 export const childrenStyleDynamic = (hide: boolean) => {
   return {
@@ -70,9 +89,24 @@ export const hashtagLabelStyle = style({
   paddingLeft: '23px'
 });
 
-export const hashtagListStyle = style({
+export const hashtagListStyle = style(
+  media(
+    { minWidth: 0, maxWidth: 899 },
+    { display: 'none' }
+  ),
+  media(
+    { minWidth: 900 },
+    {
+      display: 'flex',
+      flexWrap: 'wrap'
+    }
+  )
+);
+
+export const hashtagListSecondRowStyle = style({
   display: 'flex',
-  flexWrap: 'wrap'
+  flexWrap: 'wrap',
+  fontSize: '12px'
 });
 
 export const responsibleCircleStyle = style({
@@ -88,3 +122,5 @@ export const responsibleCircleStyle = style({
 });
 
 export const linkStyle = style({ textDecoration: 'none', color: 'inherit' });
+
+export const hashtagRibbonStyle = style({display:'flex', flexWrap: 'wrap'});

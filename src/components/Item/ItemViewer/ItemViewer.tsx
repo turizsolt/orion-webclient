@@ -86,7 +86,7 @@ export const ItemViewer: React.FC<ItemViewerProps> = props => {
                 />
               ))}
             {showChildrenAdder && (
-              <ItemAdderViewer parentId={item.id} onClose={handleNewClose} />
+              <ItemAdderViewer parentId={item.id} hashtagId={undefined} onClose={handleNewClose} />
             )}
           </div>
           {hoverPlaceholder('after')}

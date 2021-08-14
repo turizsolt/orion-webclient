@@ -19,7 +19,7 @@ const ColumnStyle = style(
 );
 
 export const SprintViewer: React.FC = () => {
-  const { id: sprintId } = useParams();
+  const { id: sprintId } = useParams<{id:ItemId}>();
   const { items, itemList } = useSelector(
     (state: RootState) => state.appReducer
   );
@@ -58,18 +58,4 @@ export const SprintViewer: React.FC = () => {
       </div>
     </div>
   );
-
-  //   return (
-  //     <div>
-  //       {id && (
-  //         <>
-  //           <Link to="/">to Root</Link>
-  //           {items[id].parents.length > 0 && (
-  //             <Link to={`/${items[id].parents[0]}`}>to Parent</Link>
-  //           )}
-  //           <ItemViewer item={items[id]} parentId={null} path={''} />
-  //         </>
-  //       )}
-  //     </div>
-  //   );
 };
