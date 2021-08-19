@@ -14,74 +14,75 @@ import { StateDot } from './StateDot';
 import { Updateness } from '../../model/Updateness';
 
 interface Props {
-  id: ItemId;
-  value: any;
-  type: string;
-  name: string;
-  params?: any;
-  updateness: Updateness;
+    id: ItemId;
+    value: any;
+    type: string;
+    name: string;
+    params?: any;
+    updateness: Updateness;
 }
 
 export interface FieldProps extends Props {
-  onChange: (value: any) => void;
+    onChange: (value: any) => void;
 }
 
 const inner = {
-  fontSize: '16px',
-  alignItems: 'center',
-  width: '100%'
+    fontSize: '16px',
+    alignItems: 'center',
+    width: '100%'
 };
 
 const fieldStyle = style({
-  display: 'flex',
-  minHeight: '1.5em',
-  fontSize: '16px',
-  padding: '5px 0 5px 0',
-  alignItems: 'center',
-  flexGrow: 1,
-  $nest: {
-    '& div.outerInput': { flexGrow: 1 },
-    "& input:not([type='checkbox'])": inner,
-    '& select': inner,
-    '& textarea': { ...inner, height: '60px' }
-  }
+    display: 'flex',
+    minHeight: '1.5em',
+    fontSize: '16px',
+    padding: '5px 0 5px 0',
+    alignItems: 'center',
+    flexGrow: 1,
+    $nest: {
+        '& div.outerInput': { flexGrow: 1 },
+        "& input:not([type='checkbox'])": inner,
+        '& select': inner,
+        '& textarea': { ...inner, height: '60px' }
+    }
 });
 
 const labelStyle = style({
-  width: '80px'
+    width: '80px'
 });
 
 export const FieldViewer: React.FC<Props> = props => {
-  const { type, id, name, params, value: oldValue, updateness } = props;
+    const { type, id, name, params, value: oldValue, updateness } = props;
 
-  const actions: Actions = useContext(ActionsContext);
+    const actions: Actions = useContext(ActionsContext);
 
-  const handleChange = useCallback(
-    (newValue: any) => {
-      actions.changeItem(id, name, oldValue, newValue);
-    },
-    [actions, id, name, oldValue]
-  );
+    const handleChange = useCallback(
+        (newValue: any) => {
+            actions.changeItem(id, name, oldValue, newValue);
+        },
+        [actions, id, name, oldValue]
+    );
 
-  const handleRemoveField = useCallback(() => {
-    actions.changeItem(id, name, oldValue, undefined);
-  }, [actions, id, name, oldValue]);
+    const handleRemoveField = useCallback(() => {
+        actions.changeItem(id, name, oldValue, undefined);
+    }, [actions, id, name, oldValue]);
 
-  const fieldProps = { ...props, onChange: handleChange };
-  const noLabel = params && params.noLabel;
+    const fieldProps = { ...props, onChange: handleChange };
+    const noLabel = params && params.noLabel;
 
-  return (
-    <div className={fieldStyle}>
-      {!noLabel && <StateDot symbol={updateness} />}
-      {!noLabel && <div className={labelStyle}>{name}</div>}
-      {type === 'Enum' && <EnumFieldViewer {...fieldProps} />}
-      {type === 'Boolean' && <BooleanFieldViewer {...fieldProps} />}
-      {type === 'Color' && <ColorFieldViewer {...fieldProps} />}
-      {type === 'Date' && <DateFieldViewer {...fieldProps} />}
-      {type === 'Number' && <NumberFieldViewer {...fieldProps} />}
-      {type === 'String' && <StringFieldViewer {...fieldProps} />}
-      {type === 'Text' && <TextFieldViewer {...fieldProps} />}
-      {!noLabel && <button onClick={handleRemoveField}>x</button>}
-    </div>
-  );
+    return (
+        <div className={fieldStyle}>
+            {!noLabel && <StateDot symbol={updateness} />}
+            {!noLabel && <div className={labelStyle}>{name}</div>}
+            {type === 'Enum' && <EnumFieldViewer {...fieldProps} />}
+            {type === 'Boolean' && <BooleanFieldViewer {...fieldProps} />}
+            {type === 'Color' && <ColorFieldViewer {...fieldProps} />}
+            {type === 'Date' && <DateFieldViewer {...fieldProps} />}
+            {type === 'Number' && <NumberFieldViewer {...fieldProps} />}
+            {type === 'String' && <StringFieldViewer {...fieldProps} />}
+            {type === 'Text' && <TextFieldViewer {...fieldProps} />}
+            {type === 'Generator' && <TextFieldViewer {...fieldProps} />}
+            {!noLabel && <button onClick={handleRemoveField}>x</button>}
+        </div>
+    );
 };
