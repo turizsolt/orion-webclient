@@ -20,6 +20,7 @@ const types: Record<string, FieldType> = {
     due: { type: 'Date', getDefaultValue: () => new Date().toISOString() },
     color: { type: 'Color', getDefaultValue: () => getRandomColor() },
     hashtag: { type: 'String', getDefaultValue: () => '' },
+    simpleGenerator: { type: 'Generator', getDefaultValue: () => '' },
     generator: { type: 'Generator', getDefaultValue: () => '' },
     generated: { type: 'Boolean', getDefaultValue: () => false },
     template: { type: 'Boolean', getDefaultValue: () => false },
