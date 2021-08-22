@@ -85,7 +85,7 @@ export const ItemViewer: React.FC<ItemViewerProps> = props => {
                   ghost={ghost}
                 />
               ))}
-            {item.templates.map(template => (
+            {!childrenCollapsed && item.templates.map(template => (
               <ItemViewer
                 key={template.id}
                 item={items[template.id]}
@@ -94,7 +94,7 @@ export const ItemViewer: React.FC<ItemViewerProps> = props => {
                 ghost={ghost}
               />
             ))}
-            {item.generateds.map(generated => (
+            {!childrenCollapsed && item.generateds.map(generated => (
               <ItemViewer
                 key={generated.id}
                 item={items[generated.id]}
