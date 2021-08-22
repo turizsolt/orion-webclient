@@ -10,6 +10,7 @@ export interface ViewItem {
   hashtags: HashtagInfo[];
   responsibles: ResponsibleInfo[];
   templates: TemplateInfo[];
+  generateds: GeneratedInfo[];
   parents: ItemId[];
   updateness: Updateness;
 }
@@ -40,5 +41,9 @@ export interface ResponsibleInfo {
 
 export interface TemplateInfo {
   title: string;
+  id: ItemId;
+}
+
+export interface GeneratedInfo {
   id: ItemId;
 }

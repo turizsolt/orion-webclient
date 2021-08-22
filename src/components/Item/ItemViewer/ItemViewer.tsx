@@ -94,6 +94,15 @@ export const ItemViewer: React.FC<ItemViewerProps> = props => {
                 ghost={ghost}
               />
             ))}
+            {item.generateds.map(generated => (
+              <ItemViewer
+                key={generated.id}
+                item={items[generated.id]}
+                parentId={null}
+                path={myPath}
+                ghost={ghost}
+              />
+            ))}
             {showChildrenAdder && (
               <ItemAdderViewer parentId={item.id} hashtagId={undefined} onClose={handleNewClose} />
             )}

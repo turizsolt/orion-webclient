@@ -21,6 +21,7 @@ const types: Record<string, FieldType> = {
     color: { type: 'Color', getDefaultValue: () => getRandomColor() },
     hashtag: { type: 'String', getDefaultValue: () => '' },
     generator: { type: 'Generator', getDefaultValue: () => '' },
+    generated: { type: 'Boolean', getDefaultValue: () => false },
     template: { type: 'Boolean', getDefaultValue: () => false },
     username: { type: 'String', getDefaultValue: () => '' },
     responsible: {

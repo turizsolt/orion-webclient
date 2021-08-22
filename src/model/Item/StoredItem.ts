@@ -4,7 +4,7 @@ import { RelationType } from '../Relation/RelationType';
 import { Updateness, updatenessToNumber } from '../Updateness';
 import { ItemChange } from '../Change/Change';
 import { OURS, THEIRS } from '../OursTheirs';
-import { HashtagInfo, ResponsibleInfo, TemplateInfo } from './ViewItem';
+import { GeneratedInfo, HashtagInfo, ResponsibleInfo, TemplateInfo } from './ViewItem';
 
 export interface StoredField {
   updateness: Updateness;
@@ -220,6 +220,18 @@ export class StoredItem {
   getTemplateInfo(): TemplateInfo {
     return {
       title: this.getField('title'),
+      id: this.id
+    };
+  }
+
+  getGenerateds(): ItemId[] {
+    return this.relations
+      .filter(x => x.type === RelationType.Generated)
+      .map(x => x.otherSideId);
+  }
+
+  getGeneratedInfo(): GeneratedInfo {
+    return {
       id: this.id
     };
   }

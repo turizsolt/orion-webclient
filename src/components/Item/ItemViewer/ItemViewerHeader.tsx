@@ -75,7 +75,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
             style={{
                 opacity: ghost ? 0.5 : 1,
                 display: !ghost && hover && draggedId === item.id ? 'none' : 'flex',
-                backgroundColor: item.originalFields.template ? '#d2bcd3' : '#bcd2d3'
+                backgroundColor: item.originalFields.generated ? '#d2d3bc' : item.originalFields.template ? '#d2bcd3' : '#bcd2d3'
             }}
         >
             <div className={headerFirstRowStyle}>
