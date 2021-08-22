@@ -172,6 +172,17 @@ export class Actions {
             }
         }
 
+        const change: RelationChange = {
+            type: 'AddRelation',
+            oneSideId: id,
+            relation: RelationType.Copied,
+            otherSideId: newId,
+            changeId: idGen.generate(),
+            response: ChangeResponse.Pending
+        };
+
+        transaction.add(change);
+
         this.store.commit(transaction);
 
         return newId;
