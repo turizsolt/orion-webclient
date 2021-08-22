@@ -4,7 +4,7 @@ import { RelationType } from '../Relation/RelationType';
 import { Updateness, updatenessToNumber } from '../Updateness';
 import { ItemChange } from '../Change/Change';
 import { OURS, THEIRS } from '../OursTheirs';
-import { HashtagInfo, ResponsibleInfo } from './ViewItem';
+import { HashtagInfo, ResponsibleInfo, TemplateInfo } from './ViewItem';
 
 export interface StoredField {
   updateness: Updateness;
@@ -207,6 +207,19 @@ export class StoredItem {
   getResponsibleInfo(): ResponsibleInfo {
     return {
       username: this.getField('username'),
+      id: this.id
+    };
+  }
+
+  getTemplates(): ItemId[] {
+    return this.relations
+      .filter(x => x.type === RelationType.Template)
+      .map(x => x.otherSideId);
+  }
+
+  getTemplateInfo(): TemplateInfo {
+    return {
+      title: this.getField('title'),
       id: this.id
     };
   }

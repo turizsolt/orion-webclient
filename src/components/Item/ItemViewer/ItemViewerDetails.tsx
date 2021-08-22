@@ -51,6 +51,19 @@ export const ItemViewerDetails: React.FC<Props> = props => {
     [actions, item]
   );
 
+  const handleAddTemplate = useCallback(
+    () => {
+      const newId = actions.createItem('title', 'tmp');
+      actions.changeItem(newId, 'template', false, true);
+      actions.addRelation(
+        item.id,
+        RelationType.Template,
+        newId,
+      );
+    },
+    [item, actions]
+  );
+
   const handleAddField = useCallback(
     (event: FormEvent<HTMLSelectElement>) => {
       const field = event.currentTarget.value;
@@ -173,6 +186,7 @@ export const ItemViewerDetails: React.FC<Props> = props => {
         ))}
       </select>
       <button onClick={handleNewOpen}>+ Add child</button>
+      <button onClick={handleAddTemplate}>+ Add template</button>
       <button onClick={handleDetachFromParent(item.id)}>
         - Detach first parent
       </button>

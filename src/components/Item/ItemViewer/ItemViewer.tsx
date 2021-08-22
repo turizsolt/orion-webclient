@@ -85,6 +85,15 @@ export const ItemViewer: React.FC<ItemViewerProps> = props => {
                   ghost={ghost}
                 />
               ))}
+            {item.templates.map(template => (
+              <ItemViewer
+                key={template.id}
+                item={items[template.id]}
+                parentId={null}
+                path={myPath}
+                ghost={ghost}
+              />
+            ))}
             {showChildrenAdder && (
               <ItemAdderViewer parentId={item.id} hashtagId={undefined} onClose={handleNewClose} />
             )}
