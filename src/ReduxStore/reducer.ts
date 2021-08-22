@@ -59,6 +59,22 @@ const initialState = {
       on: true
     },
     {
+      id: 'no-templates',
+      name: 'Hide template items',
+      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
+        !items[x].originalFields.template ||
+        !items[x].originalFields.template.value,
+      on: true
+    },
+    {
+      id: 'no-generateds',
+      name: 'Hide generated items',
+      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
+        !items[x].originalFields.generated ||
+        !items[x].originalFields.generated.value,
+      on: false
+    },
+    {
       id: 'skip-hashtags',
       name: 'Hide hashtags at root',
       f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>

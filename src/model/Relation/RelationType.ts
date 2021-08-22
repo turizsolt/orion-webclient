@@ -4,7 +4,13 @@ export enum RelationType {
   Hash = 'hash',
   HashOf = 'hashof',
   Responsible = 'responsible',
-  ResponsibleOf = 'responsibleof'
+  ResponsibleOf = 'responsibleof',
+  Template = 'template',
+  TemplateOf = 'templateof',
+  Generated = 'generated',
+  GeneratedBy = 'generatedby',
+  Copied = 'copied',
+  CopiedFrom = 'copiedfrom'
 }
 
 export const oppositeOf = (rel: RelationType): RelationType => {
@@ -21,5 +27,20 @@ export const oppositeOf = (rel: RelationType): RelationType => {
       return RelationType.ResponsibleOf;
     case RelationType.ResponsibleOf:
       return RelationType.Responsible;
+
+    case RelationType.Template:
+      return RelationType.TemplateOf;
+    case RelationType.TemplateOf:
+      return RelationType.Template;
+
+    case RelationType.Generated:
+      return RelationType.GeneratedBy;
+    case RelationType.GeneratedBy:
+      return RelationType.Generated;
+
+    case RelationType.Copied:
+      return RelationType.CopiedFrom;
+    case RelationType.CopiedFrom:
+      return RelationType.Copied;
   }
 };
