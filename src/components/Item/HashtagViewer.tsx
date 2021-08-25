@@ -11,15 +11,15 @@ export const HashtagViewer: React.FC = () => {
     (state: RootState) => state.appReducer
   );
 
-  const sprintItemIds = itemList.filter(
-    (itemId: ItemId) =>         
+  const hashtagItemIds = itemList.filter(
+    (itemId: ItemId) =>
       items[itemId].originalFields.hashtag &&
       items[itemId].originalFields.hashtag.value,
   );
 
-  const idToHashtagInfo = (id:ItemId):HashtagInfo => {
+  const idToHashtagInfo = (id: ItemId): HashtagInfo => {
     return {
-      id, 
+      id,
       color: items[id].originalFields.color && items[id].originalFields.color.value,
       hashtag: items[id].originalFields.hashtag && items[id].originalFields.hashtag.value
     };
@@ -28,10 +28,10 @@ export const HashtagViewer: React.FC = () => {
   return (
     <div>
       <div className={hashtagRibbonStyle}>
-        {sprintItemIds
-          .map(id => 
+        {hashtagItemIds
+          .map(id =>
             <Hashtag hashtag={idToHashtagInfo(id)} key={id} />
-          )}  
+          )}
       </div>
     </div>
   );

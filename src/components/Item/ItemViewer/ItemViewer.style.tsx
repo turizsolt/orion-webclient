@@ -69,8 +69,11 @@ export const hashtagWidthStyle = style({
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   display: 'inline-block',
-  verticalAlign: 'middle'
-});
+  verticalAlign: 'middle',
+  '&:hover': {
+    cursor: 'pointer'
+  }
+} as any);
 
 export const hashtagRowStyle = style({
   fontSize: '16px',
@@ -123,4 +126,4 @@ export const responsibleCircleStyle = style({
 
 export const linkStyle = style({ textDecoration: 'none', color: 'inherit' });
 
-export const hashtagRibbonStyle = style({display:'flex', flexWrap: 'wrap'});
+export const hashtagRibbonStyle = style({ display: 'flex', flexWrap: 'wrap' });

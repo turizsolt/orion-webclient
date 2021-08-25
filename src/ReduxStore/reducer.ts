@@ -11,10 +11,11 @@ import {
   draggedItem,
   toggleFilter,
   search,
-  order
+  order,
+  toggleHashtagFilter
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
-import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
+import { HashtagInfo, ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
 import { getTitle, getField } from './commons';
 import { ChangeId } from '../model/Change/ChangeId';
 import { Change } from '../model/Change/Change';
@@ -24,6 +25,7 @@ export interface Filter {
   name: string;
   f: (items: Record<ItemId, ViewItem>) => (x: ItemId) => boolean;
   on: boolean;
+  hashtag?: HashtagInfo;
 }
 
 export interface State {
@@ -141,6 +143,32 @@ export const appReducer = (
     const num = state.filters.findIndex(x => x.id === action.payload);
     if (num === -1) return state;
     filters[num].on = !filters[num].on;
+
+    return {
+      ...state,
+      filters,
+      itemsMeta: filteAndOrderEveryMeta(state.itemList, { ...state, filters }),
+      viewedItemList: filterAndOrderRoot(state.itemList, { ...state, filters }),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, toggleHashtagFilter)) {
+    const oldFilters = [...state.filters];
+    let filters: Filter[] = [];
+
+    if (oldFilters.some(f => f.id === action.payload.id)) {
+      filters = oldFilters.filter(f => f.id !== action.payload.id);
+    } else {
+      filters = [...oldFilters, {
+        id: action.payload.id,
+        name: '#' + action.payload.hashtag,
+        f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
+          items[x].hashtags.some(hash => hash.id === action.payload.id),
+        on: true,
+        hashtag: action.payload
+      }];
+    }
 
     return {
       ...state,

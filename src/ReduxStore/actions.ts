@@ -1,5 +1,5 @@
 import actionCreatorFactory from 'typescript-fsa';
-import { ViewItem } from '../model/Item/ViewItem';
+import { HashtagInfo, ViewItem } from '../model/Item/ViewItem';
 import { ItemId } from '../model/Item/ItemId';
 import { Filter } from '../model/Filter';
 import { ViewChange } from '../model/Change/ViewChange';
@@ -23,4 +23,7 @@ export const toggleFilter = actionCreator<string>('TOGGLE_FILTER');
 export const search = actionCreator<string>('SEARCH');
 export const order = actionCreator<{ attribute?: string; asc?: boolean }>(
   'ORDER'
+);
+export const toggleHashtagFilter = actionCreator<HashtagInfo>(
+  'TOGGLE_HASHTAG_FILTER'
 );
