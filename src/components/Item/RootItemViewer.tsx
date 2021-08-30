@@ -110,7 +110,7 @@ export const RootItemViewer: React.FC = () => {
             <ItemViewer key={id} item={items[id]} parentId={null} path={''} />
           ))}
           {showChildrenAdder && (
-            <ItemAdderViewer parentId={undefined} hashtagId={undefined} onClose={handleNewClose} />
+            <ItemAdderViewer parentId={undefined} onClose={handleNewClose} />
           )}
           <button onClick={handleNew}>Add</button>
         </div>
