@@ -90,7 +90,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
             <div className={headerFirstRowStyle}>
                 <StateDot symbol={item.updateness} />
 
-                <div ref={dragRef} style={{ marginLeft: '5px', marginRight: '5px' }}>
+                <div ref={dragRef} style={{ marginRight: '5px' }}>
                     ☰
                 </div>
 
