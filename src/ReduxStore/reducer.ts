@@ -15,18 +15,11 @@ import {
   toggleHashtagFilter
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
-import { HashtagInfo, ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
+import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
 import { getTitle, getField } from './commons';
 import { ChangeId } from '../model/Change/ChangeId';
 import { Change } from '../model/Change/Change';
-
-export interface Filter {
-  id: string;
-  name: string;
-  f: (items: Record<ItemId, ViewItem>) => (x: ItemId) => boolean;
-  on: boolean;
-  hashtag?: HashtagInfo;
-}
+import { Filter } from '../model/Filter';
 
 export interface State {
   hover: any;

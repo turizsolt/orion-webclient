@@ -10,7 +10,6 @@ import { RootState } from '../../ReduxStore';
 import { Actions } from '../../LocalStore/Actions';
 import { ActionsContext } from '../../App';
 import { fieldTypeList } from '../../model/Item/FieldTypeOf';
-import { Hashtag } from '../Hashtag';
 
 const sideStyle = style({
   minWidth: '160px',
@@ -18,12 +17,6 @@ const sideStyle = style({
   backgroundColor: '#bcd2d3',
   marginLeft: '10px',
   marginBottom: '10px'
-});
-
-const optionsHashOuter = style({
-  marginTop: '15px',
-  marginBottom: '15px',
-  marginLeft: '5px'
 });
 
 export const OptionsViewer: React.FC = () => {
@@ -96,9 +89,6 @@ export const OptionsViewer: React.FC = () => {
               />
               {filter.name}
             </>}
-            {filter.hashtag && <div className={optionsHashOuter}>
-              <Hashtag hashtag={filter.hashtag} />
-            </div>}
           </div>
         ))}
       </div>

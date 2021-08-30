@@ -8,6 +8,7 @@ import { OptionsViewer } from './OptionsViewer';
 import { HashtagInfo } from '../../model/Item/ViewItem';
 import { Hashtag } from '../Hashtag';
 import { hashtagRibbonStyle } from './ItemViewer/ItemViewer.style';
+import { Filter } from '../../model/Filter';
 
 const containerStyle = style(
   media(
@@ -29,13 +30,22 @@ export const showOptsStyle = style({
   borderRadius: '5px',
   border: '1px solid black',
   marginBottom: '5px',
-  marginLeft: 'auto'
+  marginLeft: 'auto',
+  '&:hover': {
+    cursor: 'pointer'
+  }
+} as any);
+
+const optionsHashOuter = style({
+  paddingTop: '5px',
+  paddingBottom: '5px',
+  marginBottom: '5px'
 });
 
 const mainStyle = style({ flexGrow: 1 });
 
 export const RootItemViewer: React.FC = () => {
-  const { items, itemList, viewedItemList } = useSelector(
+  const { items, itemList, viewedItemList, filters } = useSelector(
     (state: any) => state.appReducer
   );
 
@@ -68,14 +78,28 @@ export const RootItemViewer: React.FC = () => {
     setShowOptions(!showOptions);
   }, [showOptions]);
 
+  const showAllHashtags = !filters.some((filter: Filter) => filter.hashtag);
+
   return (
     <div>
       <div>
+        {showAllHashtags && <>
+          <div>
+            {hashtagItemIds
+              .map(id =>
+                <Hashtag hashtag={idToHashtagInfo(id)} key={id} />
+              )}
+          </div>
+          <hr />
+        </>}
         <div className={hashtagRibbonStyle}>
-          {hashtagItemIds
-            .map(id =>
-              <Hashtag hashtag={idToHashtagInfo(id)} key={id} />
-            )}
+          {filters.map((filter: Filter) => (
+            <div key={filter.id}>
+              {filter.hashtag && <div className={optionsHashOuter}>
+                <Hashtag hashtag={filter.hashtag} />
+              </div>}
+            </div>
+          ))}
           <div className={showOptsStyle} onClick={handleToggleOptions}>Opts</div>
         </div>
       </div>
