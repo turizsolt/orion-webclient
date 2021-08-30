@@ -11,7 +11,6 @@ import { ReduxDispatcher } from './LocalStore/ReduxDispatcher';
 import { DefaultLocalStorage } from './LocalStore/DefaultLocalStorage';
 import { SocketServerCommunication } from './LocalStore/SocketServerCommunication';
 import { socket } from './socket';
-import { Changes } from './Changes';
 import { DndProvider } from 'react-dnd-multi-backend';
 import HTML5toTouch from 'react-dnd-multi-backend/dist/esm/HTML5toTouch';
 import { SprintViewer } from './components/Item/SprintViewer';
@@ -44,7 +43,6 @@ const App: React.FC = () => {
                 </Route>
                 <Route exact path="/">
                   <RootItemViewer />
-                  <Changes />
                 </Route>
               </Switch>
             </BrowserRouter>
