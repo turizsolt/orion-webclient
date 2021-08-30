@@ -113,6 +113,19 @@ export const hashtagDetailedListStyle = style(
   }
 );
 
+export const headerIdStyle = style(
+  media(
+    { minWidth: 0, maxWidth: 899 },
+    { display: 'none' }
+  ),
+  media(
+    { minWidth: 900 },
+    {
+      display: 'block'
+    }
+  )
+);
+
 export const hashtagListSecondRowStyle = style({
   display: 'flex',
   flexWrap: 'wrap',

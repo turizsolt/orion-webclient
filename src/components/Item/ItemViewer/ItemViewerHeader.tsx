@@ -15,7 +15,8 @@ import {
     responsibleCircleStyle,
     headerFirstRowStyle,
     headerSecondRowStyle,
-    hashtagListSecondRowStyle
+    hashtagListSecondRowStyle,
+    headerIdStyle
 } from './ItemViewer.style';
 import { Hashtag } from '../../Hashtag';
 import { Filter } from '../../../model/Filter';
@@ -110,7 +111,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                         </div>
                     ))}
                 </div>
-                <div>
+                <div className={headerIdStyle}>
                     <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
                 </div>
                 <button className={headerButtonStyle} onClick={handleNewOpen}>
