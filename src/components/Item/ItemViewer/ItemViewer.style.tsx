@@ -106,6 +106,13 @@ export const hashtagListStyle = style(
   )
 );
 
+export const hashtagDetailedListStyle = style(
+  {
+    display: 'flex',
+    flexWrap: 'wrap'
+  }
+);
+
 export const hashtagListSecondRowStyle = style({
   display: 'flex',
   flexWrap: 'wrap',

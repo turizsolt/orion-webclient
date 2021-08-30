@@ -18,7 +18,7 @@ import {
   hashtagContainerStyle,
   hashtagLabelStyle,
   hashtagRowStyle,
-  hashtagListStyle,
+  hashtagDetailedListStyle,
 } from './ItemViewer.style';
 import { useSelector } from 'react-redux';
 import {
@@ -142,7 +142,7 @@ export const ItemViewerDetails: React.FC<Props> = props => {
       <div className={hashtagContainerStyle}>
         <div className={hashtagRowStyle}>
           <div className={hashtagLabelStyle}>hashtags:</div>
-          <div className={hashtagListStyle}>
+          <div className={hashtagDetailedListStyle}>
             {item.hashtags.map(x => (
               <Hashtag hashtag={x} removeHashtag={handleRemoveHashtag(x.id)} key={x.id} />
             ))}
