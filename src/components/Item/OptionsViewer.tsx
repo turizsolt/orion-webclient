@@ -64,6 +64,7 @@ export const OptionsViewer: React.FC = () => {
 
   return (
     <div className={sideStyle}>
+      <button onClick={() => localStorage.clear()}>Clear localstorage</button>
       <div>Search</div>
       <div>
         <input type="text" defaultValue={search} onKeyUp={handleSearch} />

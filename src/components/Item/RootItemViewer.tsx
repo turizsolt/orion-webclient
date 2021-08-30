@@ -24,6 +24,14 @@ const containerStyle = style(
   )
 );
 
+export const showOptsStyle = style({
+  padding: '5px',
+  borderRadius: '5px',
+  border: '1px solid black',
+  marginBottom: '5px',
+  marginLeft: 'auto'
+});
+
 const mainStyle = style({ flexGrow: 1 });
 
 export const RootItemViewer: React.FC = () => {
@@ -55,6 +63,11 @@ export const RootItemViewer: React.FC = () => {
     setShowChildrenAdder(false);
   }, []);
 
+  const [showOptions, setShowOptions] = useState(false);
+  const handleToggleOptions = useCallback(() => {
+    setShowOptions(!showOptions);
+  }, [showOptions]);
+
   return (
     <div>
       <div>
@@ -63,10 +76,11 @@ export const RootItemViewer: React.FC = () => {
             .map(id =>
               <Hashtag hashtag={idToHashtagInfo(id)} key={id} />
             )}
+          <div className={showOptsStyle} onClick={handleToggleOptions}>Opts</div>
         </div>
       </div>
       <div className={containerStyle}>
-        <OptionsViewer />
+        {showOptions && <OptionsViewer />}
         <div className={mainStyle}>
           {viewedItemList.map((id: ItemId) => (
             <ItemViewer key={id} item={items[id]} parentId={null} path={''} />
