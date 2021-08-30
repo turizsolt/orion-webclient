@@ -16,7 +16,9 @@ import {
     headerFirstRowStyle,
     headerSecondRowStyle,
     hashtagListSecondRowStyle,
-    headerIdStyle
+    headerIdStyle,
+    headerDesktopOnlyButtonStyle,
+    headerMobileOnlyButtonStyle
 } from './ItemViewer.style';
 import { Hashtag } from '../../Hashtag';
 import { Filter } from '../../../model/Filter';
@@ -50,6 +52,11 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         (state: any) => state.appReducer
     );
 
+    const handleMobileCollapse = useCallback(() => {
+        handleCollapse();
+        handleChildrenCollapse();
+    }, [handleCollapse, handleChildrenCollapse]);
+
     // remove the hashtags that are alredy filtered
     const hashtagIds: ItemId[] = filters
         .filter((filter: Filter) => filter.hashtag)
@@ -63,13 +70,6 @@ export const ItemViewerHeader: React.FC<Props> = props => {
     const handleMakeDone = useCallback(
         () => {
             actions.changeItem(item.id, 'state', item.originalFields.state && item.originalFields.state.value, 'done');
-        },
-        [item, actions]
-    );
-
-    const handleShallowCopy = useCallback(
-        () => {
-            actions.shallowCopy(item.id);
         },
         [item, actions]
     );
@@ -114,20 +114,20 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                 <div className={headerIdStyle}>
                     <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
                 </div>
-                <button className={headerButtonStyle} onClick={handleNewOpen}>
+                <button className={headerDesktopOnlyButtonStyle} onClick={handleNewOpen}>
                     {'+'}
                 </button>
-                <button className={headerButtonStyle} onClick={handleCollapse}>
+                <button className={headerDesktopOnlyButtonStyle} onClick={handleCollapse}>
                     {collapsed ? 'V' : 'A'}
                 </button>
-                <button className={headerButtonStyle} onClick={handleChildrenCollapse}>
+                <button className={headerDesktopOnlyButtonStyle} onClick={handleChildrenCollapse}>
+                    {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
+                </button>
+                <button className={headerMobileOnlyButtonStyle} onClick={handleMobileCollapse}>
                     {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
                 </button>
                 <button className={headerButtonStyle} onClick={handleMakeDone}>
-                    Done
-                </button>
-                <button className={headerButtonStyle} onClick={handleShallowCopy}>
-                    SCopy
+                    ✓
                 </button>
             </div>
             <div className={headerSecondRowStyle}>

@@ -55,6 +55,34 @@ export const headerButtonStyle = style({
   marginLeft: '5px'
 });
 
+export const headerDesktopOnlyButtonStyle = style(
+  media(
+    { minWidth: 0, maxWidth: 899 },
+    { display: 'none' }
+  ),
+  media(
+    { minWidth: 900 },
+    {
+      display: 'block',
+      marginLeft: '5px'
+    }
+  )
+);
+
+export const headerMobileOnlyButtonStyle = style(
+  media(
+    { minWidth: 0, maxWidth: 899 },
+    {
+      display: 'block',
+      marginLeft: '5px'
+    }
+  ),
+  media(
+    { minWidth: 900 },
+    { display: 'none' }
+  )
+);
+
 export const hashtagStyle = style({
   padding: '5px',
   borderRadius: '5px',

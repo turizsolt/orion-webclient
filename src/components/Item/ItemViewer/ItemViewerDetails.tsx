@@ -127,6 +127,13 @@ export const ItemViewerDetails: React.FC<Props> = props => {
     [item, actions]
   );
 
+  const handleShallowCopy = useCallback(
+    () => {
+      actions.shallowCopy(item.id);
+    },
+    [item, actions]
+  );
+
   return (
     <div className={propsStyle}>
       {item.fields.map(field => (
@@ -189,6 +196,9 @@ export const ItemViewerDetails: React.FC<Props> = props => {
       <button onClick={handleAddTemplate}>+ Add template</button>
       <button onClick={handleDetachFromParent(item.id)}>
         - Detach first parent
+      </button>
+      <button onClick={handleShallowCopy}>
+        SCopy
       </button>
     </div>
   );
