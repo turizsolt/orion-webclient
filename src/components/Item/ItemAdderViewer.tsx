@@ -8,9 +8,9 @@ import { StateDot } from './StateDot';
 import { Updateness } from '../../model/Updateness';
 import { useSelector } from 'react-redux';
 import { fillInPrioritiesOfAParent } from '../../ReduxStore/commons';
+import { Filter } from '../../model/Filter';
 interface Props {
   parentId: ItemId | undefined;
-  hashtagId: ItemId | undefined;
   onClose: () => void;
 }
 
@@ -52,10 +52,10 @@ const fieldStyle = style({
 });
 
 export const ItemAdderViewer: React.FC<Props> = props => {
-  const { onClose, parentId, hashtagId } = props;
+  const { onClose, parentId } = props;
   const actions: Actions = useContext(ActionsContext);
 
-  const { items, itemsMeta, viewedItemList } = useSelector(
+  const { items, itemsMeta, viewedItemList, filters } = useSelector(
     (state: any) => state.appReducer
   );
 
@@ -76,11 +76,14 @@ export const ItemAdderViewer: React.FC<Props> = props => {
       if (parentId) {
         actions.addRelation(parentId, RelationType.Child, childrenId);
       }
-      if (hashtagId) {
+      const hashtagIds = filters
+        .filter((filter: Filter) => filter.hashtag)
+        .map((filter: Filter) => filter.hashtag && filter.hashtag.id);
+      for (let hashtagId of hashtagIds) {
         actions.addRelation(hashtagId, RelationType.HashOf, childrenId);
       }
     },
-    [actions, parentId, items, itemsMeta, viewedItemList, hashtagId]
+    [actions, parentId, items, itemsMeta, viewedItemList, filters]
   );
 
   const handleKeyDown = useCallback(

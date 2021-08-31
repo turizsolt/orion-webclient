@@ -57,6 +57,7 @@ export const OptionsViewer: React.FC = () => {
 
   return (
     <div className={sideStyle}>
+      <button onClick={() => localStorage.clear()}>Clear localstorage</button>
       <div>Search</div>
       <div>
         <input type="text" defaultValue={search} onKeyUp={handleSearch} />
@@ -80,12 +81,14 @@ export const OptionsViewer: React.FC = () => {
       <div>
         {filters.map(filter => (
           <div key={filter.id}>
-            <input
-              type="checkbox"
-              checked={filter.on}
-              onChange={handleToggleFilter(filter.id)}
-            />
-            {filter.name}
+            {!filter.hashtag && <>
+              <input
+                type="checkbox"
+                checked={filter.on}
+                onChange={handleToggleFilter(filter.id)}
+              />
+              {filter.name}
+            </>}
           </div>
         ))}
       </div>
