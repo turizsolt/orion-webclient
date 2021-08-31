@@ -18,7 +18,7 @@ import {
   hashtagContainerStyle,
   hashtagLabelStyle,
   hashtagRowStyle,
-  hashtagListStyle,
+  hashtagDetailedListStyle,
 } from './ItemViewer.style';
 import { useSelector } from 'react-redux';
 import {
@@ -127,6 +127,13 @@ export const ItemViewerDetails: React.FC<Props> = props => {
     [item, actions]
   );
 
+  const handleShallowCopy = useCallback(
+    () => {
+      actions.shallowCopy(item.id);
+    },
+    [item, actions]
+  );
+
   return (
     <div className={propsStyle}>
       {item.fields.map(field => (
@@ -142,7 +149,7 @@ export const ItemViewerDetails: React.FC<Props> = props => {
       <div className={hashtagContainerStyle}>
         <div className={hashtagRowStyle}>
           <div className={hashtagLabelStyle}>hashtags:</div>
-          <div className={hashtagListStyle}>
+          <div className={hashtagDetailedListStyle}>
             {item.hashtags.map(x => (
               <Hashtag hashtag={x} removeHashtag={handleRemoveHashtag(x.id)} key={x.id} />
             ))}
@@ -189,6 +196,9 @@ export const ItemViewerDetails: React.FC<Props> = props => {
       <button onClick={handleAddTemplate}>+ Add template</button>
       <button onClick={handleDetachFromParent(item.id)}>
         - Detach first parent
+      </button>
+      <button onClick={handleShallowCopy}>
+        SCopy
       </button>
     </div>
   );

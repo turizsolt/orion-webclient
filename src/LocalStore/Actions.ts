@@ -18,8 +18,10 @@ import {
     draggedItem,
     toggleFilter,
     search,
-    order
+    order,
+    toggleHashtagFilter
 } from '../ReduxStore/actions';
+import { HashtagInfo } from '../model/Item/ViewItem';
 
 const idGen = new ActualIdGenerator();
 
@@ -85,6 +87,10 @@ export class Actions {
 
     order(props: { attribute?: string; asc?: boolean }) {
         this.dispatcher.dispatch(order(props));
+    }
+
+    toggleHashtagFilter(hashtag: HashtagInfo) {
+        this.dispatcher.dispatch(toggleHashtagFilter(hashtag));
     }
 
     createItem(field: FieldName, newValue: any): ItemId {

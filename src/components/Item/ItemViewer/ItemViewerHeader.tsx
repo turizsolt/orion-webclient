@@ -1,5 +1,5 @@
 import React, { useContext, useRef, RefObject, useCallback } from 'react';
-import { ViewItem } from '../../../model/Item/ViewItem';
+import { HashtagInfo, ViewItem } from '../../../model/Item/ViewItem';
 import { ActionsContext } from '../../../App';
 import { Actions } from '../../../LocalStore/Actions';
 import { ItemId } from '../../../model/Item/ItemId';
@@ -15,9 +15,13 @@ import {
     responsibleCircleStyle,
     headerFirstRowStyle,
     headerSecondRowStyle,
-    hashtagListSecondRowStyle
+    hashtagListSecondRowStyle,
+    headerIdStyle,
+    headerDesktopOnlyButtonStyle,
+    headerMobileOnlyButtonStyle
 } from './ItemViewer.style';
 import { Hashtag } from '../../Hashtag';
+import { Filter } from '../../../model/Filter';
 
 export interface Props {
     item: ViewItem;
@@ -44,9 +48,21 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         handleCollapse,
         handleChildrenCollapse
     } = props;
-    const { itemsMeta, hover, draggedId } = useSelector(
+    const { itemsMeta, hover, draggedId, filters } = useSelector(
         (state: any) => state.appReducer
     );
+
+    const handleMobileCollapse = useCallback(() => {
+        handleCollapse();
+        handleChildrenCollapse();
+    }, [handleCollapse, handleChildrenCollapse]);
+
+    // remove the hashtags that are alredy filtered
+    const hashtagIds: ItemId[] = filters
+        .filter((filter: Filter) => filter.hashtag)
+        .map((filter: Filter) => filter.hashtag && filter.hashtag.id);
+    const shownHashtags = item.hashtags.filter((h: HashtagInfo) => !hashtagIds.includes(h.id));
+
     const actions: Actions = useContext(ActionsContext);
 
     const [drag, drop] = useItemDnD(props, actions, childrenCollapsed);
@@ -54,13 +70,6 @@ export const ItemViewerHeader: React.FC<Props> = props => {
     const handleMakeDone = useCallback(
         () => {
             actions.changeItem(item.id, 'state', item.originalFields.state && item.originalFields.state.value, 'done');
-        },
-        [item, actions]
-    );
-
-    const handleShallowCopy = useCallback(
-        () => {
-            actions.shallowCopy(item.id);
         },
         [item, actions]
     );
@@ -81,7 +90,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
             <div className={headerFirstRowStyle}>
                 <StateDot symbol={item.updateness} />
 
-                <div ref={dragRef} style={{ marginLeft: '5px', marginRight: '5px' }}>
+                <div ref={dragRef} style={{ marginRight: '5px' }}>
                     ☰
                 </div>
 
@@ -91,7 +100,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                     params={{ noLabel: true }}
                 />
                 <div className={hashtagListStyle}>
-                    {item.hashtags.map(x => (
+                    {shownHashtags.map(x => (
                         <Hashtag hashtag={x} key={x.id} />
                     ))}
                 </div>
@@ -102,28 +111,28 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                         </div>
                     ))}
                 </div>
-                <div>
+                <div className={headerIdStyle}>
                     <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
                 </div>
-                <button className={headerButtonStyle} onClick={handleNewOpen}>
+                <button className={headerDesktopOnlyButtonStyle} onClick={handleNewOpen}>
                     {'+'}
                 </button>
-                <button className={headerButtonStyle} onClick={handleCollapse}>
+                <button className={headerDesktopOnlyButtonStyle} onClick={handleCollapse}>
                     {collapsed ? 'V' : 'A'}
                 </button>
-                <button className={headerButtonStyle} onClick={handleChildrenCollapse}>
+                <button className={headerDesktopOnlyButtonStyle} onClick={handleChildrenCollapse}>
+                    {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
+                </button>
+                <button className={headerMobileOnlyButtonStyle} onClick={handleMobileCollapse}>
                     {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
                 </button>
                 <button className={headerButtonStyle} onClick={handleMakeDone}>
-                    Done
-                </button>
-                <button className={headerButtonStyle} onClick={handleShallowCopy}>
-                    SCopy
+                    ✓
                 </button>
             </div>
             <div className={headerSecondRowStyle}>
                 <div className={hashtagListSecondRowStyle}>
-                    {item.hashtags.map(x => (
+                    {shownHashtags.map(x => (
                         <Hashtag hashtag={x} key={x.id} />
                     ))}
                 </div>

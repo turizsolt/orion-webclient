@@ -55,6 +55,34 @@ export const headerButtonStyle = style({
   marginLeft: '5px'
 });
 
+export const headerDesktopOnlyButtonStyle = style(
+  media(
+    { minWidth: 0, maxWidth: 899 },
+    { display: 'none' }
+  ),
+  media(
+    { minWidth: 900 },
+    {
+      display: 'block',
+      marginLeft: '5px'
+    }
+  )
+);
+
+export const headerMobileOnlyButtonStyle = style(
+  media(
+    { minWidth: 0, maxWidth: 899 },
+    {
+      display: 'block',
+      marginLeft: '5px'
+    }
+  ),
+  media(
+    { minWidth: 900 },
+    { display: 'none' }
+  )
+);
+
 export const hashtagStyle = style({
   padding: '5px',
   borderRadius: '5px',
@@ -69,8 +97,11 @@ export const hashtagWidthStyle = style({
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
   display: 'inline-block',
-  verticalAlign: 'middle'
-});
+  verticalAlign: 'middle',
+  '&:hover': {
+    cursor: 'pointer'
+  }
+} as any);
 
 export const hashtagRowStyle = style({
   fontSize: '16px',
@@ -103,6 +134,26 @@ export const hashtagListStyle = style(
   )
 );
 
+export const hashtagDetailedListStyle = style(
+  {
+    display: 'flex',
+    flexWrap: 'wrap'
+  }
+);
+
+export const headerIdStyle = style(
+  media(
+    { minWidth: 0, maxWidth: 899 },
+    { display: 'none' }
+  ),
+  media(
+    { minWidth: 900 },
+    {
+      display: 'block'
+    }
+  )
+);
+
 export const hashtagListSecondRowStyle = style({
   display: 'flex',
   flexWrap: 'wrap',
@@ -123,4 +174,4 @@ export const responsibleCircleStyle = style({
 
 export const linkStyle = style({ textDecoration: 'none', color: 'inherit' });
 
-export const hashtagRibbonStyle = style({display:'flex', flexWrap: 'wrap'});
+export const hashtagRibbonStyle = style({ display: 'flex', flexWrap: 'wrap' });
