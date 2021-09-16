@@ -85,7 +85,7 @@ export const RootItemViewer: React.FC = () => {
         <div>
             <div>
                 {showAllHashtags && <>
-                    <div>
+                    <div className={hashtagRibbonStyle}>
                         {hashtagItemIds
                             .map(id =>
                                 <Hashtag hashtag={idToHashtagInfo(id)} key={id} />
