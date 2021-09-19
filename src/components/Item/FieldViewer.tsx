@@ -29,7 +29,7 @@ export interface FieldProps extends Props {
 const inner = {
     fontSize: '16px',
     alignItems: 'center',
-    width: '100%'
+    width: '90%'
 };
 
 const fieldStyle = style({
