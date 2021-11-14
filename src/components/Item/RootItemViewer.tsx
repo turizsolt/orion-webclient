@@ -9,6 +9,7 @@ import { HashtagInfo } from '../../model/Item/ViewItem';
 import { Hashtag } from '../Hashtag';
 import { hashtagRibbonStyle } from './ItemViewer/ItemViewer.style';
 import { Filter } from '../../model/Filter';
+import { ConnectionChecker } from './ConnectionChecker';
 
 const containerStyle = style(
     media(
@@ -83,6 +84,7 @@ export const RootItemViewer: React.FC = () => {
 
     return (
         <div>
+            <ConnectionChecker />  
             <div>
                 {showAllHashtags && <>
                     <div className={hashtagRibbonStyle}>
