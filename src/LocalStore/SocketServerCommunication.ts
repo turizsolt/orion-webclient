@@ -1,4 +1,6 @@
-export class SocketServerCommunication {
+import { ServerCommunication } from "./ServerCommunication";
+
+export class SocketServerCommunication implements ServerCommunication {
   constructor(private socket: any) {}
 
   emit(messageType: string, message: any): void {

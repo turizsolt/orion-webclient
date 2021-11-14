@@ -40,6 +40,11 @@ export class Actions {
         return this.store;
     }
 
+    ping(): void {
+        this.store.ping();
+        this.store.updateAlive();
+    }
+
     changeItem(
         itemId: ItemId,
         field: FieldName,

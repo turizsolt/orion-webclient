@@ -6,7 +6,8 @@ import {
   updateItem,
   createItemList,
   addToItems,
-  updateChange
+  updateChange,
+  updateAlive
 } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 import { FieldTypeOf } from '../model/Item/FieldTypeOf';
@@ -65,6 +66,14 @@ export class Store {
     }
     // todo ez itt csinál bármit is?
     this.dispatcher.dispatch(createItemList(this.itemList));
+  }
+
+  ping(): void {
+      this.serverCommunication.emit('stillalive', undefined);
+  }
+
+  updateAlive(time?: number) : void {
+      this.dispatcher.dispatch(updateAlive({time}));
   }
 
   loadItemIfNotPresentWithDispatch(id: ItemId) {

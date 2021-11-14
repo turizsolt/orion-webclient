@@ -12,4 +12,8 @@ export const initServerSocket = (store: Store) => {
     const transaction = new Transaction(data.transactionId, data.changes);
     store.commit(transaction, true);
   });
+
+  socket.on('stillalive', (data: any) => {
+    store.updateAlive(data.time);
+  });
 };

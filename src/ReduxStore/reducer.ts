@@ -12,7 +12,8 @@ import {
   toggleFilter,
   search,
   order,
-  toggleHashtagFilter
+  toggleHashtagFilter,
+  updateAlive
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
@@ -34,6 +35,7 @@ export interface State {
   search: string;
   order: { attribute?: string; asc?: boolean };
   version: number;
+  lastAlive: number;
 }
 
 const initialState = {
@@ -96,6 +98,7 @@ const initialState = {
   ],
   search: '',
   order: { attribute: 'priority', asc: true },
+  lastAlive: 0,
   version: 0
 };
 
@@ -103,6 +106,13 @@ export const appReducer = (
   state: State = initialState,
   action: AnyAction
 ): State => {
+  if (isType(action, updateAlive)) {
+    return {
+        ...state,
+        lastAlive: action.payload.time || state.lastAlive 
+    };
+  }
+
   if (isType(action, order)) {
     return {
       ...state,
