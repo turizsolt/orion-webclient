@@ -7,7 +7,9 @@ import {
   createItemList,
   addToItems,
   updateChange,
-  updateAlive
+  updateAlive,
+  updateChanges,
+  updateItems
 } from '../ReduxStore/actions';
 import { RelationType, oppositeOf } from '../model/Relation/RelationType';
 import { FieldTypeOf } from '../model/Item/FieldTypeOf';
@@ -39,11 +41,12 @@ export class Store {
       JSON.parse(this.localStorage.getItem('list-change') || '[]') || [];
     this.changeList = listOfChanges;
     const changesToSend: Change[] = [];
+    const idsToChange: ChangeId[] = [];
     for (const changeId of listOfChanges) {
       const value = this.localStorage.getItem(`change-${changeId}`);
       if (value) {
         this.changes[changeId] = JSON.parse(value);
-        this.updateChange(changeId);
+        idsToChange.push(changeId);
         if (this.changes[changeId].response === ChangeResponse.Pending) {
           changesToSend.push(this.changes[changeId]);
         }
@@ -52,7 +55,9 @@ export class Store {
     if (changesToSend.length) {
       this.commit(new Transaction(undefined, changesToSend));
     }
+    this.updateChanges(idsToChange);
 
+    const idsToUpdate: ItemId[] = [];
     for (let key of this.localStorage.getKeys()) {
       if (!key.startsWith('item-')) continue;
 
@@ -60,10 +65,12 @@ export class Store {
       const id = key.substr(5); // "item-${id}"
       if (value) {
         this.items[id] = StoredItem.deserialise(value);
-        this.updateItem(id);
+        idsToUpdate.push(id);
         this.itemList.push(id);
       }
     }
+    this.updateItems(idsToUpdate);
+
     // todo ez itt csinál bármit is?
     this.dispatcher.dispatch(createItemList(this.itemList));
   }
@@ -188,6 +195,17 @@ export class Store {
     }
   }
 
+  updateItems(ids: ItemId[]) {
+    const viewItems = ids.map(id => this.getView(id));
+    this.dispatcher.dispatch(updateItems(viewItems));
+    ids.forEach(id => {
+      this.localStorage.setItem(`item-${id}`, this.items[id].serialise());
+      if (this.items[id].getUpdateness() === Updateness.JustUpdated) {
+        this.updateItemSoon(id);
+      }
+    });
+  }
+
   updateChange(changeId: ChangeId) {
     const viewChange: ViewChange = this.getChange(changeId);
     this.dispatcher.dispatch(updateChange(viewChange));
@@ -195,6 +213,19 @@ export class Store {
       `change-${changeId}`,
       JSON.stringify(this.changes[changeId])
     );
+  }
+
+  updateChanges(changeIds: ChangeId[]) {
+    const viewChanges: ViewChange[] = changeIds.map(changeId => this.getChange(changeId));
+
+    this.dispatcher.dispatch(updateChanges(viewChanges));
+
+    changeIds.forEach((changeId: ChangeId) => {
+        this.localStorage.setItem(
+            `change-${changeId}`,
+            JSON.stringify(this.changes[changeId])
+        );
+    });
   }
 
   getView(id: ItemId): ViewItem {
@@ -462,10 +493,19 @@ export class Store {
       this.serverCommunication.emit('transaction', transaction.serialise());
     }
 
-    affectedItems.forEach((itemId: ItemId) => this.updateItem(itemId));
-    affectedChanges.forEach((changeId: ChangeId) =>
-      this.updateChange(changeId)
+    const affectedItemsList:ItemId[] = [];
+    affectedItems.forEach((itemId: ItemId) =>
+      affectedItemsList.push(itemId)
     );
+
+    this.updateItems(affectedItemsList);
+    
+    const affectedChangesList:ChangeId[] = [];
+    affectedChanges.forEach((changeId: ChangeId) =>
+      affectedChangesList.push(changeId)
+    );
+
+    this.updateChanges(affectedChangesList);
 
     this.localStorage.setItem('list-change', JSON.stringify(this.changeList));
   }

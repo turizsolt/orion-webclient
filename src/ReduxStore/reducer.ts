@@ -13,7 +13,9 @@ import {
   search,
   order,
   toggleHashtagFilter,
-  updateAlive
+  updateAlive,
+  updateChanges,
+  updateItems
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
@@ -232,6 +234,45 @@ export const appReducer = (
     };
   }
 
+  if (isType(action, updateItems)) {
+    let itemsMeta = state.itemsMeta;
+    let viewedItemList = state.viewedItemList;
+    let items = state.items;
+
+    action.payload.forEach(x => {
+      items[x.id] = x;
+
+      itemsMeta = {
+        ...itemsMeta,
+        [x.id]: {
+            viewedChildren: filterAndOrder(x.children, state)
+        }
+      };
+      for (let parent of x.parents) {
+        itemsMeta = {
+            ...itemsMeta,
+            [parent]: {
+            viewedChildren: filterAndOrder(
+                itemsMeta[parent] ? itemsMeta[parent].viewedChildren : [],
+                state
+            )
+          }
+        };
+      }
+      if (x.parents.length === 0) {
+        viewedItemList = filterAndOrderRoot(state.itemList, state);
+      }
+    });
+
+    return {
+      ...state,
+      items,
+      itemsMeta,
+      viewedItemList,
+      version: state.version + 1
+    };
+  }
+
   if (isType(action, updateChange)) {
     return {
       ...state,
@@ -240,6 +281,23 @@ export const appReducer = (
         [action.payload.changeId]: action.payload
       },
       changeList: pushIfUnique(state.changeList, action.payload.changeId),
+      version: state.version + 1
+    };
+  }
+
+  if (isType(action, updateChanges)) {
+    const changes = state.changes;
+    let changeList = state.changeList;
+
+    action.payload.forEach(x => {
+        changes[x.changeId] = x;
+        changeList = pushIfUnique(state.changeList, x.changeId)
+    });
+
+    return {
+      ...state,
+      changes,
+      changeList,
       version: state.version + 1
     };
   }

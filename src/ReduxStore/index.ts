@@ -9,7 +9,7 @@ export type RootState = ReturnType<typeof rootReducer>;
 export const sagaMiddleware = createSagaMiddleware();
 
 declare var window: any;
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const composeEnhancers = /* window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || */ compose;
 export const twoStore = createStore(
   rootReducer,
   composeEnhancers(applyMiddleware(sagaMiddleware))
