@@ -7,7 +7,9 @@ import { ViewChange } from '../model/Change/ViewChange';
 const actionCreator = actionCreatorFactory();
 
 export const updateItem = actionCreator<ViewItem>('UPDATE_ITEM');
+export const updateItems = actionCreator<ViewItem[]>('UPDATE_ITEMS');
 export const updateChange = actionCreator<ViewChange>('UPDATE_CHANGE');
+export const updateChanges = actionCreator<ViewChange[]>('UPDATE_CHANGES');
 export const addToItems = actionCreator<ItemId>('ADD_TO_ITEMS');
 export const addToChanges = actionCreator<ItemId>('ADD_TO_CHANGES');
 export const createItemList = actionCreator<ItemId[]>('CREATE_ITEM_LIST');
