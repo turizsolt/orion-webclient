@@ -29,6 +29,6 @@ export const order = actionCreator<{ attribute?: string; asc?: boolean }>(
 export const toggleHashtagFilter = actionCreator<HashtagInfo>(
   'TOGGLE_HASHTAG_FILTER'
 );
-export const updateAlive = actionCreator<{time?: number}>(
+export const updateAlive = actionCreator<{time?: number, message?: string}>(
   'UPDATE_ALIVE'
 );    

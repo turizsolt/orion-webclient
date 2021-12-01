@@ -10,4 +10,16 @@ export class SocketServerCommunication implements ServerCommunication {
   on(messageType: string, callback: (message: any) => void): void {
     this.socket.on(messageType, callback);
   }
+
+  open(): void {
+    if(this.socket.connected) {
+        this.socket.close();
+    } else {
+        this.socket.open();
+    }
+  }
+
+  connected(): boolean {
+      return this.socket.connected;
+  }
 }

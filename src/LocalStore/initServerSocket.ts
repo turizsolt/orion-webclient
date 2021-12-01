@@ -16,4 +16,16 @@ export const initServerSocket = (store: Store) => {
   socket.on('stillalive', (data: any) => {
     store.updateAlive(data.time);
   });
+
+  socket.on('connect', () => {
+    store.updateAlive((new Date()).getTime(), 'connected');
+  });
+
+  socket.on('disconnect', () => {
+    store.updateAlive((new Date()).getTime(), 'disconnected');
+  });
+
+  socket.on('reconnect', () => {
+    store.updateAlive((new Date()).getTime(), 'reconnected');
+  });
 };

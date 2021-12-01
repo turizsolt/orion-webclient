@@ -37,7 +37,7 @@ export interface State {
   search: string;
   order: { attribute?: string; asc?: boolean };
   version: number;
-  lastAlive: number;
+  lastAlive: {time: number, message: string}[];
 }
 
 const initialState = {
@@ -100,7 +100,7 @@ const initialState = {
   ],
   search: '',
   order: { attribute: 'priority', asc: true },
-  lastAlive: 0,
+  lastAlive: [],
   version: 0
 };
 
@@ -111,7 +111,13 @@ export const appReducer = (
   if (isType(action, updateAlive)) {
     return {
         ...state,
-        lastAlive: action.payload.time || state.lastAlive 
+        lastAlive: [
+            {
+                time: action.payload.time || 0, 
+                message: action.payload.message || 'pong'
+            },
+            ...state.lastAlive
+        ]
     };
   }
 

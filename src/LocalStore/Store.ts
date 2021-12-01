@@ -79,8 +79,8 @@ export class Store {
       this.serverCommunication.emit('stillalive', undefined);
   }
 
-  updateAlive(time?: number) : void {
-      this.dispatcher.dispatch(updateAlive({time}));
+  updateAlive(time?: number, message?: string) : void {
+      this.dispatcher.dispatch(updateAlive({time, message}));
   }
 
   loadItemIfNotPresentWithDispatch(id: ItemId) {

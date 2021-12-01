@@ -30,7 +30,7 @@ export class Actions {
     constructor(
         private dispatcher: Dispatcher,
         localStorage: LocalStorage,
-        serverCommunication: ServerCommunication
+        private serverCommunication: ServerCommunication
     ) {
         this.store = new Store(dispatcher, localStorage, serverCommunication);
         initServerSocket(this.store);
@@ -42,7 +42,11 @@ export class Actions {
 
     ping(): void {
         this.store.ping();
-        this.store.updateAlive();
+        this.store.updateAlive((new Date()).getTime(), 'ping '+this.serverCommunication.connected().toString());
+    }
+
+    reconnect(): void {
+        this.serverCommunication.open();
     }
 
     changeItem(
