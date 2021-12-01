@@ -6,7 +6,7 @@ let sock;
 try {
   sock = openSocket(window.socketIoUrl);
 } catch {
-  sock = { on: () => {}, emit: () => {} };
+  sock = { on: () => {}, emit: () => {}, open: () => {}, connected: false };
 }
 
 export const socket = sock;
