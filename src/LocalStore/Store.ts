@@ -115,8 +115,9 @@ export class Store {
     relation: RelationType,
     otherSideId: ItemId
   ) {
-    this.items[oneSideId].addRelation(relation, otherSideId);
-    this.items[otherSideId].addRelation(oppositeOf(relation), oneSideId);
+    // todo itt hasal el
+    this.items[oneSideId] && this.items[oneSideId].addRelation(relation, otherSideId);
+    this.items[otherSideId] && this.items[otherSideId].addRelation(oppositeOf(relation), oneSideId);
   }
 
   addRelationAccepted(
@@ -124,8 +125,8 @@ export class Store {
     relation: RelationType,
     otherSideId: ItemId
   ) {
-    this.items[oneSideId].addRelationAccepted(relation, otherSideId);
-    this.items[otherSideId].addRelationAccepted(
+    this.items[oneSideId] && this.items[oneSideId].addRelationAccepted(relation, otherSideId);
+    this.items[otherSideId] && this.items[otherSideId].addRelationAccepted(
       oppositeOf(relation),
       oneSideId
     );
@@ -153,8 +154,8 @@ export class Store {
     relation: RelationType,
     otherSideId: ItemId
   ) {
-    this.items[oneSideId].removeRelation(relation, otherSideId);
-    this.items[otherSideId].removeRelation(oppositeOf(relation), oneSideId);
+    this.items[oneSideId] && this.items[oneSideId].removeRelation(relation, otherSideId);
+    this.items[otherSideId] && this.items[otherSideId].removeRelation(oppositeOf(relation), oneSideId);
   }
 
   removeRelationAccepted(
@@ -162,8 +163,8 @@ export class Store {
     relation: RelationType,
     otherSideId: ItemId
   ) {
-    this.items[oneSideId].removeRelationAccepted(relation, otherSideId);
-    this.items[otherSideId].removeRelationAccepted(
+    this.items[oneSideId] && this.items[oneSideId].removeRelationAccepted(relation, otherSideId);
+    this.items[otherSideId] && this.items[otherSideId].removeRelationAccepted(
       oppositeOf(relation),
       oneSideId
     );
