@@ -11,12 +11,27 @@ export class SocketServerCommunication implements ServerCommunication {
     this.socket.on(messageType, callback);
   }
 
-  open(): void {
+  toggleOpen(): void {
     if(this.socket.connected) {
         this.socket.close();
     } else {
         this.socket.open();
     }
+  }
+
+  open(): void {
+    this.socket.open();  
+  }
+
+  close(): void {
+    this.socket.close();
+  }
+
+  reopen(): void {
+    if(this.socket.connected) {
+        this.socket.close();
+    }
+    this.socket.open();
   }
 
   connected(): boolean {

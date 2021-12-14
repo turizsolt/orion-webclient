@@ -29,11 +29,11 @@ export class Actions {
     private store: Store;
     constructor(
         private dispatcher: Dispatcher,
-        localStorage: LocalStorage,
+        private localStorage: LocalStorage,
         private serverCommunication: ServerCommunication
     ) {
         this.store = new Store(dispatcher, localStorage, serverCommunication);
-        initServerSocket(this.store);
+        initServerSocket(this.store, this.localStorage);
     }
 
     getStore(): Store {
@@ -46,7 +46,35 @@ export class Actions {
     }
 
     reconnect(): void {
-        this.serverCommunication.open();
+        this.serverCommunication.toggleOpen();
+    }
+
+    login(username: string, password: string): void {
+        (async () => {
+            const rawResponse = await fetch((window as any).loginUrl+'login', {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({username, password})
+            });
+            const content = await rawResponse.json();
+          
+            if(content.token) {
+                this.setToken(content.token);
+            }   
+          })();
+    }
+
+    setToken(token: string): void {
+        this.localStorage.setItem('loginToken', token);
+        this.serverCommunication.reopen();
+    }
+
+    logout(): void {
+        this.localStorage.setItem('loginToken', null);
+        this.serverCommunication.close();
     }
 
     changeItem(
