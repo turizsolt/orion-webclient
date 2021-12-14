@@ -60,7 +60,7 @@ export const ConnectionChecker: React.FC = () => {
 
     const handleLogout = useCallback(() => {
         actions.logout();
-    }, []);
+    }, [actions]);
 
     return (
         <div className={checkerStyle} style={{backgroundColor: 'green'}}>
