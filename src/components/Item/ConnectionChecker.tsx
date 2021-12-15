@@ -56,6 +56,8 @@ export const ConnectionChecker: React.FC = () => {
 
     const handleLogin = useCallback(() => {
         actions.login(username, password);
+        setUsername('');
+        setPassword('');
     }, [username, password, actions]);
 
     const handleLogout = useCallback(() => {
