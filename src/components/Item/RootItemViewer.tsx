@@ -84,7 +84,7 @@ export const RootItemViewer: React.FC = () => {
 
     return (
         <div>
-            <div><i>Version 2021.12.15.1</i></div>
+            <div><i>Version 2021.12.15.2</i></div>
             <ConnectionChecker />  
             <div>
                 {showAllHashtags && <>
