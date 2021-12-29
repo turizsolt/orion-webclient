@@ -19,42 +19,48 @@ const sideStyle = style({
   marginBottom: '10px'
 });
 
-export const OptionsViewer: React.FC = () => {
+export interface OptionViewerProps {
+    panelId: number;
+}
+
+export const OptionsViewer: React.FC<OptionViewerProps> = (props) => {
   const { panelList } = useSelector(
     (state: RootState) => state.appReducer
   );
 
-  const { filters, search, order } = panelList[0];
+  const { panelId } = props;
+
+  const { filters, search, order } = panelList[panelId];
 
   const actions: Actions = useContext(ActionsContext);
 
   const handleToggleFilter = useCallback(
     (filterId: string) => () => {
-      actions.toggleFilter(filterId);
+      actions.toggleFilter(panelId, filterId);
     },
-    [actions]
+    [panelId, actions]
   );
 
   const handleSearch = useCallback(
     (event: KeyboardEvent<HTMLInputElement>) => {
       const searchString = event.currentTarget.value;
-      actions.search(searchString);
+      actions.search(panelId, searchString);
     },
-    [actions]
+    [panelId, actions]
   );
 
   const handleOrder = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
-      actions.order({ attribute: event.currentTarget.value });
+      actions.order(panelId, { attribute: event.currentTarget.value });
     },
-    [actions]
+    [panelId, actions]
   );
 
   const handleOrderAsc = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
-      actions.order({ asc: event.currentTarget.value === 'asc' });
+      actions.order(panelId, { asc: event.currentTarget.value === 'asc' });
     },
-    [actions]
+    [panelId, actions]
   );
 
   return (

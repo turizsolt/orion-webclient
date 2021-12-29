@@ -11,14 +11,13 @@ export class PanelList {
             order: { ...panels[id].order, ...order }
         };
 
-        return {
-            ...panels,
-            [id]: {
-                ...newPanel,
-                itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
-                viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
-            }
-        }
+        panels[id] = {
+            ...newPanel,
+            itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
+            viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
+        };
+        
+        return panels;
     };
 
     static setSearch(state: State, panels: Panel[], id: number, search: string):Panel[] {
@@ -27,13 +26,12 @@ export class PanelList {
             search
         };
 
-        return {
-            ...panels,
-            [id]: {
-                ...newPanel,
-                viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),  
-            }
+        panels[id] = {
+            ...newPanel,
+            viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
         };
+        
+        return panels;
     }
 
     static setFilters(state: State, panels: Panel[], id: number, filters: Filter[] ):Panel[] {
@@ -42,14 +40,13 @@ export class PanelList {
             filters
         };
 
-        return {
-            ...panels,
-            [id]: {
-                ...newPanel,
-                itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
-                viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
-            }
+        panels[id] = {
+            ...newPanel,
+            itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
+            viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
         };
+        
+        return panels;
     }
 
     static toggleFilter(state: State, panels: Panel[], id: number, filterName: string ):Panel[] {
@@ -63,14 +60,13 @@ export class PanelList {
             filters
         };
 
-        return {
-            ...panels,
-            [id]: {
-                ...newPanel,
-                itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
-                viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
-            }
+        panels[id] = {
+            ...newPanel,
+            itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
+            viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
         };
+        
+        return panels;
     }
 
     static toggleHashtagFilter(state: State, panels: Panel[], id: number, hashtagInfo: HashtagInfo ):Panel[] {
@@ -95,14 +91,13 @@ export class PanelList {
             filters
         };
 
-        return {
-            ...panels,
-            [id]: {
-                ...newPanel,
-                itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
-                viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
-            }
+        panels[id] = {
+            ...newPanel,
+            itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
+            viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
         };
+        
+        return panels;
     }
 
     static updateViewedItemList(state: State, panels: Panel[]):Panel[] {

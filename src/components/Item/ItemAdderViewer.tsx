@@ -13,6 +13,7 @@ import { RootState } from '../../ReduxStore';
 interface Props {
   parentId: ItemId | undefined;
   onClose: () => void;
+  panelId: number;
 }
 
 const itemStyle = style({
@@ -53,14 +54,14 @@ const fieldStyle = style({
 });
 
 export const ItemAdderViewer: React.FC<Props> = props => {
-  const { onClose, parentId } = props;
+  const { onClose, parentId, panelId } = props;
   const actions: Actions = useContext(ActionsContext);
 
   const { items, panelList } = useSelector(
     (state: RootState) => state.appReducer
   );
 
-  const {itemsMeta, viewedItemList, filters} = panelList[0];
+  const {itemsMeta, viewedItemList, filters} = panelList[panelId];
 
   const [editValue, setEditValue] = useState('');
 

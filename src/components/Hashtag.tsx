@@ -10,19 +10,20 @@ import {
 
 interface Props {
   hashtag: HashtagInfo;
+  panelId: number;
   removeHashtag?: () => void;
 }
 
 export const Hashtag: React.FC<Props> = (props) => {
-  const { hashtag, removeHashtag } = props;
+  const { hashtag, removeHashtag, panelId } = props;
 
   const actions: Actions = useContext(ActionsContext);
 
   const handleClick = useCallback(
     () => {
-      actions.toggleHashtagFilter(hashtag);
+      actions.toggleHashtagFilter(panelId, hashtag);
     },
-    [actions, hashtag]
+    [actions, hashtag, panelId]
   );
 
   return (

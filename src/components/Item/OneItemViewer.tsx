@@ -17,7 +17,7 @@ export const OneItemViewer: React.FC = () => {
           {items[id].parents.length > 0 && (
             <Link to={`/${items[id].parents[0]}`}>to Parent</Link>
           )}
-          <ItemViewer item={items[id]} parentId={null} path={''} />
+          <ItemViewer item={items[id]} parentId={null} path={''} panelId={0} />
         </>
       )}
     </div>

@@ -50,6 +50,7 @@ export const SprintViewer: React.FC = () => {
                     item={items[id]}
                     parentId={null}
                     path={''}
+                    panelId={0}
                   />
                 ))}
             </div>

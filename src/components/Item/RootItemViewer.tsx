@@ -11,6 +11,7 @@ import { hashtagRibbonStyle } from './ItemViewer/ItemViewer.style';
 import { Filter } from '../../model/Filter';
 import { ConnectionChecker } from './ConnectionChecker';
 import { RootState } from '../../ReduxStore';
+import { Panel } from '../../ReduxStore/reducer';
 
 const containerStyle = style(
     media(
@@ -50,9 +51,8 @@ export const RootItemViewer: React.FC = () => {
     const { items, itemList, panelList } = useSelector(
         (state: RootState) => state.appReducer
     );
-    const {viewedItemList, filters} = panelList[0];
-
-    const [showChildrenAdder, setShowChildrenAdder] = useState(false);
+    
+    const [showChildrenAdder, setShowChildrenAdder] = useState(-1);
 
     const hashtagItemIds: ItemId[] = itemList.filter(
         (itemId: ItemId) =>
@@ -69,12 +69,12 @@ export const RootItemViewer: React.FC = () => {
         };
     };
 
-    const handleNew = useCallback(() => {
-        setShowChildrenAdder(true);
+    const handleNew = useCallback((panelId: number) => () => {
+        setShowChildrenAdder(panelId);
     }, []);
 
     const handleNewClose = useCallback(() => {
-        setShowChildrenAdder(false);
+        setShowChildrenAdder(-1);
     }, []);
 
     const [showOptions, setShowOptions] = useState(false);
@@ -82,46 +82,50 @@ export const RootItemViewer: React.FC = () => {
         setShowOptions(!showOptions);
     }, [showOptions]);
 
-    const showAllHashtags = !filters.some((filter: Filter) => filter.hashtag);
+    const showAllHashtags = (panel:Panel) => !panel.filters.some((filter: Filter) => filter.hashtag);
 
     return (
         <div>
             <div><i>Version 2021.12.15.2</i></div>
             <ConnectionChecker />  
-            <div>
-                {showAllHashtags && <>
-                    <div className={hashtagRibbonStyle}>
-                        {hashtagItemIds
-                            .map(id =>
-                                <Hashtag hashtag={idToHashtagInfo(id)} key={id} />
-                            )}
-                    </div>
-                    <hr />
-                </>}
-                <div className={hashtagRibbonStyle}>
-                    {filters.map((filter: Filter) => (
-                        <div key={filter.id}>
-                            {filter.hashtag && <div className={optionsHashOuter}>
-                                <Hashtag hashtag={filter.hashtag} />
-                            </div>}
+            <div style={{display:'flex'}}>
+                {panelList.map((panel:Panel, panelId: number) => <div key={panelId}>
+                    <div>
+                        {showAllHashtags(panel) && <>
+                            <div className={hashtagRibbonStyle}>
+                                {hashtagItemIds
+                                    .map(id =>
+                                        <Hashtag hashtag={idToHashtagInfo(id)} key={id} panelId={panelId} />
+                                    )}
+                            </div>
+                            <hr />
+                        </>}
+                        <div className={hashtagRibbonStyle}>
+                            {panel.filters.map((filter: Filter) => (
+                                <div key={filter.id}>
+                                    {filter.hashtag && <div className={optionsHashOuter}>
+                                        <Hashtag hashtag={filter.hashtag} panelId={panelId} />
+                                    </div>}
+                                </div>
+                            ))}
+                            <div className={showOptsStyle} onClick={handleToggleOptions}>Opts</div>
                         </div>
-                    ))}
-                    <div className={showOptsStyle} onClick={handleToggleOptions}>Opts</div>
-                </div>
-            </div>
-            <div className={containerStyle}>
-                {showOptions && <OptionsViewer />}
-                
-                <div className={mainStyle}>
-                    {viewedItemList.map((id: ItemId) => (
-                        <ItemViewer key={id} item={items[id]} parentId={null} path={''} />
-                    ))}
-                    {showChildrenAdder && (
-                        <ItemAdderViewer parentId={undefined} onClose={handleNewClose} />
-                    )}
-                    <button onClick={handleNew}>Add</button>
-                </div>
-             
+                    </div>
+                    <div className={containerStyle}>
+                        {showOptions && <OptionsViewer panelId={panelId} />}
+                        
+                        <div className={mainStyle}>
+                            {panel.viewedItemList.map((id: ItemId) => (
+                                <ItemViewer key={id} item={items[id]} parentId={null} path={''} panelId={panelId} />
+                            ))}
+                            {showChildrenAdder === panelId && (
+                                <ItemAdderViewer parentId={undefined} onClose={handleNewClose} panelId={panelId} />
+                            )}
+                            <button onClick={handleNew(panelId)}>Add</button>
+                        </div>
+                    
+                    </div>
+                </div>)}
             </div>
         </div>
     );

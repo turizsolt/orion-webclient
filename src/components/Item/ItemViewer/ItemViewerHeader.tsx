@@ -34,6 +34,7 @@ export interface Props {
     handleChildrenCollapse: () => void;
     collapsed: boolean;
     childrenCollapsed: boolean;
+    panelId: number;
 }
 
 export const ItemViewerHeader: React.FC<Props> = props => {
@@ -47,13 +48,14 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         collapsed,
         handleNewOpen,
         handleCollapse,
-        handleChildrenCollapse
+        handleChildrenCollapse,
+        panelId
     } = props;
     const { panelList, hover, draggedId } = useSelector(
         (state: RootState) => state.appReducer
     );
 
-    const {itemsMeta, filters} = panelList[0];
+    const {itemsMeta, filters} = panelList[panelId];
 
     const handleMobileCollapse = useCallback(() => {
         handleCollapse();
@@ -104,7 +106,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                 />
                 <div className={hashtagListStyle}>
                     {shownHashtags.map(x => (
-                        <Hashtag hashtag={x} key={x.id} />
+                        <Hashtag hashtag={x} key={x.id} panelId={panelId} />
                     ))}
                 </div>
                 <div style={{ display: 'flex' }}>
@@ -136,7 +138,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
             <div className={headerSecondRowStyle}>
                 <div className={hashtagListSecondRowStyle}>
                     {shownHashtags.map(x => (
-                        <Hashtag hashtag={x} key={x.id} />
+                        <Hashtag hashtag={x} key={x.id} panelId={panelId} />
                     ))}
                 </div>
             </div>
