@@ -124,77 +124,28 @@ export const appReducer = (
   }
 
   if (isType(action, updateItem)) {
-    let itemsMeta = state.itemsMeta;
-    // todo update every panel
-    let viewedItemList = state.viewedItemList;
-    itemsMeta = {
-      ...itemsMeta,
-      [action.payload.id]: {
-        viewedChildren: filterAndOrder(action.payload.children, state)
-      }
-    };
-    for (let parent of action.payload.parents) {
-      itemsMeta = {
-        ...itemsMeta,
-        [parent]: {
-          viewedChildren: filterAndOrder(
-            itemsMeta[parent] ? itemsMeta[parent].viewedChildren : [],
-            state
-          )
-        }
-      };
-    }
-    if (action.payload.parents.length === 0) {
-      viewedItemList = filterAndOrderRoot(state.itemList, state);
-    }
-
     return {
       ...state,
       items: {
         ...state.items,
         [action.payload.id]: action.payload
       },
-      itemsMeta,
-      viewedItemList,
+      panelList: PanelList.updateItem(state, state.panelList, action.payload),
       version: state.version + 1
     };
   }
 
   if (isType(action, updateItems)) {
-    let itemsMeta = state.itemsMeta;
-    let viewedItemList = state.viewedItemList;
     let items = state.items;
 
     action.payload.forEach(x => {
       items[x.id] = x;
-
-      itemsMeta = {
-        ...itemsMeta,
-        [x.id]: {
-            viewedChildren: filterAndOrder(x.children, state)
-        }
-      };
-      for (let parent of x.parents) {
-        itemsMeta = {
-            ...itemsMeta,
-            [parent]: {
-            viewedChildren: filterAndOrder(
-                itemsMeta[parent] ? itemsMeta[parent].viewedChildren : [],
-                state
-            )
-          }
-        };
-      }
-      if (x.parents.length === 0) {
-        viewedItemList = filterAndOrderRoot(state.itemList, state);
-      }
     });
 
     return {
       ...state,
       items,
-      itemsMeta,
-      viewedItemList,
+      panelList: PanelList.updateItems(state, state.panelList, action.payload),
       version: state.version + 1
     };
   }
@@ -233,7 +184,7 @@ export const appReducer = (
     return {
       ...state,
       itemList,
-      viewedItemList: filterAndOrderRoot(itemList, state),
+      panelList: PanelList.updateViewedItemList(state, state.panelList),
       version: state.version + 1
     };
   }
@@ -250,7 +201,7 @@ export const appReducer = (
     return {
       ...state,
       itemList: action.payload,
-      viewedItemList: filterAndOrderRoot(action.payload, state),
+      panelList: PanelList.updateViewedItemList(state, state.panelList),
       version: state.version + 1
     };
   }

@@ -5,7 +5,7 @@ import { getField, getTitle } from "./commons";
 import { Panel, State } from "./reducer";
 
 export class PanelList {
-    static setOrder(state: State, panels: Panel[], id: number, order: {attribute?: string; asc?: boolean }) {
+    static setOrder(state: State, panels: Panel[], id: number, order: {attribute?: string; asc?: boolean }):Panel[] {
         const newPanel:Panel = {
             ...panels[id],
             order: { ...panels[id].order, ...order }
@@ -21,7 +21,7 @@ export class PanelList {
         }
     };
 
-    static setSearch(state: State, panels: Panel[], id: number, search: string) {
+    static setSearch(state: State, panels: Panel[], id: number, search: string):Panel[] {
         const newPanel:Panel = {
             ...panels[id],
             search
@@ -36,7 +36,7 @@ export class PanelList {
         };
     }
 
-    static setFilters(state: State, panels: Panel[], id: number, filters: Filter[] ) {
+    static setFilters(state: State, panels: Panel[], id: number, filters: Filter[] ):Panel[] {
         const newPanel:Panel = {
             ...panels[id],
             filters
@@ -45,14 +45,14 @@ export class PanelList {
         return {
             ...panels,
             [id]: {
-                newPanel,
+                ...newPanel,
                 itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
                 viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
             }
         };
     }
 
-    static toggleFilter(state: State, panels: Panel[], id: number, filterName: string ) {
+    static toggleFilter(state: State, panels: Panel[], id: number, filterName: string ):Panel[] {
         const filters = [...panels[id].filters];
         const num = panels[id].filters.findIndex(x => x.id === filterName);
         if (num === -1) return panels;
@@ -66,14 +66,14 @@ export class PanelList {
         return {
             ...panels,
             [id]: {
-                newPanel,
+                ...newPanel,
                 itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
                 viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
             }
         };
     }
 
-    static toggleHashtagFilter(state: State, panels: Panel[], id: number, hashtagInfo: HashtagInfo ) {
+    static toggleHashtagFilter(state: State, panels: Panel[], id: number, hashtagInfo: HashtagInfo ):Panel[] {
         const oldFilters = [...panels[id].filters];
         let filters: Filter[] = [];
 
@@ -98,11 +98,66 @@ export class PanelList {
         return {
             ...panels,
             [id]: {
-                newPanel,
+                ...newPanel,
                 itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
                 viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
             }
         };
+    }
+
+    static updateViewedItemList(state: State, panels: Panel[]):Panel[] {
+        return panels.map((panel:Panel) => PanelList.updateViewedItemListOnOnePanel(state, panel));
+    }
+
+    static updateViewedItemListOnOnePanel(state: State, panel:Panel):Panel {
+        return {
+            ...panel,
+            // itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, panel),
+            viewedItemList: filterAndOrderRoot(state.itemList, state.items, panel),
+        };
+    }
+
+    static updateItem(state: State, panels: Panel[], item: ViewItem ):Panel[] {
+        return panels.map((panel:Panel) => PanelList.updateItemsOnOnePanel(state, panel, [item]));
+    }
+
+    static updateItems(state: State, panels: Panel[], items: ViewItem[] ):Panel[] {
+        return panels.map((panel:Panel) => PanelList.updateItemsOnOnePanel(state, panel, items));
+    }
+
+    private static updateItemsOnOnePanel(state: State, panel: Panel, items: ViewItem[] ):Panel {
+        let itemsMeta = panel.itemsMeta;
+        let viewedItemList = panel.viewedItemList;
+        
+        for(let item of items) {
+            itemsMeta = {
+                ...itemsMeta,
+                [item.id]: {
+                    viewedChildren: filterAndOrder(item.children, state.items, panel)
+                }
+            };
+            for (let parent of item.parents) {
+                itemsMeta = {
+                    ...itemsMeta,
+                    [parent]: {
+                    viewedChildren: filterAndOrder(
+                        itemsMeta[parent] ? itemsMeta[parent].viewedChildren : [],
+                        state.items,
+                        panel
+                    )
+                    }
+                };
+            }
+            if (item.parents.length === 0) {
+                viewedItemList = filterAndOrderRoot(state.itemList, state.items, panel);
+            }
+        }
+
+        return {
+            ...panel,
+            viewedItemList,
+            itemsMeta
+        }
     }
 }
 
