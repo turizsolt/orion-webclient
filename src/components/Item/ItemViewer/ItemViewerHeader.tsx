@@ -22,6 +22,7 @@ import {
 } from './ItemViewer.style';
 import { Hashtag } from '../../Hashtag';
 import { Filter } from '../../../model/Filter';
+import { RootState } from '../../../ReduxStore';
 
 export interface Props {
     item: ViewItem;
@@ -48,9 +49,11 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         handleCollapse,
         handleChildrenCollapse
     } = props;
-    const { itemsMeta, hover, draggedId, filters } = useSelector(
-        (state: any) => state.appReducer
+    const { panelList, hover, draggedId } = useSelector(
+        (state: RootState) => state.appReducer
     );
+
+    const {itemsMeta, filters} = panelList[0];
 
     const handleMobileCollapse = useCallback(() => {
         handleCollapse();
@@ -60,7 +63,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
     // remove the hashtags that are alredy filtered
     const hashtagIds: ItemId[] = filters
         .filter((filter: Filter) => filter.hashtag)
-        .map((filter: Filter) => filter.hashtag && filter.hashtag.id);
+        .map((filter: Filter) => (filter.hashtag && filter.hashtag.id) as string);
     const shownHashtags = item.hashtags.filter((h: HashtagInfo) => !hashtagIds.includes(h.id));
 
     const actions: Actions = useContext(ActionsContext);

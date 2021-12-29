@@ -17,6 +17,7 @@ import {
 import { RelationType } from '../../model/Relation/RelationType';
 import { Actions } from '../../LocalStore/Actions';
 import { ItemViewerProps } from './ItemViewer/ItemViewer';
+import { RootState } from '../../ReduxStore';
 
 export function useItemDnD(
   props: ItemViewerProps,
@@ -29,9 +30,12 @@ export function useItemDnD(
   const { item, parentId, path, ghost } = props;
   const myPath = path + (path ? '_' : '') + item.id;
 
-  const { items, itemsMeta, viewedItemList, hover, draggedId } = useSelector(
-    (state: any) => state.appReducer
+  const { items, panelList, hover, draggedId } = useSelector(
+    (state: RootState) => state.appReducer
   );
+
+  // todo how to handle well ???
+  const {itemsMeta, viewedItemList} = panelList[0];
 
   const drag = useDrag({
     item: { type: ItemTypes.ITEM, id: item.id, parentId },

@@ -10,6 +10,7 @@ import { Hashtag } from '../Hashtag';
 import { hashtagRibbonStyle } from './ItemViewer/ItemViewer.style';
 import { Filter } from '../../model/Filter';
 import { ConnectionChecker } from './ConnectionChecker';
+import { RootState } from '../../ReduxStore';
 
 const containerStyle = style(
     media(
@@ -46,9 +47,10 @@ const optionsHashOuter = style({
 const mainStyle = style({ flexGrow: 1 });
 
 export const RootItemViewer: React.FC = () => {
-    const { items, itemList, viewedItemList, filters } = useSelector(
-        (state: any) => state.appReducer
+    const { items, itemList, panelList } = useSelector(
+        (state: RootState) => state.appReducer
     );
+    const {viewedItemList, filters} = panelList[0];
 
     const [showChildrenAdder, setShowChildrenAdder] = useState(false);
 
@@ -109,6 +111,7 @@ export const RootItemViewer: React.FC = () => {
             </div>
             <div className={containerStyle}>
                 {showOptions && <OptionsViewer />}
+                
                 <div className={mainStyle}>
                     {viewedItemList.map((id: ItemId) => (
                         <ItemViewer key={id} item={items[id]} parentId={null} path={''} />
@@ -118,6 +121,7 @@ export const RootItemViewer: React.FC = () => {
                     )}
                     <button onClick={handleNew}>Add</button>
                 </div>
+             
             </div>
         </div>
     );

@@ -2,9 +2,10 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { ChangeId } from './model/Change/ChangeId';
 import { Change } from './model/Change/Change';
+import { RootState } from './ReduxStore';
 
 export const OneChange: React.FC<{ changeId: ChangeId }> = props => {
-  const { changes } = useSelector((state: any) => state.appReducer);
+  const { changes } = useSelector((state: RootState) => state.appReducer);
   const change: Change = changes[props.changeId];
   return (
     <>
@@ -14,7 +15,7 @@ export const OneChange: React.FC<{ changeId: ChangeId }> = props => {
           {change.response.substr(0, 1).toUpperCase()}
           {change.type === 'ItemChange' && (
             <>
-              {change.itemId.substr(0, 6)}#{change.field}:{change.oldValue} >>{' '}
+              {change.itemId.substr(0, 6)}#{change.field}:{change.oldValue} &gt;&gt; {' '}
               {change.newValue}
             </>
           )}
@@ -32,7 +33,7 @@ export const OneChange: React.FC<{ changeId: ChangeId }> = props => {
 };
 
 export const Changes: React.FC = () => {
-  const { changeList } = useSelector((state: any) => state.appReducer);
+  const { changeList } = useSelector((state: RootState) => state.appReducer);
 
   return (
     <div>

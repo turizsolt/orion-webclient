@@ -9,6 +9,7 @@ import { Updateness } from '../../model/Updateness';
 import { useSelector } from 'react-redux';
 import { fillInPrioritiesOfAParent } from '../../ReduxStore/commons';
 import { Filter } from '../../model/Filter';
+import { RootState } from '../../ReduxStore';
 interface Props {
   parentId: ItemId | undefined;
   onClose: () => void;
@@ -55,9 +56,11 @@ export const ItemAdderViewer: React.FC<Props> = props => {
   const { onClose, parentId } = props;
   const actions: Actions = useContext(ActionsContext);
 
-  const { items, itemsMeta, viewedItemList, filters } = useSelector(
-    (state: any) => state.appReducer
+  const { items, panelList } = useSelector(
+    (state: RootState) => state.appReducer
   );
+
+  const {itemsMeta, viewedItemList, filters} = panelList[0];
 
   const [editValue, setEditValue] = useState('');
 
@@ -80,7 +83,7 @@ export const ItemAdderViewer: React.FC<Props> = props => {
         .filter((filter: Filter) => filter.hashtag)
         .map((filter: Filter) => filter.hashtag && filter.hashtag.id);
       for (let hashtagId of hashtagIds) {
-        actions.addRelation(hashtagId, RelationType.HashOf, childrenId);
+        actions.addRelation(hashtagId as string, RelationType.HashOf, childrenId);
       }
     },
     [actions, parentId, items, itemsMeta, viewedItemList, filters]

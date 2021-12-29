@@ -11,6 +11,7 @@ import {
 import { ItemViewerHeader } from './ItemViewerHeader';
 import { ItemViewerDetails } from './ItemViewerDetails';
 import { useToggle } from '../useToggle';
+import { RootState } from '../../../ReduxStore';
 
 export interface ItemViewerProps {
   item: ViewItem;
@@ -22,9 +23,11 @@ export interface ItemViewerProps {
 export const ItemViewer: React.FC<ItemViewerProps> = props => {
   const { item, path, ghost } = props;
   const myPath = path + (path ? '_' : '') + item.id;
-  const { items, itemsMeta, hover, draggedId } = useSelector(
-    (state: any) => state.appReducer
+  const { items, panelList, hover, draggedId } = useSelector(
+    (state: RootState) => state.appReducer
   );
+
+  const {itemsMeta} = panelList[0];
 
   const { isOpen: collapsed, toggle: handleCollapse } = useToggle(true);
   const {
@@ -53,7 +56,7 @@ export const ItemViewer: React.FC<ItemViewerProps> = props => {
     return (
       <>
         {isHover(place) && (
-          <ItemViewer item={items[draggedId]} parentId={null} path={''} ghost />
+          <ItemViewer item={items[draggedId as string]} parentId={null} path={''} ghost />
         )}
       </>
     );

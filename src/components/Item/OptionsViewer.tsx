@@ -20,9 +20,11 @@ const sideStyle = style({
 });
 
 export const OptionsViewer: React.FC = () => {
-  const { filters, search, order } = useSelector(
+  const { panelList } = useSelector(
     (state: RootState) => state.appReducer
   );
+
+  const { filters, search, order } = panelList[0];
 
   const actions: Actions = useContext(ActionsContext);
 

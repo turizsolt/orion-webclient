@@ -114,20 +114,20 @@ export class Actions {
         this.dispatcher.dispatch(draggedItem(itemId));
     }
 
-    toggleFilter(filterId: string) {
-        this.dispatcher.dispatch(toggleFilter(filterId));
+    toggleFilter(filterName: string) {
+        this.dispatcher.dispatch(toggleFilter({panelId: 0, filterName}));
     }
 
     search(searchString: string) {
-        this.dispatcher.dispatch(search(searchString));
+        this.dispatcher.dispatch(search({panelId: 0, searchString}));
     }
 
     order(props: { attribute?: string; asc?: boolean }) {
-        this.dispatcher.dispatch(order(props));
+        this.dispatcher.dispatch(order({panelId: 0, ...props}));
     }
 
-    toggleHashtagFilter(hashtag: HashtagInfo) {
-        this.dispatcher.dispatch(toggleHashtagFilter(hashtag));
+    toggleHashtagFilter(hashtagInfo: HashtagInfo) {
+        this.dispatcher.dispatch(toggleHashtagFilter({panelId: 0, hashtagInfo}));
     }
 
     createItem(field: FieldName, newValue: any): ItemId {
