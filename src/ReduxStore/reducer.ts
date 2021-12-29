@@ -23,86 +23,30 @@ import { getTitle, getField } from './commons';
 import { ChangeId } from '../model/Change/ChangeId';
 import { Change } from '../model/Change/Change';
 import { Filter } from '../model/Filter';
+import { PanelList } from './PanelList';
+import { getInitialState } from './reducerInitialState';
+
+export interface Panel {
+  viewedItemList: ItemId[];
+  itemsMeta: Record<ItemId, ViewItemMeta>;
+  filters: Filter[];
+  search: string;
+  order: { attribute?: string; asc?: boolean };
+}
 
 export interface State {
   hover: any;
   draggedId: ItemId | null;
-  itemsMeta: Record<ItemId, ViewItemMeta>;
   items: Record<ItemId, ViewItem>;
   itemList: ItemId[];
-  viewedItemList: ItemId[];
   changes: Record<ChangeId, Change>;
   changeList: ChangeId[];
-  filters: Filter[];
-  search: string;
-  order: { attribute?: string; asc?: boolean };
+  panelList: Panel[];  
   version: number;
   lastAlive: {time: number, message: string}[];
 }
 
-const initialState = {
-  hover: null,
-  draggedId: null,
-  itemsMeta: {},
-  items: {},
-  itemList: [],
-  viewedItemList: [],
-  changes: {},
-  changeList: [],
-  filters: [
-    {
-      id: 'roots',
-      name: 'Hide non-root items',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        items[x].parents.length === 0,
-      on: true
-    },
-    {
-      id: 'no-templates',
-      name: 'Hide template items',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        !items[x].originalFields.template ||
-        !items[x].originalFields.template.value,
-      on: true
-    },
-    {
-      id: 'no-generateds',
-      name: 'Hide generated items',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        !items[x].originalFields.generated ||
-        !items[x].originalFields.generated.value,
-      on: false
-    },
-    {
-      id: 'skip-hashtags',
-      name: 'Hide hashtags at root',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        !items[x].originalFields.hashtag ||
-        !items[x].originalFields.hashtag.value,
-      on: true
-    },
-    {
-      id: 'not-deleted',
-      name: 'Hide deleted items',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        !items[x].originalFields.deleted ||
-        items[x].originalFields.deleted.value !== true,
-      on: true
-    },
-    {
-      id: 'not-done',
-      name: 'Hide done items',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        !items[x].originalFields.state ||
-        items[x].originalFields.state.value !== 'done',
-      on: true
-    }
-  ],
-  search: '',
-  order: { attribute: 'priority', asc: true },
-  lastAlive: [],
-  version: 0
-};
+const initialState:State = getInitialState();
 
 export const appReducer = (
   state: State = initialState,
@@ -122,70 +66,45 @@ export const appReducer = (
   }
 
   if (isType(action, order)) {
+    const { panelId, asc, attribute } = action.payload;
+    const { panelList } = state;
+    
     return {
       ...state,
-      order: { ...state.order, ...action.payload },
-      itemsMeta: filteAndOrderEveryMeta(state.itemList, {
-        ...state,
-        order: { ...state.order, ...action.payload }
-      }),
-      viewedItemList: filterAndOrderRoot(state.itemList, {
-        ...state,
-        order: { ...state.order, ...action.payload }
-      }),
+      panelList: PanelList.setOrder(state, panelList, panelId, {asc, attribute}),
       version: state.version + 1
     };
   }
 
   if (isType(action, search)) {
+    const { panelId, searchString } = action.payload;
+    const { panelList } = state;
+    
     return {
       ...state,
-      search: action.payload,
-      viewedItemList: filterAndOrderRoot(state.itemList, {
-        ...state,
-        search: action.payload
-      }),
+      panelList: PanelList.setSearch(state, panelList, panelId, searchString),
       version: state.version + 1
     };
   }
 
   if (isType(action, toggleFilter)) {
-    const filters = [...state.filters];
-    const num = state.filters.findIndex(x => x.id === action.payload);
-    if (num === -1) return state;
-    filters[num].on = !filters[num].on;
-
+    const { panelId, filterName } = action.payload;
+    const { panelList } = state;
+    
     return {
       ...state,
-      filters,
-      itemsMeta: filteAndOrderEveryMeta(state.itemList, { ...state, filters }),
-      viewedItemList: filterAndOrderRoot(state.itemList, { ...state, filters }),
+      panelList: PanelList.toggleFilter(state, panelList, panelId, filterName),
       version: state.version + 1
     };
   }
 
   if (isType(action, toggleHashtagFilter)) {
-    const oldFilters = [...state.filters];
-    let filters: Filter[] = [];
-
-    if (oldFilters.some(f => f.id === action.payload.id)) {
-      filters = oldFilters.filter(f => f.id !== action.payload.id);
-    } else {
-      filters = [...oldFilters, {
-        id: action.payload.id,
-        name: '#' + action.payload.hashtag,
-        f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-          items[x].hashtags.some(hash => hash.id === action.payload.id),
-        on: true,
-        hashtag: action.payload
-      }];
-    }
-
+    const { panelId, hashtagInfo } = action.payload;
+    const { panelList } = state;
+    
     return {
       ...state,
-      filters,
-      itemsMeta: filteAndOrderEveryMeta(state.itemList, { ...state, filters }),
-      viewedItemList: filterAndOrderRoot(state.itemList, { ...state, filters }),
+      panelList: PanelList.toggleHashtagFilter(state, panelList, panelId, hashtagInfo),
       version: state.version + 1
     };
   }
@@ -206,6 +125,7 @@ export const appReducer = (
 
   if (isType(action, updateItem)) {
     let itemsMeta = state.itemsMeta;
+    // todo update every panel
     let viewedItemList = state.viewedItemList;
     itemsMeta = {
       ...itemsMeta,
@@ -336,9 +256,12 @@ export const appReducer = (
   }
 
   if (isType(action, setFilters)) {
+    const { panelId, filters } = action.payload;
+    const { panelList } = state;
+    
     return {
       ...state,
-      filters: action.payload,
+      panelList: PanelList.setFilters(state, panelList, panelId, filters),
       version: state.version + 1
     };
   }
@@ -352,66 +275,4 @@ function pushIfUnique(list: any[], elem: any) {
   } else {
     return [...list, elem];
   }
-}
-
-const f = (state: any, skipRootRule: boolean) => (x: ItemId) => {
-  if (!state.items[x]) return false;
-
-  for (const filter of state.filters) {
-    if (
-      filter.on &&
-      (!skipRootRule || filter.id !== 'roots') &&
-      !filter.f(state.items)(x)
-    ) {
-      return false;
-    }
-  }
-  if (state.search) {
-    if (
-      !getTitle(x, state.items)
-        .toLocaleLowerCase()
-        .includes(state.search.toLocaleLowerCase())
-    ) {
-      return false;
-    }
-  }
-  return true;
-};
-
-function filteAndOrderEveryMeta(
-  list: ItemId[],
-  state: State
-): Record<string, ViewItemMeta> {
-  const newMeta: Record<string, ViewItemMeta> = {};
-  for (let elem of list) {
-    newMeta[elem] = {
-      viewedChildren: filterAndOrder(
-        state.itemsMeta[elem].viewedChildren,
-        state
-      )
-    };
-  }
-  return newMeta;
-}
-
-function filterAndOrder(list: any[], state: any): any[] {
-  return [...orderx(list.filter(f(state, true)), state)];
-}
-
-function filterAndOrderRoot(list: any[], state: any): any[] {
-  return [...orderx(list.filter(f(state, false)), state)];
-}
-
-function orderx(arr: ItemId[], state: State): ItemId[] {
-  const field = state.order.attribute || 'priority';
-  const asc = state.order.asc ? 1 : -1;
-
-  arr.sort((a, b) => {
-    if (getField(a, field, state.items) < getField(b, field, state.items))
-      return -asc;
-    if (getField(a, field, state.items) > getField(b, field, state.items))
-      return asc;
-    return 0;
-  });
-  return arr;
 }
