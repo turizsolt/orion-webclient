@@ -92,6 +92,18 @@ export const OptionsViewer: React.FC<OptionViewerProps> = (props) => {
     [saveName, panelList, actions]
   );
 
+  const handleAddPanel = useCallback(() => {
+    actions.addPanel();
+  },
+  [actions]
+);
+
+const handleRemovePanel = useCallback(() => {
+    actions.removePanel(panelId);
+  },
+  [panelId, actions]
+);
+
   return (
     <div className={sideStyle}>
       <button onClick={() => localStorage.clear()}>Clear localstorage</button>
@@ -133,6 +145,9 @@ export const OptionsViewer: React.FC<OptionViewerProps> = (props) => {
         <input type="text" value={saveName} onChange={handleSaveNameChange} onKeyUp={handleSaveName} />
       </div>
       <button onClick={handleSaveOptions}>Save options</button>
+      <hr />
+      <button onClick={handleAddPanel}>Add a panel</button>
+      <button onClick={handleRemovePanel}>Remove this panel</button>
     </div>
   );
 };

@@ -21,7 +21,9 @@ import {
     order,
     toggleHashtagFilter,
     setPanelNames,
-    updatesPanels
+    updatesPanels,
+    removePanel,
+    addPanel
 } from '../ReduxStore/actions';
 import { HashtagInfo } from '../model/Item/ViewItem';
 import { PanelOptions } from '../ReduxStore/reducer';
@@ -258,5 +260,13 @@ export class Actions {
         }
 
         this.localStorage.setItem('panelName-' + panelName, JSON.stringify(panelOptions));
+    }
+
+    addPanel(): void {
+        this.dispatcher.dispatch(addPanel(null));
+    }
+
+    removePanel(panelId: number): void {
+        this.dispatcher.dispatch(removePanel(panelId));
     }
 }

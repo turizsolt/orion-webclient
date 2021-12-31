@@ -216,7 +216,7 @@ function filteAndOrderEveryMeta(
     for (let elem of list) {
         newMeta[elem] = {
             viewedChildren: filterAndOrder(
-                panel.itemsMeta[elem].viewedChildren,
+                (panel.itemsMeta[elem] && panel.itemsMeta[elem].viewedChildren) || [],
                 items,
                 panel
             )

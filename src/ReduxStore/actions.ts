@@ -43,3 +43,11 @@ export const setPanelNames = actionCreator<string[]>(
 export const updatesPanels = actionCreator<PanelOptions[]>(
     'UPDATE_PANELS'
 );
+
+export const addPanel = actionCreator<null>(
+    'ADD_PANEL'
+);
+
+export const removePanel = actionCreator<number>(
+    'REMOVE_PANEL'
+);
