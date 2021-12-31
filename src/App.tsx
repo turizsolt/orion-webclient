@@ -38,6 +38,9 @@ const App: React.FC = () => {
                 <Route path="/sprint/:id">
                   <SprintViewer />
                 </Route>
+                <Route exact path="/panels/:id">
+                  <RootItemViewer />
+                </Route>
                 <Route path="/:id">
                   <OneItemViewer />
                 </Route>

@@ -55,7 +55,8 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         (state: RootState) => state.appReducer
     );
 
-    const {itemsMeta, filters} = panelList[panelId];
+    const {itemsMeta, options} = panelList[panelId];
+    const { filters } = options;
 
     const handleMobileCollapse = useCallback(() => {
         handleCollapse();

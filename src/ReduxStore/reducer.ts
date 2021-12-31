@@ -15,7 +15,9 @@ import {
   toggleHashtagFilter,
   updateAlive,
   updateChanges,
-  updateItems
+  updateItems,
+  setPanelNames,
+  updatesPanels
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
@@ -26,12 +28,16 @@ import { PanelList } from './PanelList';
 import { getInitialState } from './reducerInitialState';
 
 export interface Panel {
-  viewedItemList: ItemId[];
-  itemsMeta: Record<ItemId, ViewItemMeta>;
-  filters: Filter[];
-  search: string;
-  order: { attribute?: string; asc?: boolean };
+    viewedItemList: ItemId[];
+    itemsMeta: Record<ItemId, ViewItemMeta>;
+    options: PanelOptions;
 }
+  
+export interface PanelOptions {
+    filters: Filter[];
+    search: string;
+    order: { attribute?: string; asc?: boolean };
+}  
 
 export interface State {
   hover: any;
@@ -40,7 +46,8 @@ export interface State {
   itemList: ItemId[];
   changes: Record<ChangeId, Change>;
   changeList: ChangeId[];
-  panelList: Panel[];  
+  panelList: Panel[];
+  panelNames: string[];
   version: number;
   lastAlive: {time: number, message: string}[];
 }
@@ -61,6 +68,22 @@ export const appReducer = (
             },
             ...state.lastAlive
         ]
+    };
+  }
+
+  if (isType(action, setPanelNames)) {
+    return {
+        ...state,
+        panelNames: action.payload,
+        version: state.version + 1
+    };
+  }
+
+  if (isType(action, updatesPanels)) {
+    return {
+        ...state,
+        panelList: PanelList.updatePanels(state, state.panelList, action.payload),
+        version: state.version + 1
     };
   }
 

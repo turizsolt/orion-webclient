@@ -1,6 +1,7 @@
 import React, {
   useCallback,
   useContext,
+  useState,
   KeyboardEvent,
   ChangeEvent
 } from 'react';
@@ -30,9 +31,12 @@ export const OptionsViewer: React.FC<OptionViewerProps> = (props) => {
 
   const { panelId } = props;
 
-  const { filters, search, order } = panelList[panelId];
+  const { options } = panelList[panelId];
+  const { filters, search, order } = options;
 
   const actions: Actions = useContext(ActionsContext);
+
+  const [saveName, setSaveName] = useState('');
 
   const handleToggleFilter = useCallback(
     (filterId: string) => () => {
@@ -61,6 +65,31 @@ export const OptionsViewer: React.FC<OptionViewerProps> = (props) => {
       actions.order(panelId, { asc: event.currentTarget.value === 'asc' });
     },
     [panelId, actions]
+  );
+
+  const handleSaveName = useCallback(
+    (event: KeyboardEvent<HTMLInputElement>) => {
+        if(event.which === 13) {
+            const name = event.currentTarget.value;
+            actions.savePanels(name, panelList.map(x => x.options));
+            setSaveName('');
+        }
+    },
+    [panelList, actions]
+  );
+
+  const handleSaveNameChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+        setSaveName(event.currentTarget.value);
+    },
+    []
+  );
+
+  const handleSaveOptions = useCallback(() => {
+      actions.savePanels(saveName, panelList.map(x => x.options));
+      setSaveName('');
+    },
+    [saveName, panelList, actions]
   );
 
   return (
@@ -100,6 +129,10 @@ export const OptionsViewer: React.FC<OptionViewerProps> = (props) => {
           </div>
         ))}
       </div>
+      <div>
+        <input type="text" value={saveName} onChange={handleSaveNameChange} onKeyUp={handleSaveName} />
+      </div>
+      <button onClick={handleSaveOptions}>Save options</button>
     </div>
   );
 };

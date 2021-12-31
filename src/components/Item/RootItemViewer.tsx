@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ItemViewer } from './ItemViewer/ItemViewer';
 import { ItemId } from '../../model/Item/ItemId';
 import { useSelector } from 'react-redux';
+import { useParams } from 'react-router';
 import { ItemAdderViewer } from './ItemAdderViewer';
 import { style, media } from 'typestyle';
 import { OptionsViewer } from './OptionsViewer';
@@ -12,6 +13,9 @@ import { Filter } from '../../model/Filter';
 import { ConnectionChecker } from './ConnectionChecker';
 import { RootState } from '../../ReduxStore';
 import { Panel } from '../../ReduxStore/reducer';
+import { Actions } from '../../LocalStore/Actions';
+import { ActionsContext } from '../../App';
+import { NavLink } from 'react-router-dom';
 
 const containerStyle = style(
     media(
@@ -48,7 +52,15 @@ const optionsHashOuter = style({
 const mainStyle = style({ flexGrow: 1 });
 
 export const RootItemViewer: React.FC = () => {
-    const { items, itemList, panelList } = useSelector(
+    const { id: panelConfigName } = useParams<{id:ItemId}>();
+
+    const actions: Actions = useContext(ActionsContext);
+
+    useEffect(() => {
+        actions.initPanels(panelConfigName);
+    }, [panelConfigName, actions]);
+
+    const { items, itemList, panelList, panelNames } = useSelector(
         (state: RootState) => state.appReducer
     );
     
@@ -82,11 +94,14 @@ export const RootItemViewer: React.FC = () => {
         setShowOptions(!showOptions);
     }, [showOptions]);
 
-    const showAllHashtags = (panel:Panel) => !panel.filters.some((filter: Filter) => filter.hashtag);
+    const showAllHashtags = (panel:Panel) => !panel.options.filters.some((filter: Filter) => filter.hashtag);
 
     return (
         <div>
-            <div><i>Version 2021.12.15.2</i></div>
+            <div><i>Version 2021.12.15.2</i> PanelConfigId: {panelConfigName},
+            All configs:
+                {panelNames.map(panelName => <NavLink key={panelName} to={'/panels/'+panelName}>{panelName}</NavLink>)}
+            </div>
             <ConnectionChecker />  
             <div style={{display:'flex'}}>
                 {panelList.map((panel:Panel, panelId: number) => <div key={panelId}>
@@ -101,7 +116,7 @@ export const RootItemViewer: React.FC = () => {
                             <hr />
                         </>}
                         <div className={hashtagRibbonStyle}>
-                            {panel.filters.map((filter: Filter) => (
+                            {panel.options.filters.map((filter: Filter) => (
                                 <div key={filter.id}>
                                     {filter.hashtag && <div className={optionsHashOuter}>
                                         <Hashtag hashtag={filter.hashtag} panelId={panelId} />
