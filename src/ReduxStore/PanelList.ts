@@ -117,7 +117,12 @@ export class PanelList {
     }
 
     static updatePanels(state: State, panels: Panel[], newPanelOptions: PanelOptions[]): Panel[] {
-        panels.map((panel: Panel, index: number) => panel.options = newPanelOptions[index]);
+        panels = newPanelOptions.map(npo => ({
+            options: npo,
+            itemsMeta: {},
+            viewedItemList: []
+        }));
+
         return PanelList.updateViewedItemList(state, panels);
     }
 

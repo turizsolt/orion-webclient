@@ -127,10 +127,10 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                     {collapsed ? 'V' : 'A'}
                 </button>
                 <button className={headerDesktopOnlyButtonStyle} onClick={handleChildrenCollapse}>
-                    {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
+                    {childrenCollapsed ? (itemsMeta[item.id] && itemsMeta[item.id].viewedChildren.length) : '-'}
                 </button>
                 <button className={headerMobileOnlyButtonStyle} onClick={handleMobileCollapse}>
-                    {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
+                    {childrenCollapsed ? (itemsMeta[item.id] && itemsMeta[item.id].viewedChildren.length) : '-'}
                 </button>
                 <button className={headerButtonStyle} onClick={handleMakeDone}>
                     ✓
