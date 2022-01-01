@@ -4,7 +4,7 @@ import { ItemId } from '../../model/Item/ItemId';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { ItemAdderViewer } from './ItemAdderViewer';
-import { style, media } from 'typestyle';
+import { style } from 'typestyle';
 import { OptionsViewer } from './OptionsViewer';
 import { HashtagInfo } from '../../model/Item/ViewItem';
 import { Hashtag } from '../Hashtag';
@@ -17,19 +17,25 @@ import { Actions } from '../../LocalStore/Actions';
 import { ActionsContext } from '../../App';
 import { NavLink } from 'react-router-dom';
 
+const panelContainerStyle = style(
+    {
+        display: 'flex',
+        width: '100%'
+    }
+);
+
+const panelStyle = style(
+    {
+        flexBasis: '100%'
+    }
+);
+
 const containerStyle = style(
-    media(
-        { minWidth: 0, maxWidth: 899 },
-        {
-            display: 'flex',
-            flexDirection: 'column',
-            width: '100%'
-        }
-    ),
-    media(
-        { minWidth: 900 },
-        { display: 'flex', flexDirection: 'row-reverse', width: '100%' }
-    )
+    {
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%'
+    }
 );
 
 export const showOptsStyle = style({
@@ -103,8 +109,8 @@ export const RootItemViewer: React.FC = () => {
                 {panelNames.map(panelName => <NavLink key={panelName} to={'/panels/'+panelName}>{panelName}</NavLink>)}
             </div>
             <ConnectionChecker />  
-            <div style={{display:'flex'}}>
-                {panelList.map((panel:Panel, panelId: number) => <div key={panelId}>
+            <div className={panelContainerStyle}>
+                {panelList.map((panel:Panel, panelId: number) => <div key={panelId} className={panelStyle}>
                     <div>
                         {showAllHashtags(panel) && <>
                             <div className={hashtagRibbonStyle}>

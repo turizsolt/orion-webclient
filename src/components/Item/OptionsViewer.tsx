@@ -16,7 +16,6 @@ const sideStyle = style({
   minWidth: '160px',
   minHeight: '50px',
   backgroundColor: '#bcd2d3',
-  marginLeft: '10px',
   marginBottom: '10px'
 });
 
