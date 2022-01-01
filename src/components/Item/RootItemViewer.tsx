@@ -4,7 +4,7 @@ import { ItemId } from '../../model/Item/ItemId';
 import { useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import { ItemAdderViewer } from './ItemAdderViewer';
-import { style } from 'typestyle';
+import { media, style } from 'typestyle';
 import { OptionsViewer } from './OptionsViewer';
 import { HashtagInfo } from '../../model/Item/ViewItem';
 import { Hashtag } from '../Hashtag';
@@ -31,6 +31,21 @@ const panelStyle = style(
 );
 
 const containerStyle = style(
+    media(
+        { minWidth: 0, maxWidth: 899 },
+        {
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%'
+        }
+    ),
+    media(
+        { minWidth: 900 },
+        { display: 'flex', flexDirection: 'row-reverse', width: '100%' }
+    )
+);
+
+const containerStyleMulti = style(
     {
         display: 'flex',
         flexDirection: 'column',
@@ -58,7 +73,7 @@ const optionsHashOuter = style({
 const mainStyle = style({ flexGrow: 1 });
 
 export const RootItemViewer: React.FC = () => {
-    const { id: panelConfigName } = useParams<{id:ItemId}>();
+    const { id: panelConfigName } = useParams<{ id: ItemId }>();
 
     const actions: Actions = useContext(ActionsContext);
 
@@ -69,7 +84,7 @@ export const RootItemViewer: React.FC = () => {
     const { items, itemList, panelList, panelNames } = useSelector(
         (state: RootState) => state.appReducer
     );
-    
+
     const [showChildrenAdder, setShowChildrenAdder] = useState(-1);
 
     const hashtagItemIds: ItemId[] = itemList.filter(
@@ -100,17 +115,17 @@ export const RootItemViewer: React.FC = () => {
         setShowOptions(!showOptions);
     }, [showOptions]);
 
-    const showAllHashtags = (panel:Panel) => !panel.options.filters.some((filter: Filter) => filter.hashtag);
+    const showAllHashtags = (panel: Panel) => !panel.options.filters.some((filter: Filter) => filter.hashtag);
 
     return (
         <div>
             <div><i>Version 2021.12.15.2</i> PanelConfigId: {panelConfigName},
-            All configs:
-                {panelNames.map(panelName => <NavLink key={panelName} to={'/panels/'+panelName}>{panelName}</NavLink>)}
+                All configs:
+                {panelNames.map(panelName => <NavLink key={panelName} to={'/panels/' + panelName}>{panelName}</NavLink>)}
             </div>
-            <ConnectionChecker />  
+            <ConnectionChecker />
             <div className={panelContainerStyle}>
-                {panelList.map((panel:Panel, panelId: number) => <div key={panelId} className={panelStyle}>
+                {panelList.map((panel: Panel, panelId: number) => <div key={panelId} className={panelStyle}>
                     <div>
                         {showAllHashtags(panel) && <>
                             <div className={hashtagRibbonStyle}>
@@ -132,9 +147,9 @@ export const RootItemViewer: React.FC = () => {
                             <div className={showOptsStyle} onClick={handleToggleOptions}>Opts</div>
                         </div>
                     </div>
-                    <div className={containerStyle}>
+                    <div className={panelList.length < 2 ? containerStyle : containerStyleMulti}>
                         {showOptions && <OptionsViewer panelId={panelId} />}
-                        
+
                         <div className={mainStyle}>
                             {panel.viewedItemList.map((id: ItemId) => (
                                 <ItemViewer key={id} item={items[id]} parentId={null} path={''} panelId={panelId} />
@@ -144,7 +159,7 @@ export const RootItemViewer: React.FC = () => {
                             )}
                             <button onClick={handleNew(panelId)}>Add</button>
                         </div>
-                    
+
                     </div>
                 </div>)}
             </div>
