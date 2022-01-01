@@ -18,7 +18,12 @@ import {
     hashtagListSecondRowStyle,
     headerIdStyle,
     headerDesktopOnlyButtonStyle,
-    headerMobileOnlyButtonStyle
+    headerMobileOnlyButtonStyle,
+    headerSecondRowStyleMulti,
+    headerDesktopOnlyButtonStyleMulti,
+    headerMobileOnlyButtonStyleMulti,
+    hashtagListStyleMulti,
+    headerIdStyleMulti
 } from './ItemViewer.style';
 import { Hashtag } from '../../Hashtag';
 import { Filter } from '../../../model/Filter';
@@ -55,7 +60,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         (state: RootState) => state.appReducer
     );
 
-    const {itemsMeta, options} = panelList[panelId];
+    const { itemsMeta, options } = panelList[panelId];
     const { filters } = options;
 
     const handleMobileCollapse = useCallback(() => {
@@ -105,7 +110,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                     {...item.fields[0]}
                     params={{ noLabel: true }}
                 />
-                <div className={hashtagListStyle}>
+                <div className={panelList.length < 2 ? hashtagListStyle : hashtagListStyleMulti}>
                     {shownHashtags.map(x => (
                         <Hashtag hashtag={x} key={x.id} panelId={panelId} />
                     ))}
@@ -117,26 +122,26 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                         </div>
                     ))}
                 </div>
-                <div className={headerIdStyle}>
+                <div className={panelList.length < 2 ? headerIdStyle : headerIdStyleMulti}>
                     <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
                 </div>
-                <button className={headerDesktopOnlyButtonStyle} onClick={handleNewOpen}>
+                <button className={panelList.length < 2 ? headerDesktopOnlyButtonStyle : headerDesktopOnlyButtonStyleMulti} onClick={handleNewOpen}>
                     {'+'}
                 </button>
-                <button className={headerDesktopOnlyButtonStyle} onClick={handleCollapse}>
+                <button className={panelList.length < 2 ? headerDesktopOnlyButtonStyle : headerDesktopOnlyButtonStyleMulti} onClick={handleCollapse}>
                     {collapsed ? 'V' : 'A'}
                 </button>
-                <button className={headerDesktopOnlyButtonStyle} onClick={handleChildrenCollapse}>
+                <button className={panelList.length < 2 ? headerDesktopOnlyButtonStyle : headerDesktopOnlyButtonStyleMulti} onClick={handleChildrenCollapse}>
                     {childrenCollapsed ? (itemsMeta[item.id] && itemsMeta[item.id].viewedChildren.length) : '-'}
                 </button>
-                <button className={headerMobileOnlyButtonStyle} onClick={handleMobileCollapse}>
+                <button className={panelList.length < 2 ? headerMobileOnlyButtonStyle : headerMobileOnlyButtonStyleMulti} onClick={handleMobileCollapse}>
                     {childrenCollapsed ? (itemsMeta[item.id] && itemsMeta[item.id].viewedChildren.length) : '-'}
                 </button>
                 <button className={headerButtonStyle} onClick={handleMakeDone}>
                     ✓
                 </button>
             </div>
-            <div className={headerSecondRowStyle}>
+            <div className={panelList.length < 2 ? headerSecondRowStyle : headerSecondRowStyleMulti}>
                 <div className={hashtagListSecondRowStyle}>
                     {shownHashtags.map(x => (
                         <Hashtag hashtag={x} key={x.id} panelId={panelId} />
