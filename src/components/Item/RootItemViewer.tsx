@@ -16,6 +16,7 @@ import { Panel } from '../../ReduxStore/reducer';
 import { Actions } from '../../LocalStore/Actions';
 import { ActionsContext } from '../../App';
 import { NavLink } from 'react-router-dom';
+import { InvertedHashtag } from '../InvertedHashtag';
 
 const panelContainerStyle = style(
     {
@@ -139,8 +140,11 @@ export const RootItemViewer: React.FC = () => {
                         <div className={hashtagRibbonStyle}>
                             {panel.options.filters.map((filter: Filter) => (
                                 <div key={filter.id}>
-                                    {filter.hashtag && <div className={optionsHashOuter}>
+                                    {filter.hashtag && filter.rule.name === 'hashtag' && <div className={optionsHashOuter}>
                                         <Hashtag hashtag={filter.hashtag} panelId={panelId} />
+                                    </div>}
+                                    {filter.hashtag && filter.rule.name === 'notHashtag' && <div className={optionsHashOuter}>
+                                        <InvertedHashtag hashtag={filter.hashtag} panelId={panelId} />
                                     </div>}
                                 </div>
                             ))}

@@ -32,6 +32,10 @@ export const toggleHashtagFilter = actionCreator<{ panelId: number, hashtagInfo:
     'TOGGLE_HASHTAG_FILTER'
 );
 
+export const toggleInvertedHashtagFilter = actionCreator<{ panelId: number, hashtagInfo: HashtagInfo }>(
+    'TOGGLE_IVERTED_HASHTAG_FILTER'
+);
+
 export const updateAlive = actionCreator<{ time?: number, message?: string }>(
     'UPDATE_ALIVE'
 );

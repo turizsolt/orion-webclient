@@ -19,7 +19,8 @@ import {
     setPanelNames,
     updatesPanels,
     addPanel,
-    removePanel
+    removePanel,
+    toggleInvertedHashtagFilter
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
@@ -147,6 +148,17 @@ export const appReducer = (
         return {
             ...state,
             panelList: PanelList.toggleHashtagFilter(state, panelList, panelId, hashtagInfo),
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, toggleInvertedHashtagFilter)) {
+        const { panelId, hashtagInfo } = action.payload;
+        const { panelList } = state;
+
+        return {
+            ...state,
+            panelList: PanelList.toggleInvertedHashtagFilter(state, panelList, panelId, hashtagInfo),
             version: state.version + 1
         };
     }

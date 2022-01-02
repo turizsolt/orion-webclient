@@ -47,6 +47,11 @@ const transformRuleToFunction = (rule: FilterRule): (items: Record<string, ViewI
             return (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
                 items[x].hashtags.some(hash => hash.id === id);
 
+        case 'notHashtag':
+            const id2 = rule.hashtagInfo ? rule.hashtagInfo.id : '';
+            return (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
+                !items[x].hashtags.some(hash => hash.id === id2);
+
         case 'during':
             return (items: Record<ItemId, ViewItem>) => (x: ItemId) => items[x].originalFields.due &&
                 items[x].originalFields.due.value >= (rule.start as Date) &&

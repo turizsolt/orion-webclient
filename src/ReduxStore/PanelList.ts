@@ -1,4 +1,4 @@
-import { Filter } from "../model/Filter";
+import { Filter, transformFilter } from "../model/Filter";
 import { ItemId } from "../model/Item/ItemId";
 import { HashtagInfo, ViewItem, ViewItemMeta } from "../model/Item/ViewItem";
 import { getField, getTitle } from "./commons";
@@ -88,15 +88,48 @@ export class PanelList {
         if (oldFilters.some(f => f.id === hashtagInfo.id)) {
             filters = oldFilters.filter(f => f.id !== hashtagInfo.id);
         } else {
-            filters = [...oldFilters, {
+            filters = [...oldFilters, transformFilter({
                 id: hashtagInfo.id,
                 name: '#' + hashtagInfo.hashtag,
-                f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-                    items[x].hashtags.some(hash => hash.id === hashtagInfo.id),
+                f: () => () => false,
                 rule: { name: 'hashtag', hashtagInfo },
                 on: true,
                 hashtag: hashtagInfo
-            }];
+            })];
+        }
+
+        const newPanel: Panel = {
+            ...panels[id],
+            options: {
+                ...panels[id].options,
+                filters
+            }
+        };
+
+        panels[id] = {
+            ...newPanel,
+            itemsMeta: filteAndOrderEveryMeta(state.itemList, state.items, newPanel),
+            viewedItemList: filterAndOrderRoot(state.itemList, state.items, newPanel),
+        };
+
+        return panels;
+    }
+
+    static toggleInvertedHashtagFilter(state: State, panels: Panel[], id: number, hashtagInfo: HashtagInfo): Panel[] {
+        const oldFilters = [...panels[id].options.filters];
+        let filters: Filter[] = [];
+
+        if (oldFilters.some(f => f.id === hashtagInfo.id)) {
+            filters = oldFilters.filter(f => f.id !== hashtagInfo.id);
+        } else {
+            filters = [...oldFilters, transformFilter({
+                id: hashtagInfo.id,
+                name: '!' + hashtagInfo.hashtag,
+                f: () => () => false,
+                rule: { name: 'notHashtag', hashtagInfo },
+                on: true,
+                hashtag: hashtagInfo
+            })];
         }
 
         const newPanel: Panel = {

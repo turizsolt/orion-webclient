@@ -23,7 +23,8 @@ import {
     setPanelNames,
     updatesPanels,
     removePanel,
-    addPanel
+    addPanel,
+    toggleInvertedHashtagFilter
 } from '../ReduxStore/actions';
 import { HashtagInfo } from '../model/Item/ViewItem';
 import { PanelOptions } from '../ReduxStore/reducer';
@@ -134,6 +135,10 @@ export class Actions {
 
     toggleHashtagFilter(panelId: number, hashtagInfo: HashtagInfo) {
         this.dispatcher.dispatch(toggleHashtagFilter({ panelId, hashtagInfo }));
+    }
+
+    toggleInvertedHashtagFilter(panelId: number, hashtagInfo: HashtagInfo) {
+        this.dispatcher.dispatch(toggleInvertedHashtagFilter({ panelId, hashtagInfo }));
     }
 
     createItem(field: FieldName, newValue: any): ItemId {
