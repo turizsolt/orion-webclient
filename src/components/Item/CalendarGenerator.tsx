@@ -13,7 +13,7 @@ export const CalendarGenerator: React.FC<Props> = (props) => {
 
     const [date, setDate] = useState((new Date()));
 
-    const { panelList } = useSelector(
+    const { panel } = useSelector(
         (state: RootState) => state.appReducer
     );
 
@@ -104,7 +104,7 @@ export const CalendarGenerator: React.FC<Props> = (props) => {
         }));
 
         for (let i = 6; i < 10; i++) {
-            newPanelList.push(i < panelList.length ? panelList[i] : getDefaultPanel({
+            newPanelList.push(i < panel.list.length ? panel.list[i] : getDefaultPanel({
                 id: 'no-due',
                 name: 'Has no due',
                 f: () => () => false,
@@ -117,7 +117,7 @@ export const CalendarGenerator: React.FC<Props> = (props) => {
         newPanelList[5].options.disableAdding = true;
 
         actions.setPanels(newPanelList);
-    }, [actions, date, panelList]);
+    }, [actions, date, panel.list]);
 
     const handleDateChange = useCallback((event: ChangeEvent) => {
         setDate(new Date((event as any).target.value));

@@ -57,11 +57,11 @@ export const ItemAdderViewer: React.FC<Props> = props => {
     const { onClose, parentId, panelId } = props;
     const actions: Actions = useContext(ActionsContext);
 
-    const { items, panelList } = useSelector(
+    const { items, panel } = useSelector(
         (state: RootState) => state.appReducer
     );
 
-    const { itemsMeta, viewedItemList, options } = panelList[panelId];
+    const { itemsMeta, viewedItemList, options } = panel.list[panelId];
     const { filters } = options;
 
     const [editValue, setEditValue] = useState('');

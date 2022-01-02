@@ -91,7 +91,7 @@ export const RootItemViewer: React.FC = () => {
         actions.initPanels(panelConfigName);
     }, [panelConfigName, actions]);
 
-    const { items, itemList, panelList, panelNames } = useSelector(
+    const { items, itemList, panel, panelNames } = useSelector(
         (state: RootState) => state.appReducer
     );
 
@@ -138,7 +138,33 @@ export const RootItemViewer: React.FC = () => {
             </div>
             <ConnectionChecker />
             <CalendarGenerator />
+            <hr />
+            Global:
+            <div className={hashtagRibbonStyle}>
+                {panel.options.filters.map((filter: Filter) => (
+                    <div key={filter.id}>
+                        {filter.hashtag && filter.rule.name === 'hashtag' && <div className={optionsHashOuter}>
+                            <Hashtag hashtag={filter.hashtag} panelId={-1} />
+                        </div>}
+                        {filter.hashtag && filter.rule.name === 'notHashtag' && <div className={optionsHashOuter}>
+                            <InvertedHashtag hashtag={filter.hashtag} panelId={-1} />
+                        </div>}
+                    </div>
+                ))}
+            </div>
+            <hr />
+            <div className={hashtagRibbonStyle}>
+                {hashtagItemIds
+                    .map(id =>
+                        <Hashtag hashtag={idToHashtagInfo(id)} key={id} panelId={-1} />
+                    )}
+            </div>
+            <div className={containerStyleMulti}>
+                {showOptions && <OptionsViewer panelId={-1} />}
+            </div>
+            <hr />
             {showHashtagAdder !== -1 && <>
+                Panel based:
                 <div className={hashtagRibbonStyle}>
                     {hashtagItemIds
                         .map(id =>
@@ -148,11 +174,11 @@ export const RootItemViewer: React.FC = () => {
                 <button onClick={handleHashtagAdder(-1)}>#close</button>
                 <hr />
             </>}
-            <div className={panelList.length < 7 ? panelContainerStyle : panelContainerStyleSixPlus}>
-                {panelList.map((panel: Panel, panelId: number) => <div key={panelId} className={panelStyle}>
+            <div className={panel.list.length < 7 ? panelContainerStyle : panelContainerStyleSixPlus}>
+                {panel.list.map((xpanel: Panel, panelId: number) => <div key={panelId} className={panelStyle}>
                     <div>
                         <div className={hashtagRibbonStyle}>
-                            {panel.options.filters.map((filter: Filter) => (
+                            {xpanel.options.filters.map((filter: Filter) => (
                                 <div key={filter.id}>
                                     {filter.hashtag && filter.rule.name === 'hashtag' && <div className={optionsHashOuter}>
                                         <Hashtag hashtag={filter.hashtag} panelId={panelId} />
@@ -166,17 +192,17 @@ export const RootItemViewer: React.FC = () => {
                             <div className={showOptsStyle} onClick={handleToggleOptions}>Opts</div>
                         </div>
                     </div>
-                    <div className={panelList.length < 2 ? containerStyle : containerStyleMulti}>
+                    <div className={panel.list.length < 2 ? containerStyle : containerStyleMulti}>
                         {showOptions && <OptionsViewer panelId={panelId} />}
 
                         <div className={mainStyle}>
-                            {panel.viewedItemList.map((id: ItemId) => (
+                            {xpanel.viewedItemList.map((id: ItemId) => (
                                 <ItemViewer key={id} item={items[id]} parentId={null} path={''} panelId={panelId} />
                             ))}
                             {showChildrenAdder === panelId && (
                                 <ItemAdderViewer parentId={undefined} onClose={handleNewClose} panelId={panelId} />
                             )}
-                            {!panelList[panelId].options.disableAdding && <button onClick={handleNew(panelId)}>Add</button>}
+                            {!panel.list[panelId].options.disableAdding && <button onClick={handleNew(panelId)}>Add</button>}
                         </div>
 
                     </div>

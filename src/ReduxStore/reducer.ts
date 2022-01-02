@@ -43,6 +43,11 @@ export interface PanelOptions {
     order: { attribute?: string; asc?: boolean };
 }
 
+export interface PanelWithOptions {
+    options: PanelOptions;
+    list: Panel[];
+}
+
 export interface State {
     hover: any;
     draggedId: ItemId | null;
@@ -50,7 +55,7 @@ export interface State {
     itemList: ItemId[];
     changes: Record<ChangeId, Change>;
     changeList: ChangeId[];
-    panelList: Panel[];
+    panel: PanelWithOptions;
     panelNames: string[];
     version: number;
     lastAlive: { time: number, message: string }[];
@@ -86,17 +91,23 @@ export const appReducer = (
     if (isType(action, addPanel)) {
         return {
             ...state,
-            panelList: [...state.panelList, getDefaultPanel()],
+            panel: {
+                options: state.panel.options,
+                list: [...state.panel.list, getDefaultPanel()],
+            },
             version: state.version + 1
         };
     }
 
     if (isType(action, removePanel)) {
-        if (state.panelList.length < 2) return state;
+        if (state.panel.list.length < 2) return state;
 
         return {
             ...state,
-            panelList: [...state.panelList.filter((val, ind) => ind !== action.payload)],
+            panel: {
+                options: state.panel.options,
+                list: [...state.panel.list.filter((val, ind) => ind !== action.payload)],
+            },
             version: state.version + 1
         };
     }
@@ -104,62 +115,62 @@ export const appReducer = (
     if (isType(action, updatesPanels)) {
         return {
             ...state,
-            panelList: PanelList.updatePanels(state, state.panelList, action.payload),
+            panel: PanelList.updatePanels(state, state.panel, action.payload),
             version: state.version + 1
         };
     }
 
     if (isType(action, order)) {
         const { panelId, asc, attribute } = action.payload;
-        const { panelList } = state;
+        const { panel } = state;
 
         return {
             ...state,
-            panelList: PanelList.setOrder(state, panelList, panelId, { asc, attribute }),
+            panel: PanelList.setOrder(state, panel, panelId, { asc, attribute }),
             version: state.version + 1
         };
     }
 
     if (isType(action, search)) {
         const { panelId, searchString } = action.payload;
-        const { panelList } = state;
+        const { panel } = state;
 
         return {
             ...state,
-            panelList: PanelList.setSearch(state, panelList, panelId, searchString),
+            panel: PanelList.setSearch(state, panel, panelId, searchString),
             version: state.version + 1
         };
     }
 
     if (isType(action, toggleFilter)) {
         const { panelId, filterName } = action.payload;
-        const { panelList } = state;
+        const { panel } = state;
 
         return {
             ...state,
-            panelList: PanelList.toggleFilter(state, panelList, panelId, filterName),
+            panel: PanelList.toggleFilter(state, panel, panelId, filterName),
             version: state.version + 1
         };
     }
 
     if (isType(action, toggleHashtagFilter)) {
         const { panelId, hashtagInfo } = action.payload;
-        const { panelList } = state;
+        const { panel } = state;
 
         return {
             ...state,
-            panelList: PanelList.toggleHashtagFilter(state, panelList, panelId, hashtagInfo),
+            panel: PanelList.toggleHashtagFilter(state, panel, panelId, hashtagInfo),
             version: state.version + 1
         };
     }
 
     if (isType(action, toggleInvertedHashtagFilter)) {
         const { panelId, hashtagInfo } = action.payload;
-        const { panelList } = state;
+        const { panel } = state;
 
         return {
             ...state,
-            panelList: PanelList.toggleInvertedHashtagFilter(state, panelList, panelId, hashtagInfo),
+            panel: PanelList.toggleInvertedHashtagFilter(state, panel, panelId, hashtagInfo),
             version: state.version + 1
         };
     }
@@ -185,7 +196,7 @@ export const appReducer = (
                 ...state.items,
                 [action.payload.id]: action.payload
             },
-            panelList: PanelList.updateItem(state, state.panelList, action.payload),
+            panel: PanelList.updateItem(state, state.panel, action.payload),
             version: state.version + 1
         };
     }
@@ -200,7 +211,7 @@ export const appReducer = (
         return {
             ...state,
             items,
-            panelList: PanelList.updateItems(state, state.panelList, action.payload),
+            panel: PanelList.updateItems(state, state.panel, action.payload),
             version: state.version + 1
         };
     }
@@ -239,7 +250,7 @@ export const appReducer = (
         return {
             ...state,
             itemList,
-            panelList: PanelList.updateViewedItemList(state, state.panelList),
+            panel: PanelList.updateViewedItemList(state, state.panel),
             version: state.version + 1
         };
     }
@@ -256,18 +267,18 @@ export const appReducer = (
         return {
             ...state,
             itemList: action.payload,
-            panelList: PanelList.updateViewedItemList(state, state.panelList),
+            panel: PanelList.updateViewedItemList(state, state.panel),
             version: state.version + 1
         };
     }
 
     if (isType(action, setFilters)) {
         const { panelId, filters } = action.payload;
-        const { panelList } = state;
+        const { panel } = state;
 
         return {
             ...state,
-            panelList: PanelList.setFilters(state, panelList, panelId, filters),
+            panel: PanelList.setFilters(state, panel, panelId, filters),
             version: state.version + 1
         };
     }
