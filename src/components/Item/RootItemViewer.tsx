@@ -8,7 +8,7 @@ import { media, style } from 'typestyle';
 import { OptionsViewer } from './OptionsViewer';
 import { HashtagInfo } from '../../model/Item/ViewItem';
 import { Hashtag } from '../Hashtag';
-import { hashtagRibbonStyle } from './ItemViewer/ItemViewer.style';
+import { hashtagRibbonStyle, omitMobile } from './ItemViewer/ItemViewer.style';
 import { Filter } from '../../model/Filter';
 import { ConnectionChecker } from './ConnectionChecker';
 import { RootState } from '../../ReduxStore';
@@ -132,32 +132,37 @@ export const RootItemViewer: React.FC = () => {
 
     return (
         <div>
-            <div><i>Version 2021.12.15.2</i> PanelConfigId: {panelConfigName},
-                All configs:
-                {panelNames.map(panelName => <NavLink key={panelName} to={'/panels/' + panelName}>{panelName}</NavLink>)}
+            <div><i>Version 2021.12.15.2</i>
+                <span className={omitMobile}>
+                    PanelConfigId: {panelConfigName},
+                    All configs:
+                    {panelNames.map(panelName => <NavLink key={panelName} to={'/panels/' + panelName}>{panelName}</NavLink>)}
+                </span>
             </div>
             <ConnectionChecker />
-            <CalendarGenerator />
-            <hr />
-            Global:
-            <div className={hashtagRibbonStyle}>
-                {panel.options.filters.map((filter: Filter) => (
-                    <div key={filter.id}>
-                        {filter.hashtag && filter.rule.name === 'hashtag' && <div className={optionsHashOuter}>
-                            <Hashtag hashtag={filter.hashtag} panelId={-1} />
-                        </div>}
-                        {filter.hashtag && filter.rule.name === 'notHashtag' && <div className={optionsHashOuter}>
-                            <InvertedHashtag hashtag={filter.hashtag} panelId={-1} />
-                        </div>}
-                    </div>
-                ))}
-            </div>
-            <hr />
-            <div className={hashtagRibbonStyle}>
-                {hashtagItemIds
-                    .map(id =>
-                        <Hashtag hashtag={idToHashtagInfo(id)} key={id} panelId={-1} />
-                    )}
+            <div className={omitMobile}>
+                <CalendarGenerator />
+                <hr />
+                Global:
+                <div className={hashtagRibbonStyle}>
+                    {panel.options.filters.map((filter: Filter) => (
+                        <div key={filter.id}>
+                            {filter.hashtag && filter.rule.name === 'hashtag' && <div className={optionsHashOuter}>
+                                <Hashtag hashtag={filter.hashtag} panelId={-1} />
+                            </div>}
+                            {filter.hashtag && filter.rule.name === 'notHashtag' && <div className={optionsHashOuter}>
+                                <InvertedHashtag hashtag={filter.hashtag} panelId={-1} />
+                            </div>}
+                        </div>
+                    ))}
+                </div>
+                <hr />
+                <div className={hashtagRibbonStyle}>
+                    {hashtagItemIds
+                        .map(id =>
+                            <Hashtag hashtag={idToHashtagInfo(id)} key={id} panelId={-1} />
+                        )}
+                </div>
             </div>
             <div className={containerStyleMulti}>
                 {showOptions && <OptionsViewer panelId={-1} />}

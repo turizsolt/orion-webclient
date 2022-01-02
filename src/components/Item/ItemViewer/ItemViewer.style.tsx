@@ -199,6 +199,19 @@ export const responsibleCircleStyle = style({
     marginRight: '5px'
 });
 
+export const omitMobile = style(
+    media(
+        { minWidth: 0, maxWidth: 899 },
+        { display: 'none' }
+    ),
+    media(
+        { minWidth: 900 },
+        {
+            display: 'block'
+        }
+    )
+);
+
 export const linkStyle = style({ textDecoration: 'none', color: 'inherit' });
 
 export const hashtagRibbonStyle = style({ display: 'flex', flexWrap: 'wrap' });
