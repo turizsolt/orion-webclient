@@ -65,6 +65,17 @@ export function getDefaultPanel(): Panel {
                     rule: { name: 'isNot', field: 'state', value: 'done' },
                     on: true
                 }),
+                transformFilter({
+                    id: 'seven-days',
+                    name: 'Next seven days',
+                    f: () => () => false,
+                    rule: {
+                        name: 'days',
+                        startDay: 0,
+                        endDay: +6,
+                    },
+                    on: false
+                }),
             ],
             search: '',
             order: { attribute: 'priority', asc: true },

@@ -15,6 +15,10 @@ export interface FilterRule {
     field?: string;
     value?: any;
     hashtagInfo?: HashtagInfo;
+    start?: Date;
+    end?: Date;
+    startDay?: number;
+    endDay?: number;
 }
 
 const transformRuleToFunction = (rule: FilterRule): (items: Record<string, ViewItem>) => (id: string) => boolean => {
@@ -37,6 +41,24 @@ const transformRuleToFunction = (rule: FilterRule): (items: Record<string, ViewI
             const id = rule.hashtagInfo ? rule.hashtagInfo.id : '';
             return (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
                 items[x].hashtags.some(hash => hash.id === id);
+
+        case 'during':
+            return (items: Record<ItemId, ViewItem>) => (x: ItemId) => items[x].originalFields.due &&
+                items[x].originalFields.due.value >= (rule.start as Date) &&
+                items[x].originalFields.due.value <= (rule.end as Date);
+
+        case 'days':
+            const start: Date = (new Date());
+            start.setHours(0, 0, 0, 0);
+            start.setDate(start.getDate() + (rule.startDay as number));
+
+            const end: Date = (new Date());
+            end.setHours(23, 59, 59, 999);
+            end.setDate(start.getDate() + (rule.endDay as number));
+
+            return (items: Record<ItemId, ViewItem>) => (x: ItemId) => items[x].originalFields.due &&
+                items[x].originalFields.due.value >= (start as Date).toISOString() &&
+                items[x].originalFields.due.value <= (end as Date).toISOString();
 
         default:
             return () => () => false;
