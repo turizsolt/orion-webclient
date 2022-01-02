@@ -37,6 +37,7 @@ export interface Panel {
 }
 
 export interface PanelOptions {
+    disableAdding?: boolean;
     filters: Filter[];
     search: string;
     order: { attribute?: string; asc?: boolean };

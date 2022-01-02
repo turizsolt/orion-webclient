@@ -163,7 +163,7 @@ export const RootItemViewer: React.FC = () => {
                             {showChildrenAdder === panelId && (
                                 <ItemAdderViewer parentId={undefined} onClose={handleNewClose} panelId={panelId} />
                             )}
-                            <button onClick={handleNew(panelId)}>Add</button>
+                            {!panelList[panelId].options.disableAdding && <button onClick={handleNew(panelId)}>Add</button>}
                         </div>
 
                     </div>

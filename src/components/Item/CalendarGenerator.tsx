@@ -113,6 +113,9 @@ export const CalendarGenerator: React.FC<Props> = (props) => {
             }));
         }
 
+        newPanelList[0].options.disableAdding = true;
+        newPanelList[5].options.disableAdding = true;
+
         actions.setPanels(newPanelList);
     }, [actions, date, panelList]);
 
