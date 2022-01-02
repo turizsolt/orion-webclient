@@ -3,6 +3,7 @@ import { style } from 'typestyle';
 import { Actions } from '../../LocalStore/Actions';
 import { ActionsContext } from '../../App';
 import { useSelector } from 'react-redux';
+import { RootState } from '../../ReduxStore';
 
 const checkerStyle = style({
     margin: 0,
@@ -18,7 +19,7 @@ export const ConnectionChecker: React.FC = () => {
     const actions: Actions = useContext(ActionsContext);
 
     const {lastAlive} = useSelector(
-        (state: any) => state.appReducer
+        (state: RootState) => state.appReducer
     );
 
     const fn = (value: {time: number, message: string}):string => {

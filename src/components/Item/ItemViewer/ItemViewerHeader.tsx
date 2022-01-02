@@ -18,10 +18,17 @@ import {
     hashtagListSecondRowStyle,
     headerIdStyle,
     headerDesktopOnlyButtonStyle,
-    headerMobileOnlyButtonStyle
+    headerMobileOnlyButtonStyle,
+    headerSecondRowStyleMulti,
+    headerDesktopOnlyButtonStyleMulti,
+    headerMobileOnlyButtonStyleMulti,
+    hashtagListStyleMulti,
+    headerIdStyleMulti
 } from './ItemViewer.style';
 import { Hashtag } from '../../Hashtag';
 import { Filter } from '../../../model/Filter';
+import { RootState } from '../../../ReduxStore';
+import { Datetag } from '../../Datetag';
 
 export interface Props {
     item: ViewItem;
@@ -33,6 +40,7 @@ export interface Props {
     handleChildrenCollapse: () => void;
     collapsed: boolean;
     childrenCollapsed: boolean;
+    panelId: number;
 }
 
 export const ItemViewerHeader: React.FC<Props> = props => {
@@ -46,11 +54,15 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         collapsed,
         handleNewOpen,
         handleCollapse,
-        handleChildrenCollapse
+        handleChildrenCollapse,
+        panelId
     } = props;
-    const { itemsMeta, hover, draggedId, filters } = useSelector(
-        (state: any) => state.appReducer
+    const { panel, hover, draggedId } = useSelector(
+        (state: RootState) => state.appReducer
     );
+
+    const { itemsMeta, options } = panel.list[panelId];
+    const filters = [...panel.options.filters, ...options.filters];
 
     const handleMobileCollapse = useCallback(() => {
         handleCollapse();
@@ -60,7 +72,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
     // remove the hashtags that are alredy filtered
     const hashtagIds: ItemId[] = filters
         .filter((filter: Filter) => filter.hashtag)
-        .map((filter: Filter) => filter.hashtag && filter.hashtag.id);
+        .map((filter: Filter) => (filter.hashtag && filter.hashtag.id) as string);
     const shownHashtags = item.hashtags.filter((h: HashtagInfo) => !hashtagIds.includes(h.id));
 
     const actions: Actions = useContext(ActionsContext);
@@ -70,9 +82,24 @@ export const ItemViewerHeader: React.FC<Props> = props => {
     const handleMakeDone = useCallback(
         () => {
             actions.changeItem(item.id, 'state', item.originalFields.state && item.originalFields.state.value, 'done');
+            actions.changeItem(item.id, 'doneAt', item.originalFields.doneAt && item.originalFields.doneAt.value, new Date().toISOString());
         },
         [item, actions]
     );
+
+    const handleMakeRejected = useCallback(
+        () => {
+            actions.changeItem(item.id, 'state', item.originalFields.state && item.originalFields.state.value, 'rejected');
+        },
+        [item, actions]
+    );
+
+    const itemColor = (item: ViewItem): string => {
+        if (item.originalFields.state && item.originalFields.state.value === 'done') return '#4fc58a'; // green
+        if (item.originalFields.state && item.originalFields.state.value === 'rejected') return '#eea5a6'; // red
+        return item.originalFields.generated ? '#d2d3bc' : item.originalFields.template ? '#ffffff' : '#bcd2d3';
+        // yellow, white and default blue
+    }
 
     drop(ref);
     drag(dragRef);
@@ -84,7 +111,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
             style={{
                 opacity: ghost ? 0.5 : 1,
                 display: !ghost && hover && draggedId === item.id ? 'none' : 'flex',
-                backgroundColor: item.originalFields.generated ? '#d2d3bc' : item.originalFields.template ? '#d2bcd3' : '#bcd2d3'
+                backgroundColor: itemColor(item)
             }}
         >
             <div className={headerFirstRowStyle}>
@@ -94,14 +121,16 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                     ☰
                 </div>
 
+                {item.originalFields.due && <Datetag date={item.originalFields.due.value} />}
+
                 <FieldViewer
                     id={item.id}
                     {...item.fields[0]}
                     params={{ noLabel: true }}
                 />
-                <div className={hashtagListStyle}>
+                <div className={panel.list.length < 2 ? hashtagListStyle : hashtagListStyleMulti}>
                     {shownHashtags.map(x => (
-                        <Hashtag hashtag={x} key={x.id} />
+                        <Hashtag hashtag={x} key={x.id} panelId={panelId} />
                     ))}
                 </div>
                 <div style={{ display: 'flex' }}>
@@ -111,29 +140,32 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                         </div>
                     ))}
                 </div>
-                <div className={headerIdStyle}>
+                <div className={panel.list.length < 2 ? headerIdStyle : headerIdStyleMulti}>
                     <Link to={`/${item.id}`}>{item.id.substr(0, 6)}</Link>
                 </div>
-                <button className={headerDesktopOnlyButtonStyle} onClick={handleNewOpen}>
+                <button className={panel.list.length < 2 ? headerDesktopOnlyButtonStyle : headerDesktopOnlyButtonStyleMulti} onClick={handleNewOpen}>
                     {'+'}
                 </button>
-                <button className={headerDesktopOnlyButtonStyle} onClick={handleCollapse}>
+                <button className={panel.list.length < 2 ? headerDesktopOnlyButtonStyle : headerDesktopOnlyButtonStyleMulti} onClick={handleCollapse}>
                     {collapsed ? 'V' : 'A'}
                 </button>
-                <button className={headerDesktopOnlyButtonStyle} onClick={handleChildrenCollapse}>
-                    {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
+                <button className={panel.list.length < 2 ? headerDesktopOnlyButtonStyle : headerDesktopOnlyButtonStyleMulti} onClick={handleChildrenCollapse}>
+                    {childrenCollapsed ? (itemsMeta[item.id] && itemsMeta[item.id].viewedChildren.length) : '-'}
                 </button>
-                <button className={headerMobileOnlyButtonStyle} onClick={handleMobileCollapse}>
-                    {childrenCollapsed ? itemsMeta[item.id].viewedChildren.length : '-'}
+                <button className={panel.list.length < 2 ? headerMobileOnlyButtonStyle : headerMobileOnlyButtonStyleMulti} onClick={handleMobileCollapse}>
+                    {childrenCollapsed ? (itemsMeta[item.id] && itemsMeta[item.id].viewedChildren.length) : '-'}
+                </button>
+                <button className={headerButtonStyle} onClick={handleMakeRejected}>
+                    X
                 </button>
                 <button className={headerButtonStyle} onClick={handleMakeDone}>
                     ✓
                 </button>
             </div>
-            <div className={headerSecondRowStyle}>
+            <div className={panel.list.length < 2 ? headerSecondRowStyle : headerSecondRowStyleMulti}>
                 <div className={hashtagListSecondRowStyle}>
                     {shownHashtags.map(x => (
-                        <Hashtag hashtag={x} key={x.id} />
+                        <Hashtag hashtag={x} key={x.id} panelId={panelId} />
                     ))}
                 </div>
             </div>

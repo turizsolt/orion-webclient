@@ -1,4 +1,4 @@
-import React, { MouseEvent, useCallback, useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { ActionsContext } from '../App';
 import { Actions } from '../LocalStore/Actions';
 import { HashtagInfo } from '../model/Item/ViewItem';
@@ -14,32 +14,30 @@ interface Props {
     removeHashtag?: () => void;
 }
 
-export const Hashtag: React.FC<Props> = (props) => {
+export const InvertedHashtag: React.FC<Props> = (props) => {
     const { hashtag, removeHashtag, panelId } = props;
 
     const actions: Actions = useContext(ActionsContext);
 
     const handleClick = useCallback(
-        (event: MouseEvent) => {
-            if (event.ctrlKey) {
-                actions.toggleInvertedHashtagFilter(panelId, hashtag);
-            } else {
-                actions.toggleHashtagFilter(panelId, hashtag);
-            }
+        () => {
+            actions.toggleInvertedHashtagFilter(panelId, hashtag);
         },
         [actions, hashtag, panelId]
     );
+
+    const color = '#000000';
 
     return (
         <span
             className={hashtagStyle}
             style={{
-                color: getContrastColor(hashtag.color),
-                backgroundColor: hashtag.color
+                color: getContrastColor(color),
+                backgroundColor: color
             }}
             key={hashtag.hashtag}
         >
-            <span className={hashtagWidthStyle} onClick={handleClick}>#{hashtag.hashtag}</span>
+            <span className={hashtagWidthStyle} onClick={handleClick}>!!!{hashtag.hashtag}</span>
             {removeHashtag && <>
                 &nbsp;
                 <span

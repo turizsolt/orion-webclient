@@ -19,9 +19,16 @@ import {
     toggleFilter,
     search,
     order,
-    toggleHashtagFilter
+    toggleHashtagFilter,
+    setPanelNames,
+    updatesPanels,
+    removePanel,
+    addPanel,
+    toggleInvertedHashtagFilter
 } from '../ReduxStore/actions';
 import { HashtagInfo } from '../model/Item/ViewItem';
+import { Panel, PanelOptions } from '../ReduxStore/reducer';
+import { transformFilter } from '../model/Filter';
 
 const idGen = new ActualIdGenerator();
 
@@ -42,7 +49,7 @@ export class Actions {
 
     ping(): void {
         this.store.ping();
-        this.store.updateAlive((new Date()).getTime(), 'ping '+this.serverCommunication.connected().toString());
+        this.store.updateAlive((new Date()).getTime(), 'ping ' + this.serverCommunication.connected().toString());
     }
 
     reconnect(): void {
@@ -51,20 +58,20 @@ export class Actions {
 
     login(username: string, password: string): void {
         (async () => {
-            const rawResponse = await fetch((window as any).loginUrl+'login', {
-              method: 'POST',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({username, password})
+            const rawResponse = await fetch((window as any).loginUrl + 'login', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
             });
             const content = await rawResponse.json();
-          
-            if(content.token) {
+
+            if (content.token) {
                 this.setToken(content.token);
-            }   
-          })();
+            }
+        })();
     }
 
     setToken(token: string): void {
@@ -114,20 +121,24 @@ export class Actions {
         this.dispatcher.dispatch(draggedItem(itemId));
     }
 
-    toggleFilter(filterId: string) {
-        this.dispatcher.dispatch(toggleFilter(filterId));
+    toggleFilter(panelId: number, filterName: string) {
+        this.dispatcher.dispatch(toggleFilter({ panelId, filterName }));
     }
 
-    search(searchString: string) {
-        this.dispatcher.dispatch(search(searchString));
+    search(panelId: number, searchString: string) {
+        this.dispatcher.dispatch(search({ panelId, searchString }));
     }
 
-    order(props: { attribute?: string; asc?: boolean }) {
-        this.dispatcher.dispatch(order(props));
+    order(panelId: number, props: { attribute?: string; asc?: boolean }) {
+        this.dispatcher.dispatch(order({ panelId, ...props }));
     }
 
-    toggleHashtagFilter(hashtag: HashtagInfo) {
-        this.dispatcher.dispatch(toggleHashtagFilter(hashtag));
+    toggleHashtagFilter(panelId: number, hashtagInfo: HashtagInfo) {
+        this.dispatcher.dispatch(toggleHashtagFilter({ panelId, hashtagInfo }));
+    }
+
+    toggleInvertedHashtagFilter(panelId: number, hashtagInfo: HashtagInfo) {
+        this.dispatcher.dispatch(toggleInvertedHashtagFilter({ panelId, hashtagInfo }));
     }
 
     createItem(field: FieldName, newValue: any): ItemId {
@@ -229,5 +240,42 @@ export class Actions {
         this.store.commit(transaction);
 
         return newId;
+    }
+
+    initPanels(panelName: string): void {
+        const panelNames: string[] = JSON.parse(this.localStorage.getItem('panelNames'));
+        const panelOptions: PanelOptions[] = JSON.parse(this.localStorage.getItem('panelName-' + panelName));
+
+        this.dispatcher.dispatch(setPanelNames(panelNames || []));
+
+        if (panelOptions) {
+            panelOptions.forEach((po, ind) => {
+                panelOptions[ind] = ({ ...po, filters: po.filters.map(transformFilter) })
+            });
+            this.dispatcher.dispatch(updatesPanels(panelOptions));
+        }
+    }
+
+    setPanels(panels: Panel[]): void {
+        this.dispatcher.dispatch(updatesPanels(panels.map(p => p.options)));
+    }
+
+    savePanels(panelName: string, panelOptions: PanelOptions[]): void {
+        const panelNames: string[] = JSON.parse(this.localStorage.getItem('panelNames')) || [];
+        if (!panelNames.includes(panelName)) {
+            panelNames.push(panelName);
+            this.localStorage.setItem('panelNames', JSON.stringify(panelNames));
+            this.dispatcher.dispatch(setPanelNames(panelNames));
+        }
+
+        this.localStorage.setItem('panelName-' + panelName, JSON.stringify(panelOptions));
+    }
+
+    addPanel(): void {
+        this.dispatcher.dispatch(addPanel(null));
+    }
+
+    removePanel(panelId: number): void {
+        this.dispatcher.dispatch(removePanel(panelId));
     }
 }

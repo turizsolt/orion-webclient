@@ -1,15 +1,44 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { ItemViewer } from './ItemViewer/ItemViewer';
 import { ItemId } from '../../model/Item/ItemId';
 import { useSelector } from 'react-redux';
+import { useParams } from 'react-router';
 import { ItemAdderViewer } from './ItemAdderViewer';
-import { style, media } from 'typestyle';
+import { media, style } from 'typestyle';
 import { OptionsViewer } from './OptionsViewer';
 import { HashtagInfo } from '../../model/Item/ViewItem';
 import { Hashtag } from '../Hashtag';
-import { hashtagRibbonStyle } from './ItemViewer/ItemViewer.style';
+import { hashtagRibbonStyle, omitMobile } from './ItemViewer/ItemViewer.style';
 import { Filter } from '../../model/Filter';
 import { ConnectionChecker } from './ConnectionChecker';
+import { RootState } from '../../ReduxStore';
+import { Panel } from '../../ReduxStore/reducer';
+import { Actions } from '../../LocalStore/Actions';
+import { ActionsContext } from '../../App';
+import { NavLink } from 'react-router-dom';
+import { InvertedHashtag } from '../InvertedHashtag';
+import { CalendarGenerator } from './CalendarGenerator';
+
+const panelContainerStyle = style(
+    {
+        display: 'flex',
+        width: '100%'
+    }
+);
+
+const panelContainerStyleSixPlus = style(
+    {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr',
+        width: '100%'
+    }
+);
+
+const panelStyle = style(
+    {
+        flexBasis: '100%'
+    }
+);
 
 const containerStyle = style(
     media(
@@ -24,6 +53,14 @@ const containerStyle = style(
         { minWidth: 900 },
         { display: 'flex', flexDirection: 'row-reverse', width: '100%' }
     )
+);
+
+const containerStyleMulti = style(
+    {
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%'
+    }
 );
 
 export const showOptsStyle = style({
@@ -46,11 +83,20 @@ const optionsHashOuter = style({
 const mainStyle = style({ flexGrow: 1 });
 
 export const RootItemViewer: React.FC = () => {
-    const { items, itemList, viewedItemList, filters } = useSelector(
-        (state: any) => state.appReducer
+    const { id: panelConfigName } = useParams<{ id: ItemId }>();
+
+    const actions: Actions = useContext(ActionsContext);
+
+    useEffect(() => {
+        actions.initPanels(panelConfigName);
+    }, [panelConfigName, actions]);
+
+    const { items, itemList, panel, panelNames } = useSelector(
+        (state: RootState) => state.appReducer
     );
 
-    const [showChildrenAdder, setShowChildrenAdder] = useState(false);
+    const [showChildrenAdder, setShowChildrenAdder] = useState(-1);
+    const [showHashtagAdder, setShowHashtagAdder] = useState(-1);
 
     const hashtagItemIds: ItemId[] = itemList.filter(
         (itemId: ItemId) =>
@@ -67,12 +113,16 @@ export const RootItemViewer: React.FC = () => {
         };
     };
 
-    const handleNew = useCallback(() => {
-        setShowChildrenAdder(true);
+    const handleNew = useCallback((panelId: number) => () => {
+        setShowChildrenAdder(panelId);
     }, []);
 
+    const handleHashtagAdder = useCallback((panelId: number) => () => {
+        setShowHashtagAdder(showHashtagAdder === panelId ? -1 : panelId);
+    }, [showHashtagAdder]);
+
     const handleNewClose = useCallback(() => {
-        setShowChildrenAdder(false);
+        setShowChildrenAdder(-1);
     }, []);
 
     const [showOptions, setShowOptions] = useState(false);
@@ -80,44 +130,88 @@ export const RootItemViewer: React.FC = () => {
         setShowOptions(!showOptions);
     }, [showOptions]);
 
-    const showAllHashtags = !filters.some((filter: Filter) => filter.hashtag);
-
     return (
         <div>
-            <div><i>Version 2021.12.15.2</i></div>
-            <ConnectionChecker />  
-            <div>
-                {showAllHashtags && <>
-                    <div className={hashtagRibbonStyle}>
-                        {hashtagItemIds
-                            .map(id =>
-                                <Hashtag hashtag={idToHashtagInfo(id)} key={id} />
-                            )}
-                    </div>
-                    <hr />
-                </>}
+            <div><i>Version 2021.12.15.2</i>
+                <span className={omitMobile}>
+                    PanelConfigId: {panelConfigName},
+                    All configs:
+                    {panelNames.map(panelName => <NavLink key={panelName} to={'/panels/' + panelName}>{panelName}</NavLink>)}
+                </span>
+            </div>
+            <ConnectionChecker />
+            <div className={omitMobile}>
+                <CalendarGenerator />
+                <hr />
+                Global:
                 <div className={hashtagRibbonStyle}>
-                    {filters.map((filter: Filter) => (
+                    {panel.options.filters.map((filter: Filter) => (
                         <div key={filter.id}>
-                            {filter.hashtag && <div className={optionsHashOuter}>
-                                <Hashtag hashtag={filter.hashtag} />
+                            {filter.hashtag && filter.rule.name === 'hashtag' && <div className={optionsHashOuter}>
+                                <Hashtag hashtag={filter.hashtag} panelId={-1} />
+                            </div>}
+                            {filter.hashtag && filter.rule.name === 'notHashtag' && <div className={optionsHashOuter}>
+                                <InvertedHashtag hashtag={filter.hashtag} panelId={-1} />
                             </div>}
                         </div>
                     ))}
-                    <div className={showOptsStyle} onClick={handleToggleOptions}>Opts</div>
+                </div>
+                <hr />
+                <div className={hashtagRibbonStyle}>
+                    {hashtagItemIds
+                        .map(id =>
+                            <Hashtag hashtag={idToHashtagInfo(id)} key={id} panelId={-1} />
+                        )}
                 </div>
             </div>
-            <div className={containerStyle}>
-                {showOptions && <OptionsViewer />}
-                <div className={mainStyle}>
-                    {viewedItemList.map((id: ItemId) => (
-                        <ItemViewer key={id} item={items[id]} parentId={null} path={''} />
-                    ))}
-                    {showChildrenAdder && (
-                        <ItemAdderViewer parentId={undefined} onClose={handleNewClose} />
-                    )}
-                    <button onClick={handleNew}>Add</button>
+            <div className={containerStyleMulti}>
+                {showOptions && <OptionsViewer panelId={-1} />}
+            </div>
+            <hr />
+            {showHashtagAdder !== -1 && <>
+                Panel based:
+                <div className={hashtagRibbonStyle}>
+                    {hashtagItemIds
+                        .map(id =>
+                            <Hashtag hashtag={idToHashtagInfo(id)} key={id} panelId={showHashtagAdder} />
+                        )}
                 </div>
+                <button onClick={handleHashtagAdder(-1)}>#close</button>
+                <hr />
+            </>}
+            <div className={panel.list.length < 7 ? panelContainerStyle : panelContainerStyleSixPlus}>
+                {panel.list.map((xpanel: Panel, panelId: number) => <div key={panelId} className={panelStyle}>
+                    <div>
+                        <div className={hashtagRibbonStyle}>
+                            {xpanel.options.filters.map((filter: Filter) => (
+                                <div key={filter.id}>
+                                    {filter.hashtag && filter.rule.name === 'hashtag' && <div className={optionsHashOuter}>
+                                        <Hashtag hashtag={filter.hashtag} panelId={panelId} />
+                                    </div>}
+                                    {filter.hashtag && filter.rule.name === 'notHashtag' && <div className={optionsHashOuter}>
+                                        <InvertedHashtag hashtag={filter.hashtag} panelId={panelId} />
+                                    </div>}
+                                </div>
+                            ))}
+                            <button onClick={handleHashtagAdder(panelId)}>{showHashtagAdder === panelId ? '#close' : '#add'}</button>
+                            <div className={showOptsStyle} onClick={handleToggleOptions}>Opts</div>
+                        </div>
+                    </div>
+                    <div className={panel.list.length < 2 ? containerStyle : containerStyleMulti}>
+                        {showOptions && <OptionsViewer panelId={panelId} />}
+
+                        <div className={mainStyle}>
+                            {xpanel.viewedItemList.map((id: ItemId) => (
+                                <ItemViewer key={id} item={items[id]} parentId={null} path={''} panelId={panelId} />
+                            ))}
+                            {showChildrenAdder === panelId && (
+                                <ItemAdderViewer parentId={undefined} onClose={handleNewClose} panelId={panelId} />
+                            )}
+                            {!panel.list[panelId].options.disableAdding && <button onClick={handleNew(panelId)}>Add</button>}
+                        </div>
+
+                    </div>
+                </div>)}
             </div>
         </div>
     );

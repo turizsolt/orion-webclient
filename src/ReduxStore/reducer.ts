@@ -1,417 +1,295 @@
 import { AnyAction } from 'redux';
 import { isType } from 'typescript-fsa';
 import {
-  updateItem,
-  addToItems,
-  createItemList,
-  setFilters,
-  updateChange,
-  addToChanges,
-  hoverItem,
-  draggedItem,
-  toggleFilter,
-  search,
-  order,
-  toggleHashtagFilter,
-  updateAlive,
-  updateChanges,
-  updateItems
+    updateItem,
+    addToItems,
+    createItemList,
+    setFilters,
+    updateChange,
+    addToChanges,
+    hoverItem,
+    draggedItem,
+    toggleFilter,
+    search,
+    order,
+    toggleHashtagFilter,
+    updateAlive,
+    updateChanges,
+    updateItems,
+    setPanelNames,
+    updatesPanels,
+    addPanel,
+    removePanel,
+    toggleInvertedHashtagFilter
 } from './actions';
 import { ItemId } from '../model/Item/ItemId';
 import { ViewItem, ViewItemMeta } from '../model/Item/ViewItem';
-import { getTitle, getField } from './commons';
 import { ChangeId } from '../model/Change/ChangeId';
 import { Change } from '../model/Change/Change';
 import { Filter } from '../model/Filter';
+import { PanelList } from './PanelList';
+import { getDefaultPanel, getInitialState } from './reducerInitialState';
 
-export interface State {
-  hover: any;
-  draggedId: ItemId | null;
-  itemsMeta: Record<ItemId, ViewItemMeta>;
-  items: Record<ItemId, ViewItem>;
-  itemList: ItemId[];
-  viewedItemList: ItemId[];
-  changes: Record<ChangeId, Change>;
-  changeList: ChangeId[];
-  filters: Filter[];
-  search: string;
-  order: { attribute?: string; asc?: boolean };
-  version: number;
-  lastAlive: {time: number, message: string}[];
+export interface Panel {
+    viewedItemList: ItemId[];
+    itemsMeta: Record<ItemId, ViewItemMeta>;
+    options: PanelOptions;
 }
 
-const initialState = {
-  hover: null,
-  draggedId: null,
-  itemsMeta: {},
-  items: {},
-  itemList: [],
-  viewedItemList: [],
-  changes: {},
-  changeList: [],
-  filters: [
-    {
-      id: 'roots',
-      name: 'Hide non-root items',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        items[x].parents.length === 0,
-      on: true
-    },
-    {
-      id: 'no-templates',
-      name: 'Hide template items',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        !items[x].originalFields.template ||
-        !items[x].originalFields.template.value,
-      on: true
-    },
-    {
-      id: 'no-generateds',
-      name: 'Hide generated items',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        !items[x].originalFields.generated ||
-        !items[x].originalFields.generated.value,
-      on: false
-    },
-    {
-      id: 'skip-hashtags',
-      name: 'Hide hashtags at root',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        !items[x].originalFields.hashtag ||
-        !items[x].originalFields.hashtag.value,
-      on: true
-    },
-    {
-      id: 'not-deleted',
-      name: 'Hide deleted items',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        !items[x].originalFields.deleted ||
-        items[x].originalFields.deleted.value !== true,
-      on: true
-    },
-    {
-      id: 'not-done',
-      name: 'Hide done items',
-      f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-        !items[x].originalFields.state ||
-        items[x].originalFields.state.value !== 'done',
-      on: true
-    }
-  ],
-  search: '',
-  order: { attribute: 'priority', asc: true },
-  lastAlive: [],
-  version: 0
-};
+export interface PanelOptions {
+    disableAdding?: boolean;
+    filters: Filter[];
+    search: string;
+    order: { attribute?: string; asc?: boolean };
+}
+
+export interface PanelWithOptions {
+    options: PanelOptions;
+    list: Panel[];
+}
+
+export interface State {
+    hover: any;
+    draggedId: ItemId | null;
+    items: Record<ItemId, ViewItem>;
+    itemList: ItemId[];
+    changes: Record<ChangeId, Change>;
+    changeList: ChangeId[];
+    panel: PanelWithOptions;
+    panelNames: string[];
+    version: number;
+    lastAlive: { time: number, message: string }[];
+}
+
+const initialState: State = getInitialState();
 
 export const appReducer = (
-  state: State = initialState,
-  action: AnyAction
+    state: State = initialState,
+    action: AnyAction
 ): State => {
-  if (isType(action, updateAlive)) {
-    return {
-        ...state,
-        lastAlive: [
-            {
-                time: action.payload.time || 0, 
-                message: action.payload.message || 'pong'
-            },
-            ...state.lastAlive
-        ]
-    };
-  }
-
-  if (isType(action, order)) {
-    return {
-      ...state,
-      order: { ...state.order, ...action.payload },
-      itemsMeta: filteAndOrderEveryMeta(state.itemList, {
-        ...state,
-        order: { ...state.order, ...action.payload }
-      }),
-      viewedItemList: filterAndOrderRoot(state.itemList, {
-        ...state,
-        order: { ...state.order, ...action.payload }
-      }),
-      version: state.version + 1
-    };
-  }
-
-  if (isType(action, search)) {
-    return {
-      ...state,
-      search: action.payload,
-      viewedItemList: filterAndOrderRoot(state.itemList, {
-        ...state,
-        search: action.payload
-      }),
-      version: state.version + 1
-    };
-  }
-
-  if (isType(action, toggleFilter)) {
-    const filters = [...state.filters];
-    const num = state.filters.findIndex(x => x.id === action.payload);
-    if (num === -1) return state;
-    filters[num].on = !filters[num].on;
-
-    return {
-      ...state,
-      filters,
-      itemsMeta: filteAndOrderEveryMeta(state.itemList, { ...state, filters }),
-      viewedItemList: filterAndOrderRoot(state.itemList, { ...state, filters }),
-      version: state.version + 1
-    };
-  }
-
-  if (isType(action, toggleHashtagFilter)) {
-    const oldFilters = [...state.filters];
-    let filters: Filter[] = [];
-
-    if (oldFilters.some(f => f.id === action.payload.id)) {
-      filters = oldFilters.filter(f => f.id !== action.payload.id);
-    } else {
-      filters = [...oldFilters, {
-        id: action.payload.id,
-        name: '#' + action.payload.hashtag,
-        f: (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
-          items[x].hashtags.some(hash => hash.id === action.payload.id),
-        on: true,
-        hashtag: action.payload
-      }];
-    }
-
-    return {
-      ...state,
-      filters,
-      itemsMeta: filteAndOrderEveryMeta(state.itemList, { ...state, filters }),
-      viewedItemList: filterAndOrderRoot(state.itemList, { ...state, filters }),
-      version: state.version + 1
-    };
-  }
-
-  if (isType(action, hoverItem)) {
-    return {
-      ...state,
-      hover: action.payload
-    };
-  }
-
-  if (isType(action, draggedItem)) {
-    return {
-      ...state,
-      draggedId: action.payload
-    };
-  }
-
-  if (isType(action, updateItem)) {
-    let itemsMeta = state.itemsMeta;
-    let viewedItemList = state.viewedItemList;
-    itemsMeta = {
-      ...itemsMeta,
-      [action.payload.id]: {
-        viewedChildren: filterAndOrder(action.payload.children, state)
-      }
-    };
-    for (let parent of action.payload.parents) {
-      itemsMeta = {
-        ...itemsMeta,
-        [parent]: {
-          viewedChildren: filterAndOrder(
-            itemsMeta[parent] ? itemsMeta[parent].viewedChildren : [],
-            state
-          )
-        }
-      };
-    }
-    if (action.payload.parents.length === 0) {
-      viewedItemList = filterAndOrderRoot(state.itemList, state);
-    }
-
-    return {
-      ...state,
-      items: {
-        ...state.items,
-        [action.payload.id]: action.payload
-      },
-      itemsMeta,
-      viewedItemList,
-      version: state.version + 1
-    };
-  }
-
-  if (isType(action, updateItems)) {
-    let itemsMeta = state.itemsMeta;
-    let viewedItemList = state.viewedItemList;
-    let items = state.items;
-
-    action.payload.forEach(x => {
-      items[x.id] = x;
-
-      itemsMeta = {
-        ...itemsMeta,
-        [x.id]: {
-            viewedChildren: filterAndOrder(x.children, state)
-        }
-      };
-      for (let parent of x.parents) {
-        itemsMeta = {
-            ...itemsMeta,
-            [parent]: {
-            viewedChildren: filterAndOrder(
-                itemsMeta[parent] ? itemsMeta[parent].viewedChildren : [],
-                state
-            )
-          }
+    if (isType(action, updateAlive)) {
+        return {
+            ...state,
+            lastAlive: [
+                {
+                    time: action.payload.time || 0,
+                    message: action.payload.message || 'pong'
+                },
+                ...state.lastAlive
+            ]
         };
-      }
-      if (x.parents.length === 0) {
-        viewedItemList = filterAndOrderRoot(state.itemList, state);
-      }
-    });
+    }
 
-    return {
-      ...state,
-      items,
-      itemsMeta,
-      viewedItemList,
-      version: state.version + 1
-    };
-  }
+    if (isType(action, setPanelNames)) {
+        return {
+            ...state,
+            panelNames: action.payload,
+            version: state.version + 1
+        };
+    }
 
-  if (isType(action, updateChange)) {
-    return {
-      ...state,
-      changes: {
-        ...state.changes,
-        [action.payload.changeId]: action.payload
-      },
-      changeList: pushIfUnique(state.changeList, action.payload.changeId),
-      version: state.version + 1
-    };
-  }
+    if (isType(action, addPanel)) {
+        return {
+            ...state,
+            panel: {
+                options: state.panel.options,
+                list: [...state.panel.list, getDefaultPanel()],
+            },
+            version: state.version + 1
+        };
+    }
 
-  if (isType(action, updateChanges)) {
-    const changes = state.changes;
-    let changeList = state.changeList;
+    if (isType(action, removePanel)) {
+        if (state.panel.list.length < 2) return state;
 
-    action.payload.forEach(x => {
-        changes[x.changeId] = x;
-        changeList = pushIfUnique(state.changeList, x.changeId)
-    });
+        return {
+            ...state,
+            panel: {
+                options: state.panel.options,
+                list: [...state.panel.list.filter((val, ind) => ind !== action.payload)],
+            },
+            version: state.version + 1
+        };
+    }
 
-    return {
-      ...state,
-      changes,
-      changeList,
-      version: state.version + 1
-    };
-  }
+    if (isType(action, updatesPanels)) {
+        return {
+            ...state,
+            panel: PanelList.updatePanels(state, state.panel, action.payload),
+            version: state.version + 1
+        };
+    }
 
-  if (isType(action, addToItems)) {
-    const itemList = pushIfUnique(state.itemList, action.payload);
-    return {
-      ...state,
-      itemList,
-      viewedItemList: filterAndOrderRoot(itemList, state),
-      version: state.version + 1
-    };
-  }
+    if (isType(action, order)) {
+        const { panelId, asc, attribute } = action.payload;
+        const { panel } = state;
 
-  if (isType(action, addToChanges)) {
-    return {
-      ...state,
-      changeList: pushIfUnique(state.changeList, action.payload),
-      version: state.version + 1
-    };
-  }
+        return {
+            ...state,
+            panel: PanelList.setOrder(state, panel, panelId, { asc, attribute }),
+            version: state.version + 1
+        };
+    }
 
-  if (isType(action, createItemList)) {
-    return {
-      ...state,
-      itemList: action.payload,
-      viewedItemList: filterAndOrderRoot(action.payload, state),
-      version: state.version + 1
-    };
-  }
+    if (isType(action, search)) {
+        const { panelId, searchString } = action.payload;
+        const { panel } = state;
 
-  if (isType(action, setFilters)) {
-    return {
-      ...state,
-      filters: action.payload,
-      version: state.version + 1
-    };
-  }
+        return {
+            ...state,
+            panel: PanelList.setSearch(state, panel, panelId, searchString),
+            version: state.version + 1
+        };
+    }
 
-  return state;
+    if (isType(action, toggleFilter)) {
+        const { panelId, filterName } = action.payload;
+        const { panel } = state;
+
+        return {
+            ...state,
+            panel: PanelList.toggleFilter(state, panel, panelId, filterName),
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, toggleHashtagFilter)) {
+        const { panelId, hashtagInfo } = action.payload;
+        const { panel } = state;
+
+        return {
+            ...state,
+            panel: PanelList.toggleHashtagFilter(state, panel, panelId, hashtagInfo),
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, toggleInvertedHashtagFilter)) {
+        const { panelId, hashtagInfo } = action.payload;
+        const { panel } = state;
+
+        return {
+            ...state,
+            panel: PanelList.toggleInvertedHashtagFilter(state, panel, panelId, hashtagInfo),
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, hoverItem)) {
+        return {
+            ...state,
+            hover: action.payload
+        };
+    }
+
+    if (isType(action, draggedItem)) {
+        return {
+            ...state,
+            draggedId: action.payload
+        };
+    }
+
+    if (isType(action, updateItem)) {
+        return {
+            ...state,
+            items: {
+                ...state.items,
+                [action.payload.id]: action.payload
+            },
+            panel: PanelList.updateItem(state, state.panel, action.payload),
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, updateItems)) {
+        let items = state.items;
+
+        action.payload.forEach(x => {
+            items[x.id] = x;
+        });
+
+        return {
+            ...state,
+            items,
+            panel: PanelList.updateItems(state, state.panel, action.payload),
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, updateChange)) {
+        return {
+            ...state,
+            changes: {
+                ...state.changes,
+                [action.payload.changeId]: action.payload
+            },
+            changeList: pushIfUnique(state.changeList, action.payload.changeId),
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, updateChanges)) {
+        const changes = state.changes;
+        let changeList = state.changeList;
+
+        action.payload.forEach(x => {
+            changes[x.changeId] = x;
+            changeList = pushIfUnique(state.changeList, x.changeId)
+        });
+
+        return {
+            ...state,
+            changes,
+            changeList,
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, addToItems)) {
+        const itemList = pushIfUnique(state.itemList, action.payload);
+        return {
+            ...state,
+            itemList,
+            panel: PanelList.updateViewedItemList(state, state.panel),
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, addToChanges)) {
+        return {
+            ...state,
+            changeList: pushIfUnique(state.changeList, action.payload),
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, createItemList)) {
+        return {
+            ...state,
+            itemList: action.payload,
+            panel: PanelList.updateViewedItemList(state, state.panel),
+            version: state.version + 1
+        };
+    }
+
+    if (isType(action, setFilters)) {
+        const { panelId, filters } = action.payload;
+        const { panel } = state;
+
+        return {
+            ...state,
+            panel: PanelList.setFilters(state, panel, panelId, filters),
+            version: state.version + 1
+        };
+    }
+
+    return state;
 };
 
 function pushIfUnique(list: any[], elem: any) {
-  if (list.includes(elem)) {
-    return list;
-  } else {
-    return [...list, elem];
-  }
-}
-
-const f = (state: any, skipRootRule: boolean) => (x: ItemId) => {
-  if (!state.items[x]) return false;
-
-  for (const filter of state.filters) {
-    if (
-      filter.on &&
-      (!skipRootRule || filter.id !== 'roots') &&
-      !filter.f(state.items)(x)
-    ) {
-      return false;
+    if (list.includes(elem)) {
+        return list;
+    } else {
+        return [...list, elem];
     }
-  }
-  if (state.search) {
-    if (
-      !getTitle(x, state.items)
-        .toLocaleLowerCase()
-        .includes(state.search.toLocaleLowerCase())
-    ) {
-      return false;
-    }
-  }
-  return true;
-};
-
-function filteAndOrderEveryMeta(
-  list: ItemId[],
-  state: State
-): Record<string, ViewItemMeta> {
-  const newMeta: Record<string, ViewItemMeta> = {};
-  for (let elem of list) {
-    newMeta[elem] = {
-      viewedChildren: filterAndOrder(
-        state.itemsMeta[elem].viewedChildren,
-        state
-      )
-    };
-  }
-  return newMeta;
-}
-
-function filterAndOrder(list: any[], state: any): any[] {
-  return [...orderx(list.filter(f(state, true)), state)];
-}
-
-function filterAndOrderRoot(list: any[], state: any): any[] {
-  return [...orderx(list.filter(f(state, false)), state)];
-}
-
-function orderx(arr: ItemId[], state: State): ItemId[] {
-  const field = state.order.attribute || 'priority';
-  const asc = state.order.asc ? 1 : -1;
-
-  arr.sort((a, b) => {
-    if (getField(a, field, state.items) < getField(b, field, state.items))
-      return -asc;
-    if (getField(a, field, state.items) > getField(b, field, state.items))
-      return asc;
-    return 0;
-  });
-  return arr;
 }
