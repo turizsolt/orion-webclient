@@ -1,5 +1,5 @@
 
-import { transformFilter } from '../model/Filter';
+import { Filter, transformFilter } from '../model/Filter';
 import { Panel, State } from './reducer';
 
 export function getInitialState(): State {
@@ -17,7 +17,7 @@ export function getInitialState(): State {
     }
 };
 
-export function getDefaultPanel(): Panel {
+export function getDefaultPanel(filter?: Filter): Panel {
     return {
         viewedItemList: [],
         itemsMeta: {},
@@ -76,57 +76,7 @@ export function getDefaultPanel(): Panel {
                     },
                     on: false
                 }),
-                transformFilter({
-                    id: 'days-before',
-                    name: 'Days before',
-                    f: () => () => false,
-                    rule: {
-                        name: 'days',
-                        startDay: -1000,
-                        endDay: -1,
-                    },
-                    on: false
-                }),
-                transformFilter({
-                    id: 'days-today',
-                    name: 'Today',
-                    f: () => () => false,
-                    rule: {
-                        name: 'days',
-                        startDay: 0,
-                        endDay: 0,
-                    },
-                    on: false
-                }),
-                transformFilter({
-                    id: 'days-tomorrow',
-                    name: 'Tomorrow',
-                    f: () => () => false,
-                    rule: {
-                        name: 'days',
-                        startDay: 1,
-                        endDay: 1,
-                    },
-                    on: false
-                }),
-                transformFilter({
-                    id: 'days-the-day-after-tomorrow',
-                    name: 'The day after tomorrow',
-                    f: () => () => false,
-                    rule: {
-                        name: 'days',
-                        startDay: 2,
-                        endDay: 2,
-                    },
-                    on: false
-                }),
-                transformFilter({
-                    id: 'no-due',
-                    name: 'Has no due',
-                    f: () => () => false,
-                    rule: { name: 'isNotGiven', field: 'due' },
-                    on: false
-                }),
+                ...filter ? [transformFilter(filter)] : []
             ],
             search: '',
             order: { attribute: 'priority', asc: true },

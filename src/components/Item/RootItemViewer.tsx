@@ -17,6 +17,7 @@ import { Actions } from '../../LocalStore/Actions';
 import { ActionsContext } from '../../App';
 import { NavLink } from 'react-router-dom';
 import { InvertedHashtag } from '../InvertedHashtag';
+import { CalendarGenerator } from './CalendarGenerator';
 
 const panelContainerStyle = style(
     {
@@ -125,6 +126,7 @@ export const RootItemViewer: React.FC = () => {
                 {panelNames.map(panelName => <NavLink key={panelName} to={'/panels/' + panelName}>{panelName}</NavLink>)}
             </div>
             <ConnectionChecker />
+            <CalendarGenerator />
             <div className={panelContainerStyle}>
                 {panelList.map((panel: Panel, panelId: number) => <div key={panelId} className={panelStyle}>
                     <div>

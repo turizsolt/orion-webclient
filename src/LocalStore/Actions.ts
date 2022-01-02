@@ -27,7 +27,7 @@ import {
     toggleInvertedHashtagFilter
 } from '../ReduxStore/actions';
 import { HashtagInfo } from '../model/Item/ViewItem';
-import { PanelOptions } from '../ReduxStore/reducer';
+import { Panel, PanelOptions } from '../ReduxStore/reducer';
 import { transformFilter } from '../model/Filter';
 
 const idGen = new ActualIdGenerator();
@@ -254,6 +254,10 @@ export class Actions {
             });
             this.dispatcher.dispatch(updatesPanels(panelOptions));
         }
+    }
+
+    setPanels(panels: Panel[]): void {
+        this.dispatcher.dispatch(updatesPanels(panels.map(p => p.options)));
     }
 
     savePanels(panelName: string, panelOptions: PanelOptions[]): void {
