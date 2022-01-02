@@ -35,6 +35,7 @@ const types: Record<string, FieldType> = {
         params: { values: ['todo', 'doing', 'done', 'rejected'] },
         getDefaultValue: () => 'todo'
     },
+    doneAt: { type: 'Date', getDefaultValue: () => new Date().toISOString() },
     default: { type: 'String', getDefaultValue: () => '' }
 };
 

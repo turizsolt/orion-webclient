@@ -82,6 +82,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
     const handleMakeDone = useCallback(
         () => {
             actions.changeItem(item.id, 'state', item.originalFields.state && item.originalFields.state.value, 'done');
+            actions.changeItem(item.id, 'doneAt', item.originalFields.doneAt && item.originalFields.doneAt.value, new Date().toISOString());
         },
         [item, actions]
     );
