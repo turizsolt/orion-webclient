@@ -86,6 +86,20 @@ export const ItemViewerHeader: React.FC<Props> = props => {
         [item, actions]
     );
 
+    const handleMakeRejected = useCallback(
+        () => {
+            actions.changeItem(item.id, 'state', item.originalFields.state && item.originalFields.state.value, 'rejected');
+        },
+        [item, actions]
+    );
+
+    const itemColor = (item: ViewItem): string => {
+        if (item.originalFields.state && item.originalFields.state.value === 'done') return '#4fc58a'; // green
+        if (item.originalFields.state && item.originalFields.state.value === 'rejected') return '#eea5a6'; // red
+        return item.originalFields.generated ? '#d2d3bc' : item.originalFields.template ? '#ffffff' : '#bcd2d3';
+        // yellow, white and default blue
+    }
+
     drop(ref);
     drag(dragRef);
 
@@ -96,7 +110,7 @@ export const ItemViewerHeader: React.FC<Props> = props => {
             style={{
                 opacity: ghost ? 0.5 : 1,
                 display: !ghost && hover && draggedId === item.id ? 'none' : 'flex',
-                backgroundColor: item.originalFields.generated ? '#d2d3bc' : item.originalFields.template ? '#d2bcd3' : '#bcd2d3'
+                backgroundColor: itemColor(item)
             }}
         >
             <div className={headerFirstRowStyle}>
@@ -139,6 +153,9 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                 </button>
                 <button className={panel.list.length < 2 ? headerMobileOnlyButtonStyle : headerMobileOnlyButtonStyleMulti} onClick={handleMobileCollapse}>
                     {childrenCollapsed ? (itemsMeta[item.id] && itemsMeta[item.id].viewedChildren.length) : '-'}
+                </button>
+                <button className={headerButtonStyle} onClick={handleMakeRejected}>
+                    X
                 </button>
                 <button className={headerButtonStyle} onClick={handleMakeDone}>
                     ✓

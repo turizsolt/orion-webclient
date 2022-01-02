@@ -32,7 +32,7 @@ const types: Record<string, FieldType> = {
     },
     state: {
         type: 'Enum',
-        params: { values: ['todo', 'doing', 'done'] },
+        params: { values: ['todo', 'doing', 'done', 'rejected'] },
         getDefaultValue: () => 'todo'
     },
     default: { type: 'String', getDefaultValue: () => '' }

@@ -57,6 +57,13 @@ export function getOptions(): PanelOptions {
                 on: false
             }),
             transformFilter({
+                id: 'no-generators',
+                name: 'Hide generatOR items',
+                f: () => () => false,
+                rule: { name: 'isNotGiven', field: 'generator' },
+                on: true
+            }),
+            transformFilter({
                 id: 'skip-hashtags',
                 name: 'Hide hashtags at root',
                 f: () => () => false,
@@ -75,6 +82,13 @@ export function getOptions(): PanelOptions {
                 name: 'Hide done items',
                 f: () => () => false,
                 rule: { name: 'isNot', field: 'state', value: 'done' },
+                on: true
+            }),
+            transformFilter({
+                id: 'not-rejected',
+                name: 'Hide rejected items',
+                f: () => () => false,
+                rule: { name: 'isNot', field: 'state', value: 'rejected' },
                 on: true
             }),
             transformFilter({
