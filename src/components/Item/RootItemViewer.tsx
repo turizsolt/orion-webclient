@@ -26,6 +26,14 @@ const panelContainerStyle = style(
     }
 );
 
+const panelContainerStyleSixPlus = style(
+    {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr',
+        width: '100%'
+    }
+);
+
 const panelStyle = style(
     {
         flexBasis: '100%'
@@ -140,7 +148,7 @@ export const RootItemViewer: React.FC = () => {
                 <button onClick={handleHashtagAdder(-1)}>#close</button>
                 <hr />
             </>}
-            <div className={panelContainerStyle}>
+            <div className={panelList.length < 7 ? panelContainerStyle : panelContainerStyleSixPlus}>
                 {panelList.map((panel: Panel, panelId: number) => <div key={panelId} className={panelStyle}>
                     <div>
                         <div className={hashtagRibbonStyle}>
