@@ -28,6 +28,7 @@ import {
 import { Hashtag } from '../../Hashtag';
 import { Filter } from '../../../model/Filter';
 import { RootState } from '../../../ReduxStore';
+import { Datetag } from '../../Datetag';
 
 export interface Props {
     item: ViewItem;
@@ -104,6 +105,8 @@ export const ItemViewerHeader: React.FC<Props> = props => {
                 <div ref={dragRef} style={{ marginRight: '5px' }}>
                     ☰
                 </div>
+
+                {item.originalFields.due && <Datetag date={item.originalFields.due.value} />}
 
                 <FieldViewer
                     id={item.id}

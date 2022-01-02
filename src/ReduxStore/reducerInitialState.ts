@@ -34,21 +34,21 @@ export function getDefaultPanel(): Panel {
                     id: 'no-templates',
                     name: 'Hide template items',
                     f: () => () => false,
-                    rule: { name: 'isGiven', field: 'template' },
+                    rule: { name: 'isNotGiven', field: 'template' },
                     on: true
                 }),
                 transformFilter({
                     id: 'no-generateds',
                     name: 'Hide generated items',
                     f: () => () => false,
-                    rule: { name: 'isGiven', field: 'generated' },
+                    rule: { name: 'isNotGiven', field: 'generated' },
                     on: false
                 }),
                 transformFilter({
                     id: 'skip-hashtags',
                     name: 'Hide hashtags at root',
                     f: () => () => false,
-                    rule: { name: 'isGiven', field: 'hashtag' },
+                    rule: { name: 'isNotGiven', field: 'hashtag' },
                     on: true
                 }),
                 transformFilter({
@@ -74,6 +74,57 @@ export function getDefaultPanel(): Panel {
                         startDay: 0,
                         endDay: +6,
                     },
+                    on: false
+                }),
+                transformFilter({
+                    id: 'days-before',
+                    name: 'Days before',
+                    f: () => () => false,
+                    rule: {
+                        name: 'days',
+                        startDay: -1000,
+                        endDay: -1,
+                    },
+                    on: false
+                }),
+                transformFilter({
+                    id: 'days-today',
+                    name: 'Today',
+                    f: () => () => false,
+                    rule: {
+                        name: 'days',
+                        startDay: 0,
+                        endDay: 0,
+                    },
+                    on: false
+                }),
+                transformFilter({
+                    id: 'days-tomorrow',
+                    name: 'Tomorrow',
+                    f: () => () => false,
+                    rule: {
+                        name: 'days',
+                        startDay: 1,
+                        endDay: 1,
+                    },
+                    on: false
+                }),
+                transformFilter({
+                    id: 'days-the-day-after-tomorrow',
+                    name: 'The day after tomorrow',
+                    f: () => () => false,
+                    rule: {
+                        name: 'days',
+                        startDay: 2,
+                        endDay: 2,
+                    },
+                    on: false
+                }),
+                transformFilter({
+                    id: 'no-due',
+                    name: 'Has no due',
+                    f: () => () => false,
+                    rule: { name: 'isNotGiven', field: 'due' },
                     on: false
                 }),
             ],

@@ -27,10 +27,15 @@ const transformRuleToFunction = (rule: FilterRule): (items: Record<string, ViewI
             return (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
                 items[x].parents.length === 0;
 
-        case 'isGiven':
+        case 'isNotGiven':
             return (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
                 !items[x].originalFields[rule.field as string] ||
                 !items[x].originalFields[rule.field as string].value;
+
+        case 'isGiven':
+            return (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
+                items[x].originalFields[rule.field as string] &&
+                items[x].originalFields[rule.field as string].value;
 
         case 'isNot':
             return (items: Record<ItemId, ViewItem>) => (x: ItemId) =>
@@ -54,7 +59,7 @@ const transformRuleToFunction = (rule: FilterRule): (items: Record<string, ViewI
 
             const end: Date = (new Date());
             end.setHours(23, 59, 59, 999);
-            end.setDate(start.getDate() + (rule.endDay as number));
+            end.setDate(end.getDate() + (rule.endDay as number));
 
             return (items: Record<ItemId, ViewItem>) => (x: ItemId) => items[x].originalFields.due &&
                 items[x].originalFields.due.value >= (start as Date).toISOString() &&
