@@ -88,6 +88,7 @@ export const RootItemViewer: React.FC = () => {
     );
 
     const [showChildrenAdder, setShowChildrenAdder] = useState(-1);
+    const [showHashtagAdder, setShowHashtagAdder] = useState(-1);
 
     const hashtagItemIds: ItemId[] = itemList.filter(
         (itemId: ItemId) =>
@@ -108,6 +109,10 @@ export const RootItemViewer: React.FC = () => {
         setShowChildrenAdder(panelId);
     }, []);
 
+    const handleHashtagAdder = useCallback((panelId: number) => () => {
+        setShowHashtagAdder(showHashtagAdder === panelId ? -1 : panelId);
+    }, [showHashtagAdder]);
+
     const handleNewClose = useCallback(() => {
         setShowChildrenAdder(-1);
     }, []);
@@ -117,8 +122,6 @@ export const RootItemViewer: React.FC = () => {
         setShowOptions(!showOptions);
     }, [showOptions]);
 
-    const showAllHashtags = (panel: Panel) => !panel.options.filters.some((filter: Filter) => filter.hashtag);
-
     return (
         <div>
             <div><i>Version 2021.12.15.2</i> PanelConfigId: {panelConfigName},
@@ -127,18 +130,19 @@ export const RootItemViewer: React.FC = () => {
             </div>
             <ConnectionChecker />
             <CalendarGenerator />
+            {showHashtagAdder !== -1 && <>
+                <div className={hashtagRibbonStyle}>
+                    {hashtagItemIds
+                        .map(id =>
+                            <Hashtag hashtag={idToHashtagInfo(id)} key={id} panelId={showHashtagAdder} />
+                        )}
+                </div>
+                <button onClick={handleHashtagAdder(-1)}>#close</button>
+                <hr />
+            </>}
             <div className={panelContainerStyle}>
                 {panelList.map((panel: Panel, panelId: number) => <div key={panelId} className={panelStyle}>
                     <div>
-                        {showAllHashtags(panel) && <>
-                            <div className={hashtagRibbonStyle}>
-                                {hashtagItemIds
-                                    .map(id =>
-                                        <Hashtag hashtag={idToHashtagInfo(id)} key={id} panelId={panelId} />
-                                    )}
-                            </div>
-                            <hr />
-                        </>}
                         <div className={hashtagRibbonStyle}>
                             {panel.options.filters.map((filter: Filter) => (
                                 <div key={filter.id}>
@@ -150,6 +154,7 @@ export const RootItemViewer: React.FC = () => {
                                     </div>}
                                 </div>
                             ))}
+                            <button onClick={handleHashtagAdder(panelId)}>{showHashtagAdder === panelId ? '#close' : '#add'}</button>
                             <div className={showOptsStyle} onClick={handleToggleOptions}>Opts</div>
                         </div>
                     </div>
