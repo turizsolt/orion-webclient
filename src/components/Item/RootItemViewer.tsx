@@ -132,7 +132,7 @@ export const RootItemViewer: React.FC = () => {
 
     return (
         <div>
-            <div><i>Version 2021.12.15.2</i>
+            <div><i>Version 2022.01.03.2</i>
                 <span className={omitMobile}>
                     PanelConfigId: {panelConfigName},
                     All configs:
