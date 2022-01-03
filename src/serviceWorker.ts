@@ -24,6 +24,7 @@ const isLocalhost = false;
 type Config = {
     onSuccess?: (registration: ServiceWorkerRegistration) => void;
     onUpdate?: (registration: ServiceWorkerRegistration) => void;
+    version: "2022.01.03.2"
 };
 
 export function register(config?: Config) {
