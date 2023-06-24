@@ -21,7 +21,7 @@ import {
     order,
     toggleHashtagFilter,
     setPanelNames,
-    updatesPanels,
+    updatesPanelOptions,
     removePanel,
     addPanel,
     toggleInvertedHashtagFilter
@@ -252,12 +252,12 @@ export class Actions {
             panelOptions.forEach((po, ind) => {
                 panelOptions[ind] = ({ ...po, filters: po.filters.map(transformFilter) })
             });
-            this.dispatcher.dispatch(updatesPanels(panelOptions));
+            this.dispatcher.dispatch(updatesPanelOptions(panelOptions));
         }
     }
 
     setPanels(panels: Panel[]): void {
-        this.dispatcher.dispatch(updatesPanels(panels.map(p => p.options)));
+        this.dispatcher.dispatch(updatesPanelOptions(panels.map(p => p.options)));
     }
 
     savePanels(panelName: string, panelOptions: PanelOptions[]): void {

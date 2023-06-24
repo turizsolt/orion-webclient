@@ -44,7 +44,7 @@ export const setPanelNames = actionCreator<string[]>(
     'SET_PANEL_NAMES'
 );
 
-export const updatesPanels = actionCreator<PanelOptions[]>(
+export const updatesPanelOptions = actionCreator<PanelOptions[]>(
     'UPDATE_PANELS'
 );
 

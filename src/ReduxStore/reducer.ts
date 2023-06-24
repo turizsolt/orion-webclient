@@ -17,7 +17,7 @@ import {
     updateChanges,
     updateItems,
     setPanelNames,
-    updatesPanels,
+    updatesPanelOptions,
     addPanel,
     removePanel,
     toggleInvertedHashtagFilter
@@ -33,7 +33,7 @@ import { getDefaultPanel, getInitialState } from './reducerInitialState';
 export interface Panel {
     viewedItemList: ItemId[];
     itemsMeta: Record<ItemId, ViewItemMeta>;
-    options: PanelOptions;
+    options: PanelOptions; // this is options for a single panel
 }
 
 export interface PanelOptions {
@@ -44,7 +44,7 @@ export interface PanelOptions {
 }
 
 export interface PanelWithOptions {
-    options: PanelOptions;
+    options: PanelOptions; // this is an options for all the panels
     list: Panel[];
 }
 
@@ -112,10 +112,10 @@ export const appReducer = (
         };
     }
 
-    if (isType(action, updatesPanels)) {
+    if (isType(action, updatesPanelOptions)) {
         return {
             ...state,
-            panel: PanelList.updatePanels(state, state.panel, action.payload),
+            panel: PanelList.updatePanelOptions(state, state.panel, action.payload),
             version: state.version + 1
         };
     }

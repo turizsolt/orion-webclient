@@ -32,6 +32,7 @@ export class Store {
   private changes: Record<ChangeId, Change> = {};
   private changeList: ChangeId[] = [];
 
+  // todo analize, refactor
   constructor(
     private dispatcher: Dispatcher,
     private localStorage: LocalStorage,
@@ -105,6 +106,8 @@ export class Store {
     }
     this.itemList.push(id);
   }
+
+  // RELATION
 
   addRelation(oneSideId: ItemId, relation: RelationType, otherSideId: ItemId) {
     this.addRelationHandle(oneSideId, relation, otherSideId);
@@ -187,6 +190,8 @@ export class Store {
     }, 1500);
   }
 
+  // ITEM
+
   updateItem(id: ItemId) {
     const viewItem = this.getView(id);
     this.dispatcher.dispatch(updateItem(viewItem));
@@ -206,6 +211,8 @@ export class Store {
       }
     });
   }
+
+  // CHANGE
 
   updateChange(changeId: ChangeId) {
     const viewChange: ViewChange = this.getChange(changeId);
@@ -228,6 +235,8 @@ export class Store {
         );
     });
   }
+
+  // GETVIEW ???
 
   getView(id: ItemId): ViewItem {
     const auxilaryColumns = this.items[id].getAuxilaryNames();
@@ -312,6 +321,7 @@ export class Store {
     return this.changes[changeId];
   }
 
+  // todo analize, refactor
   changeItem(change: ItemChange): AffectedChanges {
     this.loadItemIfNotPresentWithDispatch(change.itemId);
     const storedItem = this.items[change.itemId];
@@ -432,6 +442,7 @@ export class Store {
     [ChangeResponse.ServerUpdate]: this.removeRelationHappened
   };
 
+  // todo analize, refactor
   commit(transaction: Transaction, remote: boolean = false) {
     const affectedItems = new Set<ItemId>();
     const affectedChanges = new Set<ChangeId>();

@@ -230,7 +230,7 @@ export class PanelList {
         return panels;
     }
 
-    static updatePanels(state: State, panels: PanelWithOptions, newPanelOptions: PanelOptions[]): PanelWithOptions {
+    static updatePanelOptions(state: State, panels: PanelWithOptions, newPanelOptions: PanelOptions[]): PanelWithOptions {
         panels = {
             options: panels.options,
             list: newPanelOptions.map(npo => ({
