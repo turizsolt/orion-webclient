@@ -32,33 +32,30 @@ export class Store {
   private changes: Record<ChangeId, Change> = {};
   private changeList: ChangeId[] = [];
 
-  // todo analize, refactor
   constructor(
     private dispatcher: Dispatcher,
     private localStorage: LocalStorage,
     private serverCommunication: ServerCommunication
   ) {
-    const listOfChanges =
-      JSON.parse(this.localStorage.getItem('list-change') || '[]') || [];
-    this.changeList = listOfChanges;
-    const changesToSend: Change[] = [];
-    const idsToChange: ChangeId[] = [];
-    for (const changeId of listOfChanges) {
+    this.loadChangesFromLocalStorage();
+    this.loadItemsFromLocalStorage();
+    this.sendPendingChanges();
+  }
+
+  private loadChangesFromLocalStorage(): void {
+    const changeList = JSON.parse(this.localStorage.getItem('list-change') || '[]') || [];
+    for (const changeId of changeList) {
       const value = this.localStorage.getItem(`change-${changeId}`);
       if (value) {
         this.changes[changeId] = JSON.parse(value);
-        idsToChange.push(changeId);
-        if (this.changes[changeId].response === ChangeResponse.Pending) {
-          changesToSend.push(this.changes[changeId]);
-        }
+        this.changeList.push(changeId);
       }
     }
-    if (changesToSend.length) {
-      this.commit(new Transaction(undefined, changesToSend));
-    }
-    this.updateChanges(idsToChange);
+    this.updateChanges(this.changeList);
+  }
 
-    const idsToUpdate: ItemId[] = [];
+  private loadItemsFromLocalStorage(): void {
+    this.itemList = [];
     for (let key of this.localStorage.getKeys()) {
       if (!key.startsWith('item-')) continue;
 
@@ -66,14 +63,24 @@ export class Store {
       const id = key.substr(5); // "item-${id}"
       if (value) {
         this.items[id] = StoredItem.deserialise(value);
-        idsToUpdate.push(id);
         this.itemList.push(id);
       }
     }
-    this.updateItems(idsToUpdate);
-
-    // todo ez itt csinál bármit is?
+    this.updateItems(this.itemList);
     this.dispatcher.dispatch(createItemList(this.itemList));
+  }
+
+  private sendPendingChanges(): void {
+    const changesToSend: Change[] = [];
+    for (const changeId of this.changeList) {
+        if (this.changes[changeId].response === ChangeResponse.Pending) {
+          changesToSend.push(this.changes[changeId]);
+        }
+    }
+    
+    if (changesToSend.length) {
+      this.commit(new Transaction(undefined, changesToSend));
+    }
   }
 
   ping(): void {
@@ -450,6 +457,10 @@ export class Store {
     const changes = transaction.getChanges();
     for (let key in changes) {
       const change = changes[key];
+
+      const lastOrderedId = this.localStorage.getItem('lastOrderedId') || -1;
+      if(lastOrderedId < (change.orderedId || -1)) this.localStorage.setItem('lastOrderedId', change.orderedId);
+      
       switch (change.type) {
         case 'ItemChange':
           const proced = this.changeItem(change);

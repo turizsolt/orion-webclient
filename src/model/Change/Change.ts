@@ -15,6 +15,7 @@ export type Change = ItemChange | RelationChange;
 
 export interface ItemChange {
   type: 'ItemChange';
+  orderedId?: number;
   itemId: ItemId;
   field: FieldName;
   oldValue: any;
@@ -25,6 +26,7 @@ export interface ItemChange {
 
 export type RelationChange = {
   type: 'AddRelation' | 'RemoveRelation';
+  orderedId?: number;
   oneSideId: ItemId;
   relation: RelationType;
   otherSideId: ItemId;

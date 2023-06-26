@@ -216,6 +216,15 @@ export const appReducer = (
         };
     }
 
+    if (isType(action, createItemList)) {
+        return {
+            ...state,
+            itemList: action.payload,
+            panel: PanelList.updateViewedItemList({...state, itemList: action.payload}, state.panel),
+            version: state.version + 1
+        };
+    }
+
     if (isType(action, updateChange)) {
         return {
             ...state,
@@ -234,7 +243,7 @@ export const appReducer = (
 
         action.payload.forEach(x => {
             changes[x.changeId] = x;
-            changeList = pushIfUnique(state.changeList, x.changeId)
+            changeList = pushIfUnique(changeList, x.changeId)
         });
 
         return {
@@ -259,15 +268,6 @@ export const appReducer = (
         return {
             ...state,
             changeList: pushIfUnique(state.changeList, action.payload),
-            version: state.version + 1
-        };
-    }
-
-    if (isType(action, createItemList)) {
-        return {
-            ...state,
-            itemList: action.payload,
-            panel: PanelList.updateViewedItemList(state, state.panel),
             version: state.version + 1
         };
     }
